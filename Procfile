@@ -1,1 +1,1 @@
-web: docker-compose up
+web: php artisan serve --host=0.0.0.0 --port=10000
