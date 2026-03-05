@@ -109,7 +109,22 @@ The platform tracks comprehensive analytics for each listing:
 
 ## 📱 Live Demo
 
-[Coming Soon - Deploy your live version here]
+**Deployed on Render.com**: https://gridspace.onrender.com
+
+## 🚀 Quick Deployment
+
+### Render.com (Recommended)
+1. **Go to [render.com](https://render.com)**
+2. **Sign up with GitHub**
+3. **Click "New" → "Web Service"**
+4. **Connect your `charlesekpo/Gridspace` repo**
+5. **Settings:**
+   - **Name**: `gridspace`
+   - **Environment**: `PHP 8.2`
+   - **Build Command**: `composer install && npm install && npm run build`
+   - **Start Command**: `php artisan serve --host=0.0.0.0 --port=10000`
+   - **Instance Type**: `Free`
+   - **Database**: MySQL (free 256MB)
 
 ## 🤝 Contributing
 
