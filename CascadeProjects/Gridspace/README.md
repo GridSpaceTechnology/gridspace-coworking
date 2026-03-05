@@ -120,11 +120,16 @@ The platform tracks comprehensive analytics for each listing:
 4. **Connect your `charlesekpo/Gridspace` repo**
 5. **Settings:**
    - **Name**: `gridspace`
+   - **Environment**: `Docker`
+   - **Build Context**: `Dockerfile`
+   - **Instance Type**: `Free`
+   - **Database**: MySQL (free 256MB)
+
+### Alternative: Direct PHP (Simpler)
+If Docker seems complex, choose:
    - **Environment**: `PHP 8.2`
    - **Build Command**: `composer install && npm install && npm run build`
    - **Start Command**: `php artisan serve --host=0.0.0.0 --port=10000`
-   - **Instance Type**: `Free`
-   - **Database**: MySQL (free 256MB)
 
 ## 🤝 Contributing
 
