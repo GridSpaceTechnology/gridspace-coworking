@@ -1,59 +1,128 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Gridspace - Workspace Directory Platform
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A complete Laravel-based web directory for coworking and workspace services, built as an MVP with comprehensive analytics and user management.
 
-## About Laravel
+## 🌟 Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Core Functionality
+- **Workspace Directory**: Complete listing system for coworking spaces, meeting rooms, virtual offices, event spaces, and more
+- **User Management**: Role-based authentication (Admin/Host/Guest)
+- **Advanced Search**: Live search with filtering by category, city, capacity, and price range
+- **Analytics Dashboard**: Comprehensive tracking for monetization and insights
+- **Guest Inquiries**: Lead capture system without requiring registration
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### User Roles
+- **Admin**: Full CRUD on listings, toggle featured status, view/export analytics
+- **Host**: Register, create/edit listings, upload images, track performance
+- **Guest**: Search, view listings, submit inquiries, click-to-call tracking
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Key Features
+- 🏢 **6 Core Categories**: Coworking Spaces, Meeting Rooms, Virtual Offices, Event Spaces, Corporate Solutions, Startup Services
+- 📊 **Analytics Tracking**: Views, unique visitors, phone clicks, WhatsApp clicks, inquiries
+- 🎯 **Featured Listings**: Priority placement and visibility
+- 📱 **Mobile-First Design**: Responsive across all devices
+- 🔍 **Live Search**: Real-time search with dropdown suggestions
+- 📈 **CSV Export**: Download analytics data for external analysis
 
-## Learning Laravel
+## 🚀 Tech Stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- **Backend**: Laravel 11
+- **Frontend**: Blade Templates, Tailwind CSS
+- **Database**: MySQL
+- **Authentication**: Laravel Breeze
+- **File Storage**: Local storage with image optimization
+- **Icons**: Font Awesome 6
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 📋 Requirements
 
-## Laravel Sponsors
+- PHP 8.2+
+- MySQL 8.0+
+- Composer
+- Node.js & NPM
+- Laravel 11
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🛠️ Installation
 
-### Premium Partners
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/gridspace.git
+   cd gridspace
+   ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+2. **Install dependencies**
+   ```bash
+   composer install
+   npm install
+   ```
 
-## Contributing
+3. **Environment setup**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+4. **Database setup**
+   ```bash
+   php artisan migrate
+   php artisan db:seed
+   ```
 
-## Code of Conduct
+5. **Build assets**
+   ```bash
+   npm run build
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+6. **Start the server**
+   ```bash
+   php artisan serve
+   ```
 
-## Security Vulnerabilities
+## 📊 Analytics Features
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+The platform tracks comprehensive analytics for each listing:
+- **Total Views**: All page visits
+- **Unique Views**: Different visitors by IP address
+- **Phone Clicks**: Click-to-call interactions
+- **WhatsApp Clicks**: WhatsApp button interactions
+- **Inquiries**: Contact form submissions
+- **Time-based Data**: Last 7 days and 30 days metrics
 
-## License
+## 🔐 Security
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- CSRF protection
+- Rate limiting on forms
+- Secure admin routes
+- Input validation and sanitization
+- Password hashing
+
+## 🎯 MVP Success Criteria
+
+✅ **Technical Requirements**
+- Stable CRUD operations
+- Reliable analytics tracking
+- Inquiry storage working
+
+✅ **Business Requirements**
+- Ready for 50+ listings
+- Measurable traffic tracking
+- Analytics usable for host upsell
+
+## 📱 Live Demo
+
+[Coming Soon - Deploy your live version here]
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## 📄 License
+
+This project is open-sourced software licensed under the MIT license.
+
+---
+
+**Gridspace** - Find Your Perfect Workspace 🏢
