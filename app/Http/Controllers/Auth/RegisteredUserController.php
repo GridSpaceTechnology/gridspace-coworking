@@ -30,14 +30,29 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'firstname' => ['required', 'string', 'max:255'],
+            'lastname' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'phone' => ['required', 'string', 'max:20'],
+            'gender' => ['required', 'string', 'in:male,female,other'],
+            'marital_status' => ['required', 'string', 'in:single,married,divorced,widowed'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
-            'name' => $request->name,
+            'firstname' => $request->firstname,
+            'lastname' => $request->lastname,
             'email' => $request->email,
+            'phone' => $request->phone,
+            'gender' => $request->gender,
+            'marital_status' => $request->marital_status,
+            'date_of_birth' => $request->date_of_birth,
+            'residence' => $request->residence,
+            'local_government_area' => $request->local_government_area,
+            'state_of_origin' => $request->state_of_origin,
+            'home_town' => $request->home_town,
+            'nationality' => $request->nationality,
+            'religion' => $request->religion,
             'password' => Hash::make($request->password),
             'role' => 'host', // Default role for new registrations
         ]);

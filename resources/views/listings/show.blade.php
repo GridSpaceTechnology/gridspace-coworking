@@ -29,21 +29,21 @@
                 <div class="mb-6">
                     <div class="relative h-96 bg-gray-200 rounded-lg overflow-hidden">
                         @foreach($listing->images as $index => $image)
-                            <img src="{{ asset('storage/' . $image->image_path) }}" 
-                                 alt="{{ $listing->name }} - Image {{ $index + 1 }}" 
+                            <img src="{{ asset('storage/' . $image->image_path) }}"
+                                 alt="{{ $listing->name }} - Image {{ $index + 1 }}"
                                  class="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 {{ $index === 0 ? 'opacity-100' : 'opacity-0' }}"
                                  data-index="{{ $index }}">
                         @endforeach
                     </div>
-                    
+
                     <!-- Image Thumbnails -->
                     @if($listing->images->count() > 1)
                         <div class="flex space-x-2 mt-4">
                             @foreach($listing->images as $index => $image)
-                                <button onclick="showImage({{ $index }})" 
+                                <button onclick="showImage({{ $index }})"
                                         class="w-20 h-20 rounded-lg overflow-hidden border-2 {{ $index === 0 ? 'border-blue-500' : 'border-gray-300 hover:border-blue-500' }}">
-                                    <img src="{{ asset('storage/' . $image->image_path) }}" 
-                                         alt="{{ $listing->name }} - Thumbnail {{ $index + 1 }}" 
+                                    <img src="{{ asset('storage/' . $image->image_path) }}"
+                                         alt="{{ $listing->name }} - Thumbnail {{ $index + 1 }}"
                                          class="w-full h-full object-cover">
                                 </button>
                             @endforeach
@@ -118,16 +118,16 @@
 
                 <!-- Contact Actions -->
                 <div class="flex flex-col sm:flex-row gap-4">
-                    <a href="{{ route('track', ['listing' => $listing->id, 'type' => 'phone']) }}" 
+                    <a href="{{ route('track', ['listing' => $listing->id, 'type' => 'phone']) }}"
                        class="flex-1 bg-green-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 text-center">
                         <i class="fas fa-phone mr-2"></i>Call Now
                     </a>
-                    <a href="{{ route('track', ['listing' => $listing->id, 'type' => 'whatsapp']) }}" 
+                    <a href="{{ route('track', ['listing' => $listing->id, 'type' => 'whatsapp']) }}"
                        class="flex-1 bg-green-500 text-white px-4 py-3 rounded-lg font-medium hover:bg-green-600 text-center">
                         <i class="fab fa-whatsapp mr-2"></i>WhatsApp
                     </a>
                     @if($listing->website)
-                        <a href="{{ $listing->website }}" 
+                        <a href="{{ $listing->website }}"
                            target="_blank"
                            class="flex-1 bg-gray-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-gray-700 text-center">
                             <i class="fas fa-globe mr-2"></i>Visit Website
@@ -140,41 +140,41 @@
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-xl font-semibold text-gray-900 mb-4">Make an Inquiry</h3>
                 <p class="text-gray-600 mb-6">Interested in this space? Send a message and the workspace provider will get back to you.</p>
-                
+
                 <form method="POST" action="{{ route('inquiries.store') }}">
                     @csrf
                     <input type="hidden" name="listing_id" value="{{ $listing->id }}">
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Your Name *</label>
-                            <input type="text" 
-                                   name="name" 
-                                   required 
+                            <input type="text"
+                                   name="name"
+                                   required
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
-                            <input type="email" 
-                                   name="email" 
-                                   required 
+                            <input type="email"
+                                   name="email"
+                                   required
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                     </div>
 
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Phone *</label>
-                        <input type="tel" 
-                               name="phone" 
-                               required 
+                        <input type="tel"
+                               name="phone"
+                               required
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
 
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Message *</label>
-                        <textarea name="message" 
-                                  rows="4" 
-                                  required 
+                        <textarea name="message"
+                                  rows="4"
+                                  required
                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                   placeholder="Tell us about your requirements..."></textarea>
                     </div>
@@ -186,12 +186,32 @@
                         </label>
                     </div>
 
-                    <button type="submit" 
+                    <button type="submit"
                             class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-blue-700">
                         Send Inquiry
                     </button>
                 </form>
             </div>
+        </div>
+
+        <!-- Booking Section -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-calendar-check mr-2"></i>Book This Space
+            </h3>
+
+            @if($listing->available)
+                <a href="{{ route('bookings.create', $listing->slug) }}"
+                   class="w-full bg-green-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 text-center block">
+                    <i class="fas fa-calendar-plus mr-2"></i>
+                    Book Now - ₦{{ number_format($listing->price, 0) }}/night
+                </a>
+            @else
+                <div class="w-full bg-gray-400 text-gray-200 px-4 py-3 rounded-lg text-center block">
+                    <i class="fas fa-calendar-times mr-2"></i>
+                    Currently Unavailable
+                </div>
+            @endif
         </div>
 
         <!-- Sidebar -->
@@ -232,17 +252,17 @@
                             <dd class="text-sm text-gray-900">{{ $listing->capacity }} people</dd>
                         </div>
                     @endif
-                    
+
                     <div class="flex justify-between">
                         <dt class="text-sm font-medium text-gray-600">Category</dt>
                         <dd class="text-sm text-gray-900">{{ $listing->category->name }}</dd>
                     </div>
-                    
+
                     <div class="flex justify-between">
                         <dt class="text-sm font-medium text-gray-600">Price Range</dt>
                         <dd class="text-sm text-gray-900">{{ $listing->price_range }}</dd>
                     </div>
-                    
+
                     @if($listing->website)
                         <div class="flex justify-between">
                             <dt class="text-sm font-medium text-gray-600">Website</dt>

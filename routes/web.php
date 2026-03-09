@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FeaturedController;
+use App\Http\Controllers\BookingController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -13,6 +14,10 @@ Route::get('/', [ListingController::class, 'index'])->name('home');
 Route::get('/featured', [FeaturedController::class, 'index'])->name('featured');
 Route::get('/listings/create', [ListingController::class, 'create'])->name('listings.create')->middleware(['auth', 'host']);
 Route::get('/listings/{listing:slug}', [ListingController::class, 'show'])->name('listings.show');
+Route::get('/listings/{listing:slug}/book', [BookingController::class, 'create'])->name('bookings.create');
+Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+Route::get('/bookings/confirmation/{booking}', [BookingController::class, 'confirmation'])->name('bookings.confirmation');
+Route::post('/bookings/{booking}/update-status', [BookingController::class, 'updateStatus'])->name('bookings.update-status');
 Route::post('/inquiries', [InquiryController::class, 'store'])->name('inquiries.store');
 Route::get('/track/{listing}/{type}', [ListingController::class, 'track'])->name('track');
 
@@ -25,6 +30,7 @@ Route::middleware('auth')->group(function () {
     // Host routes
     Route::middleware('host')->group(function () {
         Route::get('/dashboard', [ListingController::class, 'dashboard'])->name('dashboard');
+        Route::get('/my-bookings', [BookingController::class, 'index'])->name('bookings.index');
 
         // Listing management routes
         Route::post('/listings', [ListingController::class, 'store'])->name('listings.store');

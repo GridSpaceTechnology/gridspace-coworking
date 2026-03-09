@@ -52,9 +52,31 @@ class Listing extends Model
         return $this->hasMany(ListingImage::class)->orderBy('sort_order');
     }
 
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
+
     public function inquiries()
     {
         return $this->hasMany(Inquiry::class);
+    }
+
+    public function getAvailableAttribute()
+    {
+        $activeBookings = $this->bookings()->where('status', 'confirmed')->get();
+
+        if ($activeBookings->isEmpty()) {
+            return true;
+        }
+
+        foreach ($activeBookings as $booking) {
+            if (now()->between($booking->check_in_date, $booking->check_out_date)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function analytics()
