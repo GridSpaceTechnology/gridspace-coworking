@@ -5,10 +5,12 @@ use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\FeaturedController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::get('/', [ListingController::class, 'index'])->name('home');
+Route::get('/featured', [FeaturedController::class, 'index'])->name('featured');
 Route::get('/listings/create', [ListingController::class, 'create'])->name('listings.create')->middleware(['auth', 'host']);
 Route::get('/listings/{listing:slug}', [ListingController::class, 'show'])->name('listings.show');
 Route::post('/inquiries', [InquiryController::class, 'store'])->name('inquiries.store');

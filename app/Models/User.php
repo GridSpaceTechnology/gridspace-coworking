@@ -18,8 +18,19 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'firstname',
+        'lastname',
         'email',
+        'phone',
+        'gender',
+        'marital_status',
+        'date_of_birth',
+        'residence',
+        'local_government_area',
+        'state_of_origin',
+        'home_town',
+        'nationality',
+        'religion',
         'password',
         'role',
     ];
@@ -60,5 +71,15 @@ class User extends Authenticatable
     public function isHost()
     {
         return $this->role === 'host';
+    }
+
+    public function getFullNameAttribute()
+    {
+        return $this->firstname . ' ' . $this->lastname;
+    }
+
+    public function getDisplayNameAttribute()
+    {
+        return $this->firstname . ' ' . $this->lastname;
     }
 }
