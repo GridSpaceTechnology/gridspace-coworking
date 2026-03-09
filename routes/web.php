@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::get('/', [ListingController::class, 'index'])->name('home');
+Route::get('/listings', [ListingController::class, 'index'])->name('listings.index');
 Route::get('/featured', [FeaturedController::class, 'index'])->name('featured');
 Route::get('/listings/create', [ListingController::class, 'create'])->name('listings.create')->middleware(['auth', 'host']);
 Route::get('/listings/{listing:slug}', [ListingController::class, 'show'])->name('listings.show');

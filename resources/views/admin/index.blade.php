@@ -116,9 +116,12 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Recent Listings & Inquiries Section -->
+    <div class="mt-12">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-8">Recent Activity</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Recent Listings -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white rounded-lg shadow-lg">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h2 class="text-lg font-medium text-gray-900">Recent Listings</h2>
             </div>
@@ -172,7 +175,7 @@
         </div>
 
         <!-- Recent Inquiries -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white rounded-lg shadow-lg">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h2 class="text-lg font-medium text-gray-900">Recent Inquiries</h2>
             </div>
@@ -213,18 +216,6 @@
                 @endif
             </div>
         </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="mt-8 flex flex-wrap gap-4">
-        <a href="{{ route('analytics.index') }}"
-           class="bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700">
-            <i class="fas fa-chart-bar mr-2"></i>View Analytics
-        </a>
-        <a href="{{ route('listings.create') }}"
-           class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700">
-            <i class="fas fa-plus mr-2"></i>Add New Listing
-        </a>
     </div>
 </div>
 @endsection
