@@ -33,6 +33,7 @@ class User extends Authenticatable
         'religion',
         'password',
         'role',
+        'approved',
     ];
 
     /**
@@ -81,5 +82,15 @@ class User extends Authenticatable
     public function getDisplayNameAttribute()
     {
         return $this->firstname . ' ' . $this->lastname;
+    }
+
+    public function isApproved()
+    {
+        return $this->approved === true;
+    }
+
+    public function isPendingApproval()
+    {
+        return $this->approved === false;
     }
 }

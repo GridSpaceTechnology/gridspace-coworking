@@ -55,6 +55,7 @@ class RegisteredUserController extends Controller
             'religion' => $request->religion,
             'password' => Hash::make($request->password),
             'role' => 'host', // Default role for new registrations
+            'approved' => false, // New hosts need approval
         ]);
 
         event(new Registered($user));

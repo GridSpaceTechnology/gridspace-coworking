@@ -21,6 +21,7 @@ class AdminController extends Controller
             'featured_listings' => Listing::where('featured', true)->count(),
             'total_users' => User::count(),
             'total_hosts' => User::where('role', 'host')->count(),
+            'pending_hosts' => User::where('role', 'host')->where('approved', false)->count(),
             'total_inquiries' => \App\Models\Inquiry::count(),
         ];
 

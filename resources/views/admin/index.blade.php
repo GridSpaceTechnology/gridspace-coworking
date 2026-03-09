@@ -73,14 +73,46 @@
 
         <div class="bg-white rounded-lg shadow p-6">
             <div class="flex items-center">
-                <div class="flex-shrink-0 bg-red-500 rounded-lg p-3">
-                    <i class="fas fa-envelope text-white text-xl"></i>
+                <div class="flex-shrink-0 bg-orange-500 rounded-lg p-3">
+                    <i class="fas fa-user-check text-white text-xl"></i>
                 </div>
                 <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Inquiries</p>
-                    <p class="text-2xl font-semibold text-gray-900">{{ $stats['total_inquiries'] }}</p>
+                    <p class="text-sm font-medium text-gray-600">Pending Hosts</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ $stats['pending_hosts'] }}</p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mt-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <a href="{{ route('admin.hosts.approval') }}"
+               class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-300 border-2 border-orange-200 hover:border-orange-400">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-orange-500 rounded-lg p-3">
+                        <i class="fas fa-user-check text-white text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-medium text-gray-900">Host Approval</h3>
+                        <p class="text-sm text-gray-600">Review and approve new host registrations</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="{{ route('analytics.index') }}"
+               class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-300">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-purple-500 rounded-lg p-3">
+                        <i class="fas fa-chart-bar text-white text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-medium text-gray-900">Analytics</h3>
+                        <p class="text-sm text-gray-600">View platform analytics and export data</p>
+                    </div>
+                </div>
+            </a>
         </div>
     </div>
 
@@ -97,8 +129,8 @@
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
                                     @if($listing->images->count() > 0)
-                                        <img src="{{ asset('storage/' . $listing->images->first()->image_path) }}" 
-                                             alt="{{ $listing->name }}" 
+                                        <img src="{{ asset('storage/' . $listing->images->first()->image_path) }}"
+                                             alt="{{ $listing->name }}"
                                              class="h-10 w-10 rounded-full object-cover mr-3">
                                     @endif
                                     <div>
@@ -114,13 +146,13 @@
                                             <i class="fas fa-star mr-1"></i>Featured
                                         </span>
                                     @endif
-                                    <span class="inline-flex px-2 py-1 text-xs leading-5 font-semibold rounded-full 
+                                    <span class="inline-flex px-2 py-1 text-xs leading-5 font-semibold rounded-full
                                            {{ $listing->status === 'published' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
                                         {{ $listing->status }}
                                     </span>
                                     <form method="POST" action="{{ route('admin.toggle-featured', $listing) }}" class="inline">
                                         @csrf
-                                        <button type="submit" 
+                                        <button type="submit"
                                                 class="text-purple-600 hover:text-purple-900 text-sm font-medium"
                                                 title="{{ $listing->featured ? 'Remove featured status' : 'Make featured' }}">
                                             <i class="fas fa-{{ $listing->featured ? 'star' : 'star' }}"></i>
@@ -160,11 +192,11 @@
                                         </div>
                                     </div>
                                     <div class="flex items-center space-x-2">
-                                        <a href="mailto:{{ $inquiry->email }}" 
+                                        <a href="mailto:{{ $inquiry->email }}"
                                            class="text-blue-600 hover:text-blue-900 text-sm">
                                             <i class="fas fa-envelope"></i>
                                         </a>
-                                        <a href="tel:{{ $inquiry->phone }}" 
+                                        <a href="tel:{{ $inquiry->phone }}"
                                            class="text-green-600 hover:text-green-900 text-sm">
                                             <i class="fas fa-phone"></i>
                                         </a>
@@ -185,11 +217,11 @@
 
     <!-- Quick Actions -->
     <div class="mt-8 flex flex-wrap gap-4">
-        <a href="{{ route('analytics.index') }}" 
+        <a href="{{ route('analytics.index') }}"
            class="bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700">
             <i class="fas fa-chart-bar mr-2"></i>View Analytics
         </a>
-        <a href="{{ route('listings.create') }}" 
+        <a href="{{ route('listings.create') }}"
            class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700">
             <i class="fas fa-plus mr-2"></i>Add New Listing
         </a>

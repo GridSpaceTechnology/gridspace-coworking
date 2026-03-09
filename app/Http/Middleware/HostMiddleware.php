@@ -16,7 +16,7 @@ class HostMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && (Auth::user()->isHost() || Auth::user()->isAdmin())) {
+        if (Auth::check() && (Auth::user()->isHost() && Auth::user()->isApproved()) || Auth::user()->isAdmin()) {
             return $next($request);
         }
 

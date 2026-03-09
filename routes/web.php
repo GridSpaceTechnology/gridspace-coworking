@@ -7,6 +7,7 @@ use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FeaturedController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\HostApprovalController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -45,6 +46,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
         Route::get('/admin/analytics/export', [AnalyticsController::class, 'export'])->name('analytics.export');
         Route::patch('/admin/listings/{listing}/featured', [AdminController::class, 'toggleFeatured'])->name('admin.toggle-featured');
+        Route::get('/admin/host-approval', [HostApprovalController::class, 'index'])->name('admin.hosts.approval');
+        Route::post('/admin/host-approval/{user}/approve', [HostApprovalController::class, 'approve'])->name('admin.hosts.approve');
+        Route::post('/admin/host-approval/{user}/reject', [HostApprovalController::class, 'reject'])->name('admin.hosts.reject');
     });
 });
 
