@@ -105,6 +105,10 @@
                                             <img src="{{ asset('storage/' . $listing->images->first()->image_path) }}"
                                                  alt="{{ $listing->name }}"
                                                  class="h-10 w-10 rounded-full object-cover mr-3">
+                                        @else
+                                            <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center mr-3">
+                                                <i class="fas fa-building text-gray-400"></i>
+                                            </div>
                                         @endif
                                         <div>
                                             <div class="text-sm font-medium text-gray-900">{{ $listing->name }}</div>

@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             CitySeeder::class,
             AmenitySeeder::class,
+            SampleListingsSeeder::class,
         ]);
     }
 }
