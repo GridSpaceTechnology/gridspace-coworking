@@ -16,8 +16,16 @@ class HostMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && (Auth::user()->isHost() && Auth::user()->isApproved()) || Auth::user()->isAdmin()) {
-            return $next($request);
+        if (Auth::check() && (Auth::user()->isHost() || Auth::user()->isAdmin())) {
+            // Allow access to dashboard for unapproved hosts, but block other actions
+            if ($request->route()->getName() === 'dashboard' && Auth::user()->isHost() && !Auth::user()->isApproved()) {
+                return $next($request);
+            }
+
+            // Require approval for all other host routes
+            if ((Auth::user()->isHost() && Auth::user()->isApproved()) || Auth::user()->isAdmin()) {
+                return $next($request);
+            }
         }
 
         return redirect()->route('login')->with('error', 'Access denied. Host privileges required.');

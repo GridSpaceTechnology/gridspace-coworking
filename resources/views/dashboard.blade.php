@@ -9,6 +9,26 @@
         <p class="text-gray-600 mt-2">Manage your workspace listings and track their performance.</p>
     </div>
 
+    <!-- Approval Status Alert -->
+    @if(auth()->user()->isHost() && !auth()->user()->isApproved())
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-clock text-yellow-600 text-2xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-medium text-yellow-800">
+                        Account Pending Approval
+                    </h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <p>Your host account is currently pending admin approval. You can view your dashboard, but you won't be able to create or manage listings until your account is approved.</p>
+                        <p class="mt-1">We'll notify you once your account is approved. This typically takes 24-48 hours.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Stats Overview -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="bg-white rounded-lg shadow p-6">
@@ -70,10 +90,17 @@
 
     <!-- Actions -->
     <div class="mb-6">
-        <a href="{{ route('listings.create') }}"
-           class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700">
-            <i class="fas fa-plus mr-2"></i>Add New Listing
-        </a>
+        @if(auth()->user()->isHost() && !auth()->user()->isApproved())
+            <button disabled
+                    class="bg-gray-400 text-gray-200 px-4 py-2 rounded-lg font-medium cursor-not-allowed">
+                <i class="fas fa-plus mr-2"></i>Add New Listing (Approval Required)
+            </button>
+        @else
+            <a href="{{ route('listings.create') }}"
+               class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700">
+                <i class="fas fa-plus mr-2"></i>Add New Listing
+            </a>
+        @endif
     </div>
 
     <!-- Listings Table -->
