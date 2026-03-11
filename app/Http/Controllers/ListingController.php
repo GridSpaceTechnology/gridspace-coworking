@@ -266,17 +266,34 @@ class ListingController extends Controller
      */
     public function dashboard()
     {
-        $listings = Listing::where('user_id', auth()->id())
-            ->with(['category', 'city', 'images'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        // Check if user is authenticated
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
+        $user = auth()->user();
+
+        // If host is not approved, show approval message
+        if ($user->isHost() && !$user->isApproved()) {
+            // Still show dashboard but with approval message
+        }
+
+        // Get listings based on user type
+        if ($user->isAdmin()) {
+            // Admin can see all listings
+            $listings = Listing::with(['category', 'city', 'images'])
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
+        } else {
+            // Regular users and hosts see only their own listings
+            $listings = Listing::where('user_id', auth()->id())
+                ->with(['category', 'city', 'images'])
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
+        }
 
         return view('dashboard', compact('listings'));
     }
-
-    /**
-     * Track analytics events.
-     */
     public function track(Listing $listing, $type)
     {
         $ipAddress = request()->ip();

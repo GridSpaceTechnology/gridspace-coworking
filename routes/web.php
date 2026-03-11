@@ -19,9 +19,6 @@ Route::get('/listings/{listing:slug}', [ListingController::class, 'show'])->name
 Route::get('/listings/{listing:slug}/book', [BookingController::class, 'create'])->name('bookings.create');
 Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
 Route::get('/bookings/confirmation/{booking}', [BookingController::class, 'confirmation'])->name('bookings.confirmation');
-Route::post('/bookings/{booking}/update-status', [BookingController::class, 'updateStatus'])->name('bookings.update-status');
-Route::post('/inquiries', [InquiryController::class, 'store'])->name('inquiries.store');
-Route::get('/track/{listing}/{type}', [ListingController::class, 'track'])->name('track');
 
 // Auth routes
 Route::middleware('auth')->group(function () {
@@ -29,28 +26,28 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Host and Admin routes
-    Route::middleware(['host', 'admin'])->group(function () {
-        Route::get('/dashboard', [ListingController::class, 'dashboard'])->name('dashboard');
-        Route::get('/my-bookings', [BookingController::class, 'index'])->name('bookings.index');
+    // Dashboard - accessible by all authenticated users
+    Route::get('/dashboard', [ListingController::class, 'dashboard'])->name('dashboard');
+    Route::get('/my-bookings', [BookingController::class, 'index'])->name('bookings.index');
 
-        // Listing management routes
+    // Listing management routes - require host or admin
+    Route::middleware(['host', 'admin'])->group(function () {
         Route::post('/listings', [ListingController::class, 'store'])->name('listings.store');
         Route::get('/listings/{listing}/edit', [ListingController::class, 'edit'])->name('listings.edit');
         Route::put('/listings/{listing}', [ListingController::class, 'update'])->name('listings.update');
         Route::delete('/listings/{listing}', [ListingController::class, 'destroy'])->name('listings.destroy');
     });
+});
 
-    // Admin routes
-    Route::middleware('admin')->group(function () {
-        Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
-        Route::get('/admin/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
-        Route::get('/admin/analytics/export', [AnalyticsController::class, 'export'])->name('analytics.export');
-        Route::patch('/admin/listings/{listing}/featured', [AdminController::class, 'toggleFeatured'])->name('admin.toggle-featured');
-        Route::get('/admin/host-approval', [HostApprovalController::class, 'index'])->name('admin.hosts.approval');
-        Route::post('/admin/host-approval/{user}/approve', [HostApprovalController::class, 'approve'])->name('admin.hosts.approve');
-        Route::post('/admin/host-approval/{user}/reject', [HostApprovalController::class, 'reject'])->name('admin.hosts.reject');
-    });
+// Admin routes
+Route::middleware('admin')->group(function () {
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+    Route::get('/admin/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
+    Route::get('/admin/analytics/export', [AnalyticsController::class, 'export'])->name('analytics.export');
+    Route::patch('/admin/listings/{listing}/featured', [AdminController::class, 'toggleFeatured'])->name('admin.toggle-featured');
+    Route::get('/admin/host-approval', [HostApprovalController::class, 'index'])->name('admin.hosts.approval');
+    Route::post('/admin/host-approval/{user}/approve', [HostApprovalController::class, 'approve'])->name('admin.hosts.approve');
+    Route::post('/admin/host-approval/{user}/reject', [HostApprovalController::class, 'reject'])->name('admin.hosts.reject');
 });
 
 require __DIR__.'/auth.php';
