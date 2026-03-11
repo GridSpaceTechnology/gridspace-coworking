@@ -51,4 +51,28 @@ class AdminController extends Controller
         return redirect()->back()
             ->with('success', "Listing {$status} successfully!");
     }
+
+    /**
+     * Approve a pending listing.
+     */
+    public function approveListing(Listing $listing)
+    {
+        $listing->status = 'published';
+        $listing->save();
+
+        return redirect()->back()
+            ->with('success', 'Listing approved successfully!');
+    }
+
+    /**
+     * Reject a pending listing.
+     */
+    public function rejectListing(Listing $listing)
+    {
+        $listing->status = 'draft';
+        $listing->save();
+
+        return redirect()->back()
+            ->with('success', 'Listing rejected successfully!');
+    }
 }

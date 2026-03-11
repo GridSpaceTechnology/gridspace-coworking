@@ -150,17 +150,42 @@
                                         </span>
                                     @endif
                                     <span class="inline-flex px-2 py-1 text-xs leading-5 font-semibold rounded-full
-                                           {{ $listing->status === 'published' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
+                                           {{ $listing->status === 'published' ? 'bg-green-100 text-green-800' :
+                                             ($listing->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800') }}">
                                         {{ $listing->status }}
                                     </span>
                                     <form method="POST" action="{{ route('admin.toggle-featured', $listing) }}" class="inline">
                                         @csrf
+                                        @method('PATCH')
                                         <button type="submit"
                                                 class="text-purple-600 hover:text-purple-900 text-sm font-medium"
                                                 title="{{ $listing->featured ? 'Remove featured status' : 'Make featured' }}">
                                             <i class="fas fa-{{ $listing->featured ? 'star' : 'star' }}"></i>
                                         </button>
                                     </form>
+                                    @if($listing->status === 'pending')
+                                        <form method="POST" action="{{ route('admin.listings.approve', $listing) }}" class="inline">
+                                            @csrf
+                                            <button type="submit"
+                                                    class="text-green-600 hover:text-green-900 text-sm font-medium"
+                                                    title="Approve listing">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ route('admin.listings.reject', $listing) }}" class="inline">
+                                            @csrf
+                                            <button type="submit"
+                                                    class="text-red-600 hover:text-red-900 text-sm font-medium"
+                                                    title="Reject listing">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                    @endif
+                                    <a href="{{ route('listings.show', $listing) }}"
+                                       class="text-blue-600 hover:text-blue-900 text-sm font-medium"
+                                       title="View listing">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                 </div>
                             </div>
                         @endforeach

@@ -126,7 +126,14 @@ class ListingController extends Controller
 
         $validated['user_id'] = auth()->id();
         $validated['slug'] = Str::slug($validated['name']);
-        $validated['status'] = 'published';
+
+        // Set status based on user type
+        $user = auth()->user();
+        if ($user->isAdmin()) {
+            $validated['status'] = 'published'; // Admin listings are auto-published
+        } else {
+            $validated['status'] = 'pending'; // Regular users need admin approval
+        }
 
         $listing = Listing::create($validated);
 
@@ -147,7 +154,9 @@ class ListingController extends Controller
         }
 
         return redirect()->route('dashboard')
-            ->with('success', 'Listing created successfully!');
+            ->with('success', $user->isAdmin()
+                ? 'Listing created successfully!'
+                : 'Listing submitted for approval! It will be visible once approved by an admin.');
     }
 
     /**
