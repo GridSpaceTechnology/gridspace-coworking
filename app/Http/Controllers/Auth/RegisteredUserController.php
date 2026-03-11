@@ -54,14 +54,19 @@ class RegisteredUserController extends Controller
             'nationality' => $request->nationality,
             'religion' => $request->religion,
             'password' => Hash::make($request->password),
-            'role' => 'host', // Default role for new registrations
-            'approved' => false, // New hosts need approval
+            'role' => 'user', // Default role for new registrations
+            'approved' => true, // Regular users don't need approval
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // Redirect based on user role
+        if ($user->isHost()) {
+            return redirect(route('dashboard', absolute: false));
+        } else {
+            return redirect(route('home', absolute: false))->with('success', 'Welcome to Gridspace Cowork!');
+        }
     }
 }

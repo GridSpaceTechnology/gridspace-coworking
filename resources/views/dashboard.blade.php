@@ -11,16 +11,16 @@
 
     <!-- Approval Status Alert -->
     @if(auth()->user()->isHost() && !auth()->user()->isApproved())
-        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <i class="fas fa-clock text-yellow-600 text-2xl"></i>
+        <div class="bg-white rounded-lg shadow border-l-4 border-yellow-400 p-6 mb-8 h-32 flex items-center">
+            <div class="flex items-center w-full">
+                <div class="flex-shrink-0 bg-yellow-500 rounded-lg p-3">
+                    <i class="fas fa-clock text-white text-xl"></i>
                 </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-medium text-yellow-800">
+                <div class="ml-4 flex-1">
+                    <h3 class="text-lg font-medium text-gray-900">
                         Account Pending Approval
                     </h3>
-                    <div class="mt-2 text-sm text-yellow-700">
+                    <div class="mt-2 text-sm text-gray-600">
                         <p>Your host account is currently pending admin approval. You can view your dashboard, but you won't be able to create or manage listings until your account is approved.</p>
                         <p class="mt-1">We'll notify you once your account is approved. This typically takes 24-48 hours.</p>
                     </div>
@@ -31,7 +31,7 @@
 
     <!-- Stats Overview -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white rounded-lg shadow p-6 h-32 flex flex-col justify-between">
             <div class="flex items-center">
                 <div class="flex-shrink-0 bg-blue-500 rounded-lg p-3">
                     <i class="fas fa-building text-white text-xl"></i>
@@ -43,7 +43,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white rounded-lg shadow p-6 h-32 flex flex-col justify-between">
             <div class="flex items-center">
                 <div class="flex-shrink-0 bg-green-500 rounded-lg p-3">
                     <i class="fas fa-eye text-white text-xl"></i>
@@ -57,7 +57,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white rounded-lg shadow p-6 h-32 flex flex-col justify-between">
             <div class="flex items-center">
                 <div class="flex-shrink-0 bg-yellow-500 rounded-lg p-3">
                     <i class="fas fa-phone text-white text-xl"></i>
@@ -73,7 +73,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white rounded-lg shadow p-6 h-32 flex flex-col justify-between">
             <div class="flex items-center">
                 <div class="flex-shrink-0 bg-purple-500 rounded-lg p-3">
                     <i class="fas fa-envelope text-white text-xl"></i>
@@ -127,7 +127,7 @@
                         @foreach($listings as $listing)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
+                                    <div class="flex items-start">
                                         @if($listing->images->count() > 0)
                                             <img src="{{ asset('storage/' . $listing->images->first()->image_path) }}"
                                                  alt="{{ $listing->name }}"
@@ -137,13 +137,15 @@
                                                 <i class="fas fa-building text-gray-400"></i>
                                             </div>
                                         @endif
-                                        <div>
+                                        <div class="flex-1">
                                             <div class="text-sm font-medium text-gray-900">{{ $listing->name }}</div>
-                                            @if($listing->featured)
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                    <i class="fas fa-star mr-1"></i>Featured
-                                                </span>
-                                            @endif
+                                            <div class="mt-1">
+                                                @if($listing->featured)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                        <i class="fas fa-star mr-1"></i>Featured
+                                                    </span>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </td>

@@ -29,8 +29,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Host routes
-    Route::middleware('host')->group(function () {
+    // Host and Admin routes
+    Route::middleware(['host', 'admin'])->group(function () {
         Route::get('/dashboard', [ListingController::class, 'dashboard'])->name('dashboard');
         Route::get('/my-bookings', [BookingController::class, 'index'])->name('bookings.index');
 
