@@ -7,8 +7,8 @@
             <!-- Listing Header -->
             <div class="relative h-48 bg-gray-200">
                 @if($listing->images->isNotEmpty())
-                    <img src="{{ $listing->images->first()->image_path }}" 
-                         alt="{{ $listing->title }}" 
+                    <img src="{{ $listing->images->first()->image_path }}"
+                         alt="{{ $listing->title }}"
                          class="w-full h-full object-cover">
                 @else
                     <div class="w-full h-full flex items-center justify-center bg-gray-300">
@@ -39,12 +39,13 @@
 
                 <form method="POST" action="{{ route('bookings.store', $listing->slug) }}">
                     @csrf
+                    <input type="hidden" name="listing_id" value="{{ $listing->id }}">
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Check-in Date -->
                         <div>
                             <x-input-label for="check_in_date" :value="__('Check-in Date')" />
-                            <input type="date" id="check_in_date" name="check_in_date" 
+                            <input type="date" id="check_in_date" name="check_in_date"
                                    class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                    required min="{{ date('Y-m-d') }}">
                             <x-input-error :messages="$errors->get('check_in_date')" class="mt-2" />
@@ -53,7 +54,7 @@
                         <!-- Check-out Date -->
                         <div>
                             <x-input-label for="check_out_date" :value="__('Check-out Date')" />
-                            <input type="date" id="check_out_date" name="check_out_date" 
+                            <input type="date" id="check_out_date" name="check_out_date"
                                    class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                    required>
                             <x-input-error :messages="$errors->get('check_out_date')" class="mt-2" />
@@ -65,11 +66,11 @@
                         <h3 class="text-lg font-medium text-gray-900 mb-4">
                             <i class="fas fa-user mr-2"></i>Guest Information
                         </h3>
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <x-input-label for="guest_name" :value="__('Full Name')" />
-                                <input type="text" id="guest_name" name="guest_name" 
+                                <input type="text" id="guest_name" name="guest_name"
                                        class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                        value="{{ old('guest_name') }}" required>
                                 <x-input-error :messages="$errors->get('guest_name')" class="mt-2" />
@@ -77,7 +78,7 @@
 
                             <div>
                                 <x-input-label for="guest_email" :value="__('Email Address')" />
-                                <input type="email" id="guest_email" name="guest_email" 
+                                <input type="email" id="guest_email" name="guest_email"
                                        class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                        value="{{ old('guest_email') }}" required>
                                 <x-input-error :messages="$errors->get('guest_email')" class="mt-2" />
@@ -87,7 +88,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <x-input-label for="guest_phone" :value="__('Phone Number')" />
-                                <input type="tel" id="guest_phone" name="guest_phone" 
+                                <input type="tel" id="guest_phone" name="guest_phone"
                                        class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                        value="{{ old('guest_phone') }}" required>
                                 <x-input-error :messages="$errors->get('guest_phone')" class="mt-2" />
@@ -104,7 +105,7 @@
 
                     <!-- Submit Button -->
                     <div class="mt-6">
-                        <button type="submit" 
+                        <button type="submit"
                                 class="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             <i class="fas fa-calendar-check mr-2"></i>
                             Submit Booking Request

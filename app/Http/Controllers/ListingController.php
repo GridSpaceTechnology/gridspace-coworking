@@ -303,8 +303,9 @@ class ListingController extends Controller
 
         return view('dashboard', compact('listings'));
     }
-    public function track(Listing $listing, $type)
+    public function track($listing, $type)
     {
+        $listing = Listing::findOrFail($listing);
         $ipAddress = request()->ip();
         $userAgent = request()->userAgent();
 

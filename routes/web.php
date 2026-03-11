@@ -16,10 +16,11 @@ Route::get('/listings', [ListingController::class, 'index'])->name('listings.ind
 Route::get('/featured', [FeaturedController::class, 'index'])->name('featured');
 Route::get('/listings/create', [ListingController::class, 'create'])->name('listings.create')->middleware('auth');
 Route::get('/listings/{listing:slug}', [ListingController::class, 'show'])->name('listings.show');
-Route::get('/track/{listing}/{type}', [ListingController::class, 'track'])->name('track');
+Route::get('/track/{listing}/{type}', [ListingController::class, 'track'])->name('track')->where('listing', '[0-9]+');
 Route::get('/listings/{listing:slug}/book', [BookingController::class, 'create'])->name('bookings.create');
 Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
 Route::get('/bookings/confirmation/{booking}', [BookingController::class, 'confirmation'])->name('bookings.confirmation');
+Route::post('/inquiries', [InquiryController::class, 'store'])->name('inquiries.store');
 
 // Auth routes
 Route::middleware('auth')->group(function () {
