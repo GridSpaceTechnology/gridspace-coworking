@@ -275,10 +275,14 @@
                 @if($recentBookings->count() > 0)
                     <div class="space-y-4">
                         @foreach($recentBookings as $booking)
-                            <div class="border-l-4 border-green-500 pl-4">
+                            <div class="border-l-4 border-green-500 pl-4 hover:bg-gray-50 rounded-r-lg transition-colors cursor-pointer"
+                                 onclick="window.location.href='{{ route('admin.bookings.show', $booking) }}'">
                                 <div class="flex items-start justify-between">
                                     <div>
-                                        <div class="text-sm font-medium text-gray-900">{{ $booking->guest_name }}</div>
+                                        <div class="text-sm font-medium text-gray-900 hover:text-blue-600">
+                                            {{ $booking->guest_name }}
+                                            <i class="fas fa-external-link-alt text-xs ml-1"></i>
+                                        </div>
                                         <div class="text-xs text-gray-500">
                                             Booked: {{ $booking->listing->name }}
                                         </div>
@@ -298,11 +302,13 @@
                                     </div>
                                     <div class="flex items-center space-x-2">
                                         <a href="mailto:{{ $booking->guest_email }}"
-                                           class="text-blue-600 hover:text-blue-900 text-sm">
+                                           class="text-blue-600 hover:text-blue-900 text-sm"
+                                           onclick="event.stopPropagation()">
                                             <i class="fas fa-envelope"></i>
                                         </a>
                                         <a href="tel:{{ $booking->guest_phone }}"
-                                           class="text-green-600 hover:text-green-900 text-sm">
+                                           class="text-green-600 hover:text-green-900 text-sm"
+                                           onclick="event.stopPropagation()">
                                             <i class="fas fa-phone"></i>
                                         </a>
                                         <span class="text-xs text-gray-500">

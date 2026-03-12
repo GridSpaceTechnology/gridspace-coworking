@@ -60,6 +60,30 @@ class AdminController extends Controller
     }
 
     /**
+     * Show booking details.
+     */
+    public function showBooking(\App\Models\Booking $booking)
+    {
+        $booking->load(['listing', 'listing.user', 'user']);
+        return view('admin.bookings.show', compact('booking'));
+    }
+
+    /**
+     * Update booking status.
+     */
+    public function updateBookingStatus(Request $request, \App\Models\Booking $booking)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:pending,confirmed,cancelled',
+        ]);
+
+        $booking->update(['status' => $validated['status']]);
+
+        return redirect()->back()
+            ->with('success', "Booking status updated to {$validated['status']} successfully!");
+    }
+
+    /**
      * Approve a pending listing.
      */
     public function approveListing(Listing $listing)

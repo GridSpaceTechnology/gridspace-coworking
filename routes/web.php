@@ -50,6 +50,8 @@ Route::middleware('admin')->group(function () {
     Route::patch('/admin/listings/{listing:slug}/featured', [AdminController::class, 'toggleFeatured'])->name('admin.toggle-featured');
     Route::post('/admin/listings/{listing:slug}/approve', [AdminController::class, 'approveListing'])->name('admin.listings.approve');
     Route::post('/admin/listings/{listing:slug}/reject', [AdminController::class, 'rejectListing'])->name('admin.listings.reject');
+    Route::get('/admin/bookings/{booking}', [AdminController::class, 'showBooking'])->name('admin.bookings.show');
+    Route::patch('/admin/bookings/{booking}/status', [AdminController::class, 'updateBookingStatus'])->name('admin.bookings.update-status');
     Route::get('/admin/host-approval', [HostApprovalController::class, 'index'])->name('admin.hosts.approval');
     Route::post('/admin/host-approval/{user}/approve', [HostApprovalController::class, 'approve'])->name('admin.hosts.approve');
     Route::post('/admin/host-approval/{user}/reject', [HostApprovalController::class, 'reject'])->name('admin.hosts.reject');
