@@ -18,7 +18,7 @@ Route::get('/listings/create', [ListingController::class, 'create'])->name('list
 Route::get('/listings/{listing:slug}', [ListingController::class, 'show'])->name('listings.show');
 Route::get('/track/{listing}/{type}', [ListingController::class, 'track'])->name('track')->where('listing', '[0-9]+');
 Route::get('/listings/{listing:slug}/book', [BookingController::class, 'create'])->name('bookings.create');
-Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+Route::post('/bookings/{listing:slug}', [BookingController::class, 'store'])->name('bookings.store');
 Route::get('/bookings/confirmation/{booking}', [BookingController::class, 'confirmation'])->name('bookings.confirmation');
 Route::post('/inquiries', [InquiryController::class, 'store'])->name('inquiries.store');
 
@@ -36,9 +36,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/listings', [ListingController::class, 'store'])->name('listings.store');
 
     Route::middleware(['host', 'admin'])->group(function () {
-        Route::get('/listings/{listing}/edit', [ListingController::class, 'edit'])->name('listings.edit');
-        Route::put('/listings/{listing}', [ListingController::class, 'update'])->name('listings.update');
-        Route::delete('/listings/{listing}', [ListingController::class, 'destroy'])->name('listings.destroy');
+        Route::get('/listings/{listing:slug}/edit', [ListingController::class, 'edit'])->name('listings.edit');
+        Route::put('/listings/{listing:slug}', [ListingController::class, 'update'])->name('listings.update');
+        Route::delete('/listings/{listing:slug}', [ListingController::class, 'destroy'])->name('listings.destroy');
     });
 });
 
@@ -47,9 +47,9 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
     Route::get('/admin/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
     Route::get('/admin/analytics/export', [AnalyticsController::class, 'export'])->name('analytics.export');
-    Route::patch('/admin/listings/{listing}/featured', [AdminController::class, 'toggleFeatured'])->name('admin.toggle-featured');
-    Route::post('/admin/listings/{listing}/approve', [AdminController::class, 'approveListing'])->name('admin.listings.approve');
-    Route::post('/admin/listings/{listing}/reject', [AdminController::class, 'rejectListing'])->name('admin.listings.reject');
+    Route::patch('/admin/listings/{listing:slug}/featured', [AdminController::class, 'toggleFeatured'])->name('admin.toggle-featured');
+    Route::post('/admin/listings/{listing:slug}/approve', [AdminController::class, 'approveListing'])->name('admin.listings.approve');
+    Route::post('/admin/listings/{listing:slug}/reject', [AdminController::class, 'rejectListing'])->name('admin.listings.reject');
     Route::get('/admin/host-approval', [HostApprovalController::class, 'index'])->name('admin.hosts.approval');
     Route::post('/admin/host-approval/{user}/approve', [HostApprovalController::class, 'approve'])->name('admin.hosts.approve');
     Route::post('/admin/host-approval/{user}/reject', [HostApprovalController::class, 'reject'])->name('admin.hosts.reject');

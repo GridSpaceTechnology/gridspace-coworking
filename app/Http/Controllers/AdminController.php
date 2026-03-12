@@ -23,6 +23,8 @@ class AdminController extends Controller
             'total_hosts' => User::where('role', 'host')->count(),
             'pending_hosts' => User::where('role', 'host')->where('approved', false)->count(),
             'total_inquiries' => \App\Models\Inquiry::count(),
+            'total_bookings' => \App\Models\Booking::count(),
+            'pending_bookings' => \App\Models\Booking::where('status', 'pending')->count(),
         ];
 
         $recentListings = Listing::with(['user', 'category'])
@@ -35,7 +37,12 @@ class AdminController extends Controller
             ->limit(10)
             ->get();
 
-        return view('admin.index', compact('stats', 'recentListings', 'recentInquiries'));
+        $recentBookings = \App\Models\Booking::with(['listing', 'listing.user', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        return view('admin.index', compact('stats', 'recentListings', 'recentInquiries', 'recentBookings'));
     }
 
     /**

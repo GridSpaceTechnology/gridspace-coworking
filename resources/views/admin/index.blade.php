@@ -82,6 +82,30 @@
                 </div>
             </div>
         </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-500 rounded-lg p-3">
+                    <i class="fas fa-calendar-check text-white text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Total Bookings</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ $stats['total_bookings'] }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-red-500 rounded-lg p-3">
+                    <i class="fas fa-clock text-white text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Pending Bookings</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ $stats['pending_bookings'] }}</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Quick Actions -->
@@ -237,6 +261,62 @@
                     <div class="text-center py-8">
                         <i class="fas fa-envelope text-4xl text-gray-300 mb-3"></i>
                         <p class="text-gray-500">No inquiries yet</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Recent Bookings -->
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-900">Recent Bookings</h2>
+            </div>
+            <div class="p-6">
+                @if($recentBookings->count() > 0)
+                    <div class="space-y-4">
+                        @foreach($recentBookings as $booking)
+                            <div class="border-l-4 border-green-500 pl-4">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">{{ $booking->guest_name }}</div>
+                                        <div class="text-xs text-gray-500">
+                                            Booked: {{ $booking->listing->name }}
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            {{ $booking->check_in_date->format('M j, Y') }} - {{ $booking->check_out_date->format('M j, Y') }}
+                                        </div>
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            {{ $booking->created_at->format('M j, Y \a\t g:i A') }}
+                                        </div>
+                                        <div class="mt-2">
+                                            <span class="inline-flex px-2 py-1 text-xs leading-5 font-semibold rounded-full
+                                                {{ $booking->status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                                                  ($booking->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
+                                                {{ $booking->status }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <a href="mailto:{{ $booking->guest_email }}"
+                                           class="text-blue-600 hover:text-blue-900 text-sm">
+                                            <i class="fas fa-envelope"></i>
+                                        </a>
+                                        <a href="tel:{{ $booking->guest_phone }}"
+                                           class="text-green-600 hover:text-green-900 text-sm">
+                                            <i class="fas fa-phone"></i>
+                                        </a>
+                                        <span class="text-xs text-gray-500">
+                                            ₦{{ number_format($booking->total_price) }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-8">
+                        <i class="fas fa-calendar text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-500">No bookings yet</p>
                     </div>
                 @endif
             </div>
