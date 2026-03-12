@@ -66,6 +66,11 @@ class BookingController extends Controller
 
     public function updateStatus(Request $request, Booking $booking)
     {
+        // Check if user owns this booking
+        if (Auth::id() !== $booking->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $validated = $request->validate([
             'status' => 'required|in:pending,confirmed,cancelled,completed',
         ]);

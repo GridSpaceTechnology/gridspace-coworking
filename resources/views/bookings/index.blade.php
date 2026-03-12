@@ -14,19 +14,19 @@
                 <!-- Status Filter -->
                 <div class="mb-6">
                     <div class="flex space-x-4">
-                        <a href="{{ route('bookings.index') }}" 
+                        <a href="{{ route('bookings.index') }}"
                            class="px-4 py-2 rounded-lg text-sm font-medium {{ request('status') == 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700' }}">
                             All
                         </a>
-                        <a href="{{ route('bookings.index', ['status' => 'pending']) }}" 
+                        <a href="{{ route('bookings.index', ['status' => 'pending']) }}"
                            class="px-4 py-2 rounded-lg text-sm font-medium {{ request('status') == 'pending' ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-700' }}">
                             Pending
                         </a>
-                        <a href="{{ route('bookings.index', ['status' => 'confirmed']) }}" 
+                        <a href="{{ route('bookings.index', ['status' => 'confirmed']) }}"
                            class="px-4 py-2 rounded-lg text-sm font-medium {{ request('status') == 'confirmed' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700' }}">
                             Confirmed
                         </a>
-                        <a href="{{ route('bookings.index', ['status' => 'completed']) }}" 
+                        <a href="{{ route('bookings.index', ['status' => 'completed']) }}"
                            class="px-4 py-2 rounded-lg text-sm font-medium {{ request('status') == 'completed' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700' }}">
                             Completed
                         </a>
@@ -41,22 +41,22 @@
                                 <div class="flex-1">
                                     <div class="flex items-center mb-2">
                                         <h3 class="text-lg font-semibold text-gray-900">
-                                            {{ $booking->listing->title }}
+                                            {{ $booking->listing->name }}
                                         </h3>
                                         <span class="ml-auto">
-                                            <span class="px-3 py-1 rounded-full text-xs font-medium 
-                                                  {{ $booking->status == 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                                                  $booking->status == 'confirmed' ? 'bg-green-100 text-green-800' : 
+                                            <span class="px-3 py-1 rounded-full text-xs font-medium
+                                                  {{ $booking->status == 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                  $booking->status == 'confirmed' ? 'bg-green-100 text-green-800' :
                                                   $booking->status == 'completed' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800' }}">
                                                 {{ ucfirst($booking->status) }}
                                             </span>
                                         </span>
                                     </div>
-                                    
+
                                     <div class="text-sm text-gray-600 mb-4">
-                                        {{ $booking->listing->category->name }} • {{ $booking->listing->city->name }}
+                                        {{ $booking->listing->name }} • {{ $booking->listing->address }}
                                     </div>
-                                    
+
                                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
                                         <div>
                                             <p class="font-medium">Check-in</p>
@@ -76,20 +76,20 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="flex items-center space-x-2">
                                     <!-- Update Status Button -->
                                     <form method="POST" action="{{ route('bookings.update-status', $booking->id) }}">
                                         @csrf
                                         @if($booking->status == 'pending')
-                                            <button type="submit" name="status" value="confirmed" 
+                                            <button type="submit" name="status" value="confirmed"
                                                     class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">
                                                 Confirm
                                             </button>
                                         @endif
-                                        
+
                                         @if($booking->status != 'completed')
-                                            <button type="submit" name="status" value="completed" 
+                                            <button type="submit" name="status" value="completed"
                                                     class="px-3 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700">
                                                 Complete
                                             </button>

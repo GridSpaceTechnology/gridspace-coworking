@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
     // Dashboard - accessible by all authenticated users
     Route::get('/dashboard', [ListingController::class, 'dashboard'])->name('dashboard');
     Route::get('/my-bookings', [BookingController::class, 'index'])->name('bookings.index');
+    Route::patch('/bookings/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.update-status');
 
     // Listing management routes - require auth for create, host/admin for other actions
     Route::post('/listings', [ListingController::class, 'store'])->name('listings.store');
