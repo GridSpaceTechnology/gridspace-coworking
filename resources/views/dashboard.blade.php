@@ -97,8 +97,12 @@
             </button>
         @else
             <a href="{{ route('listings.create') }}"
-               class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700">
+               class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 mr-3">
                 <i class="fas fa-plus mr-2"></i>Add New Listing
+            </a>
+            <a href="{{ route('featured-requests.create') }}"
+               class="bg-yellow-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-yellow-600">
+                <i class="fas fa-star mr-2"></i>Feature Your Listing
             </a>
         @endif
     </div>

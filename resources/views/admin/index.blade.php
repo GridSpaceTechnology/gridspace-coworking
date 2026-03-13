@@ -108,10 +108,61 @@
         </div>
     </div>
 
+    <!-- Featured Requests Alert -->
+    @if($stats['pending_featured_requests'] > 0)
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-star text-yellow-400 text-xl"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-yellow-700">
+                        <strong>{{ $stats['pending_featured_requests'] }}</strong> featured request(s) pending approval.
+                        <a href="#featured-requests" class="underline font-medium">Review now</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Quick Actions -->
     <div class="mt-8">
         <h2 class="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Featured Requests -->
+            <a href="{{ route('admin.featured-requests.index') }}"
+               class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-300 border-2 border-yellow-200 hover:border-yellow-400">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-yellow-500 rounded-lg p-3">
+                        <i class="fas fa-star text-white text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-medium text-gray-900">Featured Requests</h3>
+                        <p class="text-sm text-gray-600">Review featured listing requests</p>
+                        @if($stats['pending_featured_requests'] > 0)
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mt-1">
+                                {{ $stats['pending_featured_requests'] }} pending
+                            </span>
+                        @endif
+                    </div>
+                </div>
+            </a>
+
+            <!-- Pending Listings -->
+            <a href="{{ route('admin.listings.pending') }}"
+               class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-300 border-2 border-blue-200 hover:border-blue-400">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-blue-500 rounded-lg p-3">
+                        <i class="fas fa-building text-white text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-medium text-gray-900">Pending Listings</h3>
+                        <p class="text-sm text-gray-600">Review and approve new listings</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Host Approval -->
             <a href="{{ route('admin.hosts.approval') }}"
                class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-300 border-2 border-orange-200 hover:border-orange-400">
                 <div class="flex items-center">
@@ -121,6 +172,11 @@
                     <div class="ml-4">
                         <h3 class="text-lg font-medium text-gray-900">Host Approval</h3>
                         <p class="text-sm text-gray-600">Review and approve new host registrations</p>
+                        @if($stats['pending_hosts'] > 0)
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 mt-1">
+                                {{ $stats['pending_hosts'] }} pending
+                            </span>
+                        @endif
                     </div>
                 </div>
             </a>
@@ -323,6 +379,77 @@
                     <div class="text-center py-8">
                         <i class="fas fa-calendar text-4xl text-gray-300 mb-3"></i>
                         <p class="text-gray-500">No bookings yet</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Featured Requests Section -->
+        <div class="bg-white rounded-lg shadow" id="featured-requests">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-900">
+                    <i class="fas fa-star text-yellow-500 mr-2"></i>
+                    Featured Requests
+                </h3>
+                <a href="{{ route('admin.featured-requests.index') }}"
+                   class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                    View All →
+                </a>
+            </div>
+            <div class="p-6">
+                @if($featuredRequests->count() > 0)
+                    <div class="space-y-4">
+                        @foreach($featuredRequests as $listing)
+                            <div class="border-l-4 border-yellow-500 pl-4 hover:bg-gray-50 rounded-r-lg transition-colors">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ $listing->name }}
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            Requested by: {{ $listing->user->firstname }} {{ $listing->user->lastname }}
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            Plan: {{ ucfirst($listing->featured_plan) }} - {{ $listing->featured_duration }} months
+                                        </div>
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            {{ $listing->updated_at->format('M j, Y \a\t g:i A') }}
+                                        </div>
+                                        <div class="mt-2">
+                                            <span class="inline-flex px-2 py-1 text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                Pending
+                                            </span>
+                                            <span class="ml-2 text-xs text-gray-600">
+                                                Amount: ₦{{ number_format($listing->featured_amount) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <form method="POST" action="{{ route('admin.featured-requests.approve', $listing) }}" class="inline">
+                                            @csrf
+                                            <button type="submit"
+                                                    class="text-green-600 hover:text-green-900 text-sm"
+                                                    onclick="return confirm('Approve this featured request?')">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ route('admin.featured-requests.reject', $listing) }}" class="inline">
+                                            @csrf
+                                            <button type="submit"
+                                                    class="text-red-600 hover:text-red-900 text-sm"
+                                                    onclick="return confirm('Reject this featured request?')">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-8">
+                        <i class="fas fa-star text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-500">No featured requests pending</p>
                     </div>
                 @endif
             </div>

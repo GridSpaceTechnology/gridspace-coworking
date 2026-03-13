@@ -25,6 +25,7 @@ class AdminController extends Controller
             'total_inquiries' => \App\Models\Inquiry::count(),
             'total_bookings' => \App\Models\Booking::count(),
             'pending_bookings' => \App\Models\Booking::where('status', 'pending')->count(),
+            'pending_featured_requests' => Listing::where('featured_request_status', 'pending')->count(),
         ];
 
         $recentListings = Listing::with(['user', 'category'])
@@ -42,7 +43,26 @@ class AdminController extends Controller
             ->limit(10)
             ->get();
 
-        return view('admin.index', compact('stats', 'recentListings', 'recentInquiries', 'recentBookings'));
+        $featuredRequests = Listing::with(['user', 'category'])
+            ->where('featured_request_status', 'pending')
+            ->orderBy('updated_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        return view('admin.index', compact('stats', 'recentListings', 'recentInquiries', 'recentBookings', 'featuredRequests'));
+    }
+
+    /**
+     * Show pending listings for admin approval.
+     */
+    public function pendingListings()
+    {
+        $pendingListings = Listing::with(['user', 'category', 'city'])
+            ->where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('admin.pending-listings', compact('pendingListings'));
     }
 
     /**

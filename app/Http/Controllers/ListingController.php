@@ -20,9 +20,19 @@ class ListingController extends Controller
     public function index(Request $request)
     {
         $query = Listing::with(['category', 'city', 'images'])
-            ->where('status', 'published')
-            ->orderBy('featured', 'desc')
-            ->orderBy('created_at', 'desc');
+            ->where('status', 'published');
+
+        // Enhanced featured prioritization algorithm
+        if ($request->filled('search') || $request->filled('category') || $request->filled('city')) {
+            // When searching, prioritize featured listings first
+            $query->orderBy('featured', 'desc')
+                  ->orderByRaw('CASE WHEN featured = 1 THEN RAND() ELSE created_at END DESC')
+                  ->orderBy('created_at', 'desc');
+        } else {
+            // Homepage: Show featured listings first, then random regular listings
+            $query->orderBy('featured', 'desc')
+                  ->orderByRaw('CASE WHEN featured = 1 THEN RAND() ELSE RAND() END');
+        }
 
         // Apply search
         if ($request->filled('search')) {

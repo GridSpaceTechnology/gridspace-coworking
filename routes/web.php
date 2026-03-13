@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FeaturedController;
+use App\Http\Controllers\FeaturedRequestController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\HostApprovalController;
 use Illuminate\Support\Facades\Route;
@@ -14,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [ListingController::class, 'index'])->name('home');
 Route::get('/listings', [ListingController::class, 'index'])->name('listings.index');
 Route::get('/featured', [FeaturedController::class, 'index'])->name('featured');
+    Route::get('/featured/request', [FeaturedRequestController::class, 'create'])->name('featured-requests.create');
+    Route::post('/featured/request', [FeaturedRequestController::class, 'store'])->name('featured-requests.store');
 Route::get('/listings/create', [ListingController::class, 'create'])->name('listings.create')->middleware('auth');
 Route::get('/listings/{listing:slug}', [ListingController::class, 'show'])->name('listings.show');
 Route::get('/track/{listing}/{type}', [ListingController::class, 'track'])->name('track')->where('listing', '[0-9]+');
@@ -56,6 +59,10 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/host-approval', [HostApprovalController::class, 'index'])->name('admin.hosts.approval');
     Route::post('/admin/host-approval/{user}/approve', [HostApprovalController::class, 'approve'])->name('admin.hosts.approve');
     Route::post('/admin/host-approval/{user}/reject', [HostApprovalController::class, 'reject'])->name('admin.hosts.reject');
+    Route::get('/admin/listings/pending', [AdminController::class, 'pendingListings'])->name('admin.listings.pending');
+    Route::get('/admin/featured-requests', [FeaturedRequestController::class, 'index'])->name('admin.featured-requests.index');
+    Route::post('/admin/featured-requests/{listing}/approve', [FeaturedRequestController::class, 'approve'])->name('admin.featured-requests.approve');
+    Route::post('/admin/featured-requests/{listing}/reject', [FeaturedRequestController::class, 'reject'])->name('admin.featured-requests.reject');
 });
 
 require __DIR__.'/auth.php';
