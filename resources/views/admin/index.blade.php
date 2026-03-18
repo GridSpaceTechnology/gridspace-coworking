@@ -148,7 +148,8 @@
                 </div>
             </a>
 
-            <!-- Pending Listings -->
+            <!-- Pending Listings (only show if there are pending listings) -->
+            @if($stats['pending_listings'] > 0)
             <a href="{{ route('admin.listings.pending') }}"
                class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-300 border-2 border-blue-200 hover:border-blue-400">
                 <div class="flex items-center">
@@ -158,28 +159,13 @@
                     <div class="ml-4">
                         <h3 class="text-lg font-medium text-gray-900">Pending Listings</h3>
                         <p class="text-sm text-gray-600">Review and approve new listings</p>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-1">
+                            {{ $stats['pending_listings'] }} pending
+                        </span>
                     </div>
                 </div>
             </a>
-
-            <!-- Host Approval -->
-            <a href="{{ route('admin.hosts.approval') }}"
-               class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-300 border-2 border-orange-200 hover:border-orange-400">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-orange-500 rounded-lg p-3">
-                        <i class="fas fa-user-check text-white text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-medium text-gray-900">Host Approval</h3>
-                        <p class="text-sm text-gray-600">Review and approve new host registrations</p>
-                        @if($stats['pending_hosts'] > 0)
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 mt-1">
-                                {{ $stats['pending_hosts'] }} pending
-                            </span>
-                        @endif
-                    </div>
-                </div>
-            </a>
+            @endif
 
             <a href="{{ route('analytics.index') }}"
                class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow duration-300">

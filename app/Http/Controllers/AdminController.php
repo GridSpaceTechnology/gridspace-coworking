@@ -19,6 +19,7 @@ class AdminController extends Controller
             'total_listings' => Listing::count(),
             'published_listings' => Listing::where('status', 'published')->count(),
             'featured_listings' => Listing::where('featured', true)->count(),
+            'pending_listings' => Listing::where('status', 'pending')->count(),
             'total_users' => User::count(),
             'total_hosts' => User::where('role', 'host')->count(),
             'pending_hosts' => User::where('role', 'host')->where('approved', false)->count(),
@@ -48,6 +49,12 @@ class AdminController extends Controller
             ->orderBy('updated_at', 'desc')
             ->limit(10)
             ->get();
+
+        // Debug: Log featured requests
+        \Log::info('Admin dashboard - Featured requests count: ' . $featuredRequests->count());
+        foreach ($featuredRequests as $request) {
+            \Log::info('Featured request: Listing ID ' . $request->id . ', Status: ' . $request->featured_request_status);
+        }
 
         return view('admin.index', compact('stats', 'recentListings', 'recentInquiries', 'recentBookings', 'featuredRequests'));
     }

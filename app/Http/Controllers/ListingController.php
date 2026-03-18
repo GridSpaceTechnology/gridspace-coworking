@@ -88,16 +88,7 @@ class ListingController extends Controller
         $categories = Category::all();
         $cities = City::all();
 
-        // Get featured listings (only when no search is active)
-        $featuredListings = Listing::with(['category', 'city', 'images'])
-            ->where('featured', true)
-            ->where('status', 'published')
-            ->when(!$request->filled('search') && !$request->filled('category') && !$request->filled('city'), function ($q) {
-                return $q->limit(6);
-            })
-            ->get();
-
-        return view('listings.index', compact('listings', 'categories', 'cities', 'featuredListings'));
+        return view('listings.index', compact('listings', 'categories', 'cities'));
     }
 
     /**

@@ -137,22 +137,45 @@
                     <label for="listing_id" class="block text-sm font-medium text-gray-700 mb-2">
                         Select Listing to Feature
                     </label>
-                    <select name="listing_id" id="listing_id" required
-                            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Choose a listing...</option>
-                        @foreach($listings as $listing)
-                            <option value="{{ $listing->id }}"
-                                {{ $listing->featured ? 'disabled' : '' }}
-                                {{ $listing->featured_request_status === 'pending' ? 'disabled' : '' }}>
-                                {{ $listing->name }} - {{ $listing->address }}
-                                @if($listing->featured)
-                                    (Already Featured)
-                                @elseif($listing->featured_request_status === 'pending')
-                                    (Request Pending)
-                                @endif
-                            </option>
-                        @endforeach
-                    </select>
+                    @if($listings->count() > 0)
+                        <select name="listing_id" id="listing_id" required
+                                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Choose a listing...</option>
+                            @foreach($listings as $listing)
+                                <option value="{{ $listing->id }}"
+                                    {{ $listing->featured == 1 ? 'disabled' : '' }}
+                                    {{ $listing->featured_request_status === 'pending' ? 'disabled' : '' }}>
+                                    {{ $listing->name }} - {{ $listing->address }}
+                                    @if($listing->featured == 1)
+                                        (Already Featured)
+                                    @elseif($listing->featured_request_status === 'pending')
+                                        (Request Pending)
+                                    @elseif($listing->status !== 'published')
+                                        (Status: {{ $listing->status }})
+                                    @endif
+                                </option>
+                            @endforeach
+                        </select>
+                    @else
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-yellow-800">No Published Listings</h3>
+                                    <div class="mt-2 text-sm text-yellow-700">
+                                        <p>You don't have any published listings yet. You can only request featured status for published listings.</p>
+                                        <div class="mt-3">
+                                            <a href="{{ route('dashboard') }}" class="text-yellow-800 underline font-medium">
+                                                Go to Dashboard →
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Plan Selection -->

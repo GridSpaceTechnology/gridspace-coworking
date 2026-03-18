@@ -52,46 +52,6 @@
         </div>
     </div>
 
-    <!-- Featured Listings -->
-    @if($featuredListings->count() > 0)
-        <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6">Featured Spaces</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @foreach($featuredListings as $listing)
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                        @if($listing->images->count() > 0)
-                            <div class="h-48 bg-gray-200">
-                                <img src="{{ asset('storage/' . $listing->images->first()->image_path) }}"
-                                     alt="{{ $listing->name }}"
-                                     class="w-full h-full object-cover">
-                            </div>
-                        @endif
-
-                        <div class="p-4">
-                            @if($listing->featured)
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mb-2">
-                                    <i class="fas fa-star mr-1"></i>Featured
-                                </span>
-                            @endif
-
-                            <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ $listing->name }}</h3>
-                            <p class="text-gray-600 text-sm mb-2">{{ $listing->category->name }}</p>
-                            <p class="text-gray-500 text-sm mb-3">{{ Str::limit($listing->description, 100) }}</p>
-
-                            <div class="flex justify-between items-center">
-                                <span class="text-blue-600 font-semibold">{{ $listing->price_range }}</span>
-                                <a href="{{ route('listings.show', $listing->slug) }}"
-                                   class="bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
-                                    View Details
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    @endif
-
     <!-- Category Quick Links -->
     <div class="mb-8">
         <h2 class="text-2xl font-bold text-gray-900 mb-6">Browse by Category</h2>
@@ -251,8 +211,9 @@
                     @endforeach
                 </div>
 
-                <!-- Pagination -->
+                <!-- Pagination with Record Counting -->
                 <div class="mt-8">
+                    <!-- Pagination Links -->
                     {{ $listings->links() }}
                 </div>
             @else

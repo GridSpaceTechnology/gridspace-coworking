@@ -5,15 +5,31 @@ namespace App\Http\Controllers;
 use App\Models\Listing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class FeaturedRequestController extends Controller
 {
     public function create()
     {
-        $listings = Listing::where('user_id', Auth::id())
-            ->where('status', 'published')
+        // Debug: Check if user is authenticated
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Please login to feature your listing.');
+        }
+
+        $userId = Auth::id();
+
+        // Debug: Get all user listings first
+        $allUserListings = Listing::where('user_id', $userId)->get();
+
+        // Debug: Get published listings (temporarily include all statuses to test)
+        $listings = Listing::where('user_id', $userId)
             ->with(['category', 'city'])
             ->get();
+
+        // Debug: Log the counts for troubleshooting
+        \Log::info('User ID: ' . $userId);
+        \Log::info('All user listings count: ' . $allUserListings->count());
+        \Log::info('Published listings count: ' . $listings->count());
 
         return view('featured.request', compact('listings'));
     }
@@ -44,14 +60,34 @@ class FeaturedRequestController extends Controller
         $amount = $planPrice * $validated['duration'];
 
         // Update the listing with featured request data
-        $listing->update([
+        $updateData = [
             'featured_request_status' => 'pending',
             'featured_plan' => $validated['plan'],
             'featured_duration' => $validated['duration'],
             'featured_amount' => $amount,
             'featured_contact_email' => $validated['contact_email'],
             'featured_notes' => $validated['notes'] ?? null,
-        ]);
+        ];
+
+        // Debug: Log update data
+        \Log::info('Update data for listing ' . $listing->id . ': ' . json_encode($updateData));
+
+        // Try direct database update
+        try {
+            $result = \DB::table('listings')
+                ->where('id', $listing->id)
+                ->update($updateData);
+
+            \Log::info('Direct DB update result: ' . ($result ? 'success' : 'failed'));
+            \Log::info('Rows affected: ' . $result);
+
+            // Refresh the model to get updated values
+            $listing->refresh();
+            \Log::info('Featured request status after direct update: ' . $listing->featured_request_status);
+
+        } catch (\Exception $e) {
+            \Log::error('Update failed: ' . $e->getMessage());
+        }
 
         return redirect()->route('dashboard')
             ->with('success', 'Your featured request has been submitted! We will contact you within 24 hours for payment.');
