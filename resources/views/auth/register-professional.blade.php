@@ -9,13 +9,8 @@
         <div class="text-center mb-8">
             <div class="flex justify-center items-center mb-6">
                 <div class="flex items-center">
-                    <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
-                        <i class="fas fa-building text-white text-2xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h1 class="text-3xl font-bold text-gray-900">Join Gridspace</h1>
-                        <p class="text-gray-600">Discover the perfect workspace for your needs</p>
-                    </div>
+                    <img src="{{ asset('logo.jpeg') }}" alt="Gridspace Cowork" class="h-16 w-auto rounded-lg mr-3">
+                    <span class="text-2xl font-bold text-gray-900">Gridspace Cowork</span>
                 </div>
             </div>
         </div>
@@ -119,44 +114,18 @@
                             <div class="bg-gray-50 p-6 rounded-lg shadow space-y-4">
                                 <h3 class="text-lg font-medium text-gray-900 mb-4">
                                     <i class="fas fa-info-circle mr-2 text-blue-600"></i>
-                                    Additional Details
+                                    Account Information
                                 </h3>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label for="gender" class="block text-sm font-medium text-gray-700">Gender</label>
-                                        <select id="gender" name="gender" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                            <option value="">Select Gender</option>
-                                            <option value="male">Male</option>
-                                            <option value="female">Female</option>
-                                            <option value="other">Other</option>
+                                        <label for="role" class="block text-sm font-medium text-gray-700">Account Type</label>
+                                        <select id="role" name="role" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                            <option value="">Select Account Type</option>
+                                            <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>I'm looking for a workspace</option>
+                                            <option value="host" {{ old('role') == 'host' ? 'selected' : '' }}>I want to list my workspace</option>
                                         </select>
-                                        @error('gender')
-                                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <div>
-                                        <label for="marital_status" class="block text-sm font-medium text-gray-700">Marital Status</label>
-                                        <select id="marital_status" name="marital_status" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                            <option value="">Select Status</option>
-                                            <option value="single">Single</option>
-                                            <option value="married">Married</option>
-                                            <option value="divorced">Divorced</option>
-                                            <option value="widowed">Widowed</option>
-                                        </select>
-                                        @error('marital_status')
-                                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                </div>
-
-                                <!-- Date & Location -->
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="date_of_birth" class="block text-sm font-medium text-gray-700">Date of Birth</label>
-                                        <input type="date" id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}"
-                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                        @error('date_of_birth')
+                                        @error('role')
                                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
                                     </div>
@@ -170,9 +139,10 @@
                                         @enderror
                                     </div>
                                 </div>
+                            </div>
 
                                 <!-- Location Details -->
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label for="local_government_area" class="block text-sm font-medium text-gray-700">Local Government Area</label>
                                         <input type="text" id="local_government_area" name="local_government_area" value="{{ old('local_government_area') }}"
@@ -188,15 +158,6 @@
                                                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                                placeholder="Lagos">
                                         @error('state_of_origin')
-                                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <div>
-                                        <label for="home_town" class="block text-sm font-medium text-gray-700">Home Town</label>
-                                        <input type="text" id="home_town" name="home_town" value="{{ old('home_town') }}"
-                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                               placeholder="Victoria Island">
-                                        @error('home_town')
                                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
                                     </div>
@@ -223,6 +184,9 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Space before Security Section -->
+                            <div class="h-4"></div>
 
                             <!-- Password Section -->
                             <div class="bg-gray-50 p-6 rounded-lg shadow space-y-4">
@@ -253,11 +217,19 @@
                                 </div>
                             </div>
 
+                            <!-- Space Before Submit Button -->
+                            <div class="h-6"></div>
+
                             <!-- Submit Button -->
                             <div class="flex items-center justify-between">
-                                <a href="{{ route('login') }}" class="text-sm text-gray-600 hover:text-gray-500 underline">
-                                    {{ __('Already have an account?') }}
-                                </a>
+                                <div class="space-x-4">
+                                    <a href="{{ route('login') }}" class="text-sm text-gray-600 hover:text-gray-500 underline">
+                                        {{ __('Already have an account?') }}
+                                    </a>
+                                    <a href="{{ route('home') }}" class="text-sm text-blue-600 hover:text-blue-500 underline">
+                                        <i class="fas fa-home mr-1"></i>{{ __('Back to Home') }}
+                                    </a>
+                                </div>
                                 <button type="submit" class="w-full md:w-auto bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                     <i class="fas fa-user-plus mr-2"></i>
                                     {{ __('Create Account') }}

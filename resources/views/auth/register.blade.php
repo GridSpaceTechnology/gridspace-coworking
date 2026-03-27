@@ -2,6 +2,14 @@
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
+    <!-- Logo Section -->
+    <div class="flex justify-center mb-8">
+        <div class="flex items-center">
+            <img src="{{ asset('logo.jpeg') }}" alt="Gridspace Cowork" class="h-16 w-auto rounded-lg mr-3">
+            <span class="text-2xl font-bold text-gray-900">Gridspace Cowork</span>
+        </div>
+    </div>
+
     <form method="POST" action="{{ route('register') }}" class="space-y-6">
         @csrf
 
@@ -129,7 +137,7 @@
                     name="password"
                     required
                     autocomplete="new-password"
-                    placeholder="••••••••"
+                    placeholder="••••••"
                 />
                 <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePassword()">
                     <svg id="eyeIcon" class="h-5 w-5 text-gray-400 hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,7 +165,7 @@
                     name="password_confirmation"
                     required
                     autocomplete="new-password"
-                    placeholder="••••••••"
+                    placeholder="••••••"
                 />
             </div>
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
@@ -193,6 +201,11 @@
                 Already have an account?
                 <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-700 font-medium">
                     Sign in
+                </a>
+            </p>
+            <p class="text-gray-500 text-sm mt-2">
+                <a href="{{ route('home') }}" class="text-blue-600 hover:text-blue-700 font-medium">
+                    <i class="fas fa-home mr-1"></i>Back to Home
                 </a>
             </p>
         </div>

@@ -83,38 +83,102 @@
                     </div>
                 </div>
 
-                <!-- Capacity -->
-                @if($listing->capacity)
-                    <div class="flex items-center text-gray-600 mb-6">
-                        <i class="fas fa-users mr-2"></i>
-                        <span>Capacity: {{ $listing->capacity }} people</span>
-                    </div>
-                @endif
-
                 <!-- Description -->
                 <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Description</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">About This Space</h3>
                     <div class="prose prose-gray max-w-none">
                         {!! nl2br($listing->description) !!}
                     </div>
                 </div>
 
-                <!-- Amenities -->
+                <!-- Detailed Amenities Section -->
                 @if($listing->amenities->count() > 0)
                     <div class="mb-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-3">Amenities</h3>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                            @foreach($listing->amenities as $amenity)
-                                <div class="flex items-center text-gray-600">
-                                    @if($amenity->icon)
-                                        <i class="fas fa-{{ $amenity->icon }} mr-2"></i>
-                                    @endif
-                                    <span>{{ $amenity->name }}</span>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">
+                            <i class="fas fa-star text-yellow-500 mr-2"></i>Available Amenities
+                        </h3>
+                        <div class="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                @foreach($listing->amenities as $amenity)
+                                    <div class="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+                                        <div class="flex items-start">
+                                            @if($amenity->icon)
+                                                <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                                    <i class="fas fa-{{ $amenity->icon }} text-blue-600"></i>
+                                                </div>
+                                            @endif
+                                            <div class="flex-1">
+                                                <div class="font-semibold text-gray-900 mb-1">{{ $amenity->name }}</div>
+                                                @if($amenity->description)
+                                                    <div class="text-sm text-gray-600">{{ $amenity->description }}</div>
+                                                @endif
+                                                <div class="text-xs text-green-600 mt-1">
+                                                    <i class="fas fa-check-circle mr-1"></i>Available
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="mt-4 text-center">
+                                <div class="text-sm text-gray-600">
+                                    <i class="fas fa-shield-alt text-green-600 mr-2"></i>
+                                    All amenities are maintained to the highest standards
                                 </div>
-                            @endforeach
+                            </div>
                         </div>
                     </div>
                 @endif
+
+                <!-- Space Features -->
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">
+                        <i class="fas fa-home text-blue-600 mr-2"></i>Space Features
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @if($listing->capacity)
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div class="flex items-center text-blue-700">
+                                    <i class="fas fa-users text-2xl mr-3"></i>
+                                    <div>
+                                        <div class="font-semibold">Capacity</div>
+                                        <div class="text-2xl font-bold">{{ $listing->capacity }} people</div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <div class="flex items-center text-green-700">
+                                <i class="fas fa-wifi text-2xl mr-3"></i>
+                                <div>
+                                    <div class="font-semibold">Internet</div>
+                                    <div class="text-sm">High-speed WiFi included</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                            <div class="flex items-center text-purple-700">
+                                <i class="fas fa-clock text-2xl mr-3"></i>
+                                <div>
+                                    <div class="font-semibold">Access</div>
+                                    <div class="text-sm">24/7 Access Available</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <div class="flex items-center text-yellow-700">
+                                <i class="fas fa-parking text-2xl mr-3"></i>
+                                <div>
+                                    <div class="font-semibold">Parking</div>
+                                    <div class="text-sm">Free parking available</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Contact Actions -->
                 <div class="flex flex-col sm:flex-row gap-4">
