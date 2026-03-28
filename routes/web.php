@@ -32,18 +32,21 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Dashboard - accessible by all authenticated users
-    Route::get('/dashboard', [ListingController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/my-bookings', [BookingController::class, 'index'])->name('bookings.index');
     Route::patch('/bookings/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.update-status');
 
     // Listing management routes - require auth for create, host/admin for other actions
     Route::post('/listings', [ListingController::class, 'store'])->name('listings.store');
-
-    Route::middleware(['host', 'admin'])->group(function () {
-        Route::get('/listings/{listing:slug}/edit', [ListingController::class, 'edit'])->name('listings.edit');
-        Route::put('/listings/{listing:slug}', [ListingController::class, 'update'])->name('listings.update');
-        Route::delete('/listings/{listing:slug}', [ListingController::class, 'destroy'])->name('listings.destroy');
-    });
+    Route::get('/admin/listings/pending', [AdminController::class, 'pendingListings'])->name('admin.listings.pending');
+    Route::post('/admin/listings/bulk-approve', [AdminController::class, 'bulkApprove'])->name('admin.bulk-approve');
+    Route::post('/admin/listings/{listing:slug}/edit', [ListingController::class, 'edit'])->name('listings.edit');
+    Route::put('/listings/{listing:slug}', [ListingController::class, 'update'])->name('listings.update');
+    Route::delete('/listings/{listing:slug}', [ListingController::class, 'destroy'])->name('listings.destroy');
+    Route::get('/admin/listings-approval', [AdminController::class, 'listingsApproval'])->name('admin.listings.approval');
+    Route::post('/admin/listings/bulk-approve', [AdminController::class, 'bulkApprove'])->name('admin.bulk-approve');
+    Route::post('/admin/listings/{listing:slug}/approve', [AdminController::class, 'approveListing'])->name('admin.listings.approve');
+    Route::post('/admin/listings/{listing:slug}/reject', [AdminController::class, 'rejectListing'])->name('admin.listings.reject');
 });
 
 // Admin routes

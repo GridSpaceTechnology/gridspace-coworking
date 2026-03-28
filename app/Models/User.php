@@ -31,6 +31,8 @@ class User extends Authenticatable
         'home_town',
         'nationality',
         'religion',
+        'company_name',
+        'business_description',
         'password',
         'role',
         'approved',

@@ -87,6 +87,50 @@ class AdminController extends Controller
     }
 
     /**
+     * Approve a pending listing.
+     */
+    public function approveListing(Listing $listing)
+    {
+        $listing->status = 'published';
+        $listing->save();
+
+        return redirect()->back()
+            ->with('success', 'Listing approved successfully!');
+    }
+
+    /**
+     * Reject a pending listing.
+     */
+    public function rejectListing(Listing $listing)
+    {
+        $listing->status = 'draft';
+        $listing->save();
+
+        return redirect()->back()
+            ->with('success', 'Listing rejected successfully!');
+    }
+
+    /**
+     * Bulk approve all pending listings.
+     */
+    public function bulkApprove(Request $request)
+    {
+        $listingIds = $request->input('listings', []);
+
+        foreach ($listingIds as $listingId) {
+            $listing = Listing::find($listingId);
+            if ($listing) {
+                $listing->status = 'published';
+                $listing->save();
+            }
+        }
+
+        $count = count($listingIds);
+        return redirect()->back()
+            ->with('success', "{$count} listing(s) approved successfully!");
+    }
+
+    /**
      * Show booking details.
      */
     public function showBooking(\App\Models\Booking $booking)
@@ -109,9 +153,6 @@ class AdminController extends Controller
         return redirect()->back()
             ->with('success', "Booking status updated to {$validated['status']} successfully!");
     }
-
-    /**
-     * Approve a pending listing.
      */
     public function approveListing(Listing $listing)
     {

@@ -56,7 +56,7 @@
                             <p class="text-gray-600">Join our community of workspace professionals</p>
                         </div>
 
-                        <form method="POST" action="{{ route('register.store') }}" class="space-y-6">
+                        <form method="POST" action="{{ route('register') }}" class="space-y-6">
                             @csrf
 
                             <!-- Name Section -->
@@ -141,51 +141,6 @@
                                 </div>
                             </div>
 
-                                <!-- Location Details - REMOVED FOR SIMPLER SIGNUP -->
-                                {{-- <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="local_government_area" class="block text-sm font-medium text-gray-700">Local Government Area</label>
-                                        <input type="text" id="local_government_area" name="local_government_area" value="{{ old('local_government_area') }}"
-                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                               placeholder="Ikeja">
-                                        @error('local_government_area')
-                                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <div>
-                                        <label for="state_of_origin" class="block text-sm font-medium text-gray-700">State of Origin</label>
-                                        <input type="text" id="state_of_origin" name="state_of_origin" value="{{ old('state_of_origin') }}"
-                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                               placeholder="Lagos">
-                                        @error('state_of_origin')
-                                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                </div> --}}
-
-                                <!-- Final Details - REMOVED FOR SIMPLER SIGNUP -->
-                                {{-- <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="nationality" class="block text-sm font-medium text-gray-700">Nationality</label>
-                                        <input type="text" id="nationality" name="nationality" value="{{ old('nationality') }}"
-                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                               placeholder="Nigerian">
-                                        @error('nationality')
-                                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <div>
-                                        <label for="religion" class="block text-sm font-medium text-gray-700">Religion</label>
-                                        <input type="text" id="religion" name="religion" value="{{ old('religion') }}"
-                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                               placeholder="">
-                                        @error('religion')
-                                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                </div> --}}
-                            </div>
-
                             <!-- Space before Security Section -->
                             <div class="h-4"></div>
 
@@ -201,7 +156,7 @@
                                         <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
                                         <input type="password" id="password" name="password" required autocomplete="new-password"
                                                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                               placeholder="••••••••">
+                                               placeholder="••••••">
                                         @error('password')
                                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
@@ -210,7 +165,7 @@
                                         <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirm Password</label>
                                         <input type="password" id="password_confirmation" name="password_confirmation" required autocomplete="new-password"
                                                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                               placeholder="•••••••">
+                                               placeholder="••••••">
                                         @error('password_confirmation')
                                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
@@ -218,23 +173,31 @@
                                 </div>
                             </div>
 
-                            <!-- Space Before Submit Button -->
-                            <div class="h-6"></div>
+                            <!-- Terms and Submit -->
+                            <div class="space-y-4">
+                                <div class="flex items-center">
+                                    <input id="terms" name="terms" type="checkbox" required
+                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <label for="terms" class="ml-2 block text-sm text-gray-700">
+                                        I agree to the <a href="#" class="text-blue-600 hover:text-blue-700">Terms and Conditions</a> and 
+                                        <a href="#" class="text-blue-600 hover:text-blue-700">Privacy Policy</a>
+                                    </label>
+                                </div>
 
-                            <!-- Submit Button -->
-                            <div class="flex items-center justify-between">
-                                <div class="space-x-4">
-                                    <a href="{{ route('login') }}" class="text-sm text-gray-600 hover:text-gray-500 underline">
+                                <div class="flex items-center justify-between">
+                                    <a href="{{ route('login') }}" class="text-sm text-gray-600 hover:text-gray-900 underline">
                                         {{ __('Already have an account?') }}
                                     </a>
-                                    <a href="{{ route('home') }}" class="text-sm text-blue-600 hover:text-blue-500 underline">
+                                    <a href="{{ route('home') }}" class="text-sm text-blue-600 hover:text-blue-700 underline">
                                         <i class="fas fa-home mr-1"></i>{{ __('Back to Home') }}
                                     </a>
+                                    
+                                    <button type="submit" 
+                                            class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                        <i class="fas fa-user-plus mr-2"></i>
+                                        {{ __('Create Account') }}
+                                    </button>
                                 </div>
-                                <button type="submit" class="w-full md:w-auto bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                    <i class="fas fa-user-plus mr-2"></i>
-                                    {{ __('Create Account') }}
-                                </button>
                             </div>
                         </form>
                     </div>
@@ -243,27 +206,4 @@
         </div>
     </div>
 </div>
-
-@section('scripts')
-<script>
-    // Add some interactivity
-    document.addEventListener('DOMContentLoaded', function() {
-        // Auto-focus first empty field
-        const firstEmpty = document.querySelector('input:placeholder');
-        if (firstEmpty) {
-            firstEmpty.focus();
-        }
-
-        // Add smooth scrolling
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(anchor.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        });
-    });
-</script>
 @endsection

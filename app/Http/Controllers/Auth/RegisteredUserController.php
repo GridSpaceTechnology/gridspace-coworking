@@ -34,8 +34,8 @@ class RegisteredUserController extends Controller
             'lastname' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'phone' => ['required', 'string', 'max:20'],
-            'gender' => ['required', 'string', 'in:male,female,other'],
-            'marital_status' => ['required', 'string', 'in:single,married,divorced,widowed'],
+            'role' => ['required', 'string', 'in:user,host'],
+            'residence' => ['required', 'string', 'max:255'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -44,17 +44,9 @@ class RegisteredUserController extends Controller
             'lastname' => $request->lastname,
             'email' => $request->email,
             'phone' => $request->phone,
-            'gender' => $request->gender,
-            'marital_status' => $request->marital_status,
-            'date_of_birth' => $request->date_of_birth,
+            'role' => $request->role,
             'residence' => $request->residence,
-            'local_government_area' => $request->local_government_area,
-            'state_of_origin' => $request->state_of_origin,
-            'home_town' => $request->home_town,
-            'nationality' => $request->nationality,
-            'religion' => $request->religion,
             'password' => Hash::make($request->password),
-            'role' => 'user', // Default role for new registrations
             'approved' => true, // Regular users don't need approval
         ]);
 
