@@ -45,9 +45,9 @@
                                         </h3>
                                         <span class="ml-auto">
                                             <span class="px-3 py-1 rounded-full text-xs font-medium
-                                                  {{ $booking->status == 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                                  $booking->status == 'confirmed' ? 'bg-green-100 text-green-800' :
-                                                  $booking->status == 'completed' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800' }}">
+                                                  {{ ($booking->status == 'pending') ? 'bg-yellow-100 text-yellow-800' :
+                                                  (($booking->status == 'confirmed') ? 'bg-green-100 text-green-800' :
+                                                  ($booking->status == 'completed' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800')) }}">
                                                 {{ ucfirst($booking->status) }}
                                             </span>
                                         </span>
@@ -75,26 +75,6 @@
                                             <p class="font-bold text-blue-600">₦{{ number_format($booking->total_price, 0) }}</p>
                                         </div>
                                     </div>
-                                </div>
-
-                                <div class="flex items-center space-x-2">
-                                    <!-- Update Status Button -->
-                                    <form method="POST" action="{{ route('bookings.update-status', $booking->id) }}">
-                                        @csrf
-                                        @if($booking->status == 'pending')
-                                            <button type="submit" name="status" value="confirmed"
-                                                    class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">
-                                                Confirm
-                                            </button>
-                                        @endif
-
-                                        @if($booking->status != 'completed')
-                                            <button type="submit" name="status" value="completed"
-                                                    class="px-3 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700">
-                                                Complete
-                                            </button>
-                                        @endif
-                                    </form>
                                 </div>
                             </div>
                         </div>

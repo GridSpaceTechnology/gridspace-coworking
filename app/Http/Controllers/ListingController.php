@@ -117,7 +117,8 @@ class ListingController extends Controller
             'contact_phone' => 'required|string|max:20',
             'whatsapp_number' => 'required|string|max:20',
             'website' => 'nullable|url|max:255',
-            'price_range' => 'required|string|max:100',
+            'price' => 'required|numeric|min:0',
+            'price_period' => 'required|in:night,week,month',
             'capacity' => 'nullable|integer|min:1',
             'amenities' => 'nullable|array',
             'amenities.*' => 'exists:amenities,id',
@@ -127,6 +128,9 @@ class ListingController extends Controller
 
         $validated['user_id'] = auth()->id();
         $validated['slug'] = Str::slug($validated['name']);
+
+        // Generate price_range from price and price_period
+        $validated['price_range'] = '₦' . number_format($validated['price'], 0) . '/' . $validated['price_period'];
 
         // Set status based on user type
         $user = auth()->user();

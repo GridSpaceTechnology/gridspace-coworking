@@ -5,11 +5,23 @@ namespace App\Http\Controllers;
 use App\Models\Inquiry;
 use App\Models\ListingAnalytic;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\InquiryReceived;
 
 class InquiryController extends Controller
 {
+    /**
+     * Display user's inquiries.
+     */
+    public function index()
+    {
+        $user = Auth::user();
+        $inquiries = Inquiry::where('email', $user->email)->with('listing')->latest()->get();
+
+        return view('inquiries.index', compact('inquiries'));
+    }
+
     /**
      * Store a newly created inquiry in storage.
      */

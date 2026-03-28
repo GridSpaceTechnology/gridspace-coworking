@@ -64,7 +64,13 @@
                         @endif
                     </div>
                     <div class="text-right">
-                        <span class="text-2xl font-bold text-blue-600">{{ $listing->price_range }}</span>
+                        <div class="inline-flex items-center bg-gradient-to-r from-blue-600 to-blue-700 rounded-full px-6 py-3 shadow-lg">
+                            <div class="flex items-center">
+                                <span class="text-white text-3xl font-bold">₦</span>
+                                <span class="text-white text-3xl font-bold">{{ number_format($listing->price, 0) }}</span>
+                                <span class="text-blue-100 text-sm font-medium ml-1">/{{ $listing->price_period ?? 'night' }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -214,6 +220,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Your Name *</label>
                             <input type="text"
                                    name="name"
+                                   value="{{ auth()->check() ? auth()->user()->full_name : old('name') }}"
                                    required
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
@@ -221,8 +228,13 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
                             <input type="email"
                                    name="email"
+                                   value="{{ auth()->check() ? auth()->user()->email : old('email') }}"
+                                   {{ auth()->check() ? 'readonly' : '' }}
                                    required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 {{ auth()->check() ? 'bg-gray-100' : '' }}">
+                            @if(auth()->check())
+                                <p class="text-xs text-gray-500 mt-1">Using your registered email</p>
+                            @endif
                         </div>
                     </div>
 
@@ -266,9 +278,14 @@
 
             @if($listing->available)
                 <a href="{{ route('bookings.create', $listing->slug) }}"
-                   class="w-full bg-green-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 text-center block">
-                    <i class="fas fa-calendar-plus mr-2"></i>
-                    Book Now - ₦{{ number_format($listing->price, 0) }}/night
+                   class="group relative w-full bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-4 rounded-xl font-semibold hover:from-green-700 hover:to-green-800 text-center block transition-all duration-300 transform hover:scale-105 shadow-xl">
+                    <div class="flex items-center justify-center">
+                        <i class="fas fa-calendar-check mr-3 text-lg"></i>
+                        <span class="text-lg">Book Now</span>
+                        <div class="absolute -top-2 -right-2 bg-yellow-400 text-gray-900 text-xs font-bold px-2 py-1 rounded-full">
+                            ₦{{ number_format($listing->price, 0) }}/{{ $listing->price_period ?? 'night' }}
+                        </div>
+                    </div>
                 </a>
             @else
                 <div class="w-full bg-gray-400 text-gray-200 px-4 py-3 rounded-lg text-center block">
@@ -276,67 +293,37 @@
                     Currently Unavailable
                 </div>
             @endif
+
+            <!-- Host Information -->
+            <div class="mt-6 border-t pt-6">
+                <h4 class="text-md font-semibold text-gray-900 mb-4">Host Information</h4>
+                <div class="flex items-center space-x-4">
+                    <div class="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-xl text-gray-500"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-semibold text-gray-900">{{ $listing->user->display_name }}</h5>
+                        <p class="text-sm text-gray-600">{{ $listing->user->role }} • {{ $listing->user->residence }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map/Location -->
+            <div class="mt-6 border-t pt-6">
+                <h4 class="text-md font-semibold text-gray-900 mb-4">Location</h4>
+                <div class="bg-gray-200 rounded-lg h-64 overflow-hidden">
+                    <div id="map" class="w-full h-full"></div>
+                </div>
+                <div class="mt-4">
+                    <p class="text-gray-700 font-medium">{{ $listing->address }}</p>
+                    <p class="text-sm text-gray-600">{{ $listing->city->name }}</p>
+                </div>
+            </div>
         </div>
 
         <!-- Sidebar -->
         <div class="lg:col-span-1">
-            <!-- Host Information -->
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Host Information</h3>
-                <div class="text-center">
-                    <div class="w-20 h-20 bg-gray-300 rounded-full mx-auto mb-3 flex items-center justify-center">
-                        <i class="fas fa-user text-3xl text-gray-500"></i>
-                    </div>
-                    <h4 class="font-medium text-gray-900">{{ $listing->user->name }}</h4>
-                    <p class="text-sm text-gray-600">Member since {{ $listing->user->created_at->format('M Y') }}</p>
-                </div>
-            </div>
-
-            <!-- Map -->
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Location</h3>
-                <div class="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-map-marked-alt text-4xl text-gray-400"></i>
-                </div>
-                <p class="text-sm text-gray-600 mt-3 text-center">
-                    <i class="fas fa-map-marker-alt mr-1"></i>{{ $listing->address }}
-                    @if($listing->city)
-                        , {{ $listing->city->name }}
-                    @endif
-                </p>
-            </div>
-
-            <!-- Quick Stats -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Space Details</h3>
-                <dl class="space-y-3">
-                    @if($listing->capacity)
-                        <div class="flex justify-between">
-                            <dt class="text-sm font-medium text-gray-600">Capacity</dt>
-                            <dd class="text-sm text-gray-900">{{ $listing->capacity }} people</dd>
-                        </div>
-                    @endif
-
-                    <div class="flex justify-between">
-                        <dt class="text-sm font-medium text-gray-600">Category</dt>
-                        <dd class="text-sm text-gray-900">{{ $listing->category->name }}</dd>
-                    </div>
-
-                    <div class="flex justify-between">
-                        <dt class="text-sm font-medium text-gray-600">Price Range</dt>
-                        <dd class="text-sm text-gray-900">{{ $listing->price_range }}</dd>
-                    </div>
-
-                    @if($listing->website)
-                        <div class="flex justify-between">
-                            <dt class="text-sm font-medium text-gray-600">Website</dt>
-                            <dd class="text-sm text-blue-600 truncate">
-                                <a href="{{ $listing->website }}" target="_blank">{{ parse_url($listing->website)['host'] }}</a>
-                            </dd>
-                        </div>
-                    @endif
-                </dl>
-            </div>
+            <!-- Sidebar can be used for future features -->
         </div>
     </div>
 </div>
@@ -348,5 +335,44 @@ function showImage(index) {
         img.style.opacity = i === index ? '1' : '0';
     });
 }
+
+// Initialize Google Maps
+function initMap() {
+    const address = "{{ $listing->address }} @if($listing->city) {{ $listing->city->name }} @endif";
+    const geocoder = new google.maps.Geocoder();
+    const mapDiv = document.getElementById('map');
+
+    geocoder.geocode({ address: address }, (results, status) => {
+        if (status === 'OK') {
+            const map = new google.maps.Map(mapDiv, {
+                zoom: 15,
+                center: results[0].geometry.location,
+                styles: [
+                    {
+                        featureType: "poi",
+                        elementType: "labels",
+                        stylers: [{ visibility: "off" }]
+                    }
+                ]
+            });
+
+            new google.maps.Marker({
+                position: results[0].geometry.location,
+                map: map,
+                title: "{{ $listing->name }}"
+            });
+        } else {
+            mapDiv.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500"><i class="fas fa-map-marker-alt mr-2"></i>Map unavailable</div>';
+        }
+    });
+}
+
+// Load Google Maps
+window.initMap = initMap;
+</script>
+
+<!-- Google Maps API -->
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&callback=initMap">
 </script>
 @endsection

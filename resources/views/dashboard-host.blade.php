@@ -4,35 +4,39 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Welcome Section -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Welcome back, {{ auth()->user()->display_name }}!</h1>
-        <p class="text-gray-600 mt-2">Manage your workspace listings and track their performance.</p>
-    </div>
-
-    <!-- Approval Status Alert -->
-    @if(auth()->user()->isHost() && !auth()->user()->isApproved())
-        <div class="bg-white rounded-lg shadow border-l-4 border-yellow-400 p-6 mb-8 h-32 flex items-center">
-            <div class="flex items-center w-full">
-                <div class="flex-shrink-0 bg-yellow-500 rounded-lg p-3">
-                    <i class="fas fa-clock text-white text-xl"></i>
-                </div>
-                <div class="ml-4 flex-1">
-                    <h3 class="text-lg font-medium text-gray-900">Account Pending Approval</h3>
-                    <div class="mt-2 text-sm text-gray-600">
-                        <p>Your host account is currently pending admin approval. You can view your dashboard, but you won't be able to create or manage listings until your account is approved.</p>
-                        <p class="mt-1">We'll notify you once your account is approved. This typically takes 24-48 hours.</p>
+    <!-- User Details -->
+    <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-medium text-gray-900">
+                @if(auth()->user()->role == 'admin') Admin Details
+                @elseif(auth()->user()->role == 'host') Host Details
+                @else User Details
+                @endif
+            </h2>
+        </div>
+        <div class="px-6 py-4">
+            <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0">
+                    <div class="h-16 w-16 rounded-full bg-blue-500 flex items-center justify-center">
+                        <span class="text-white text-xl font-medium">
+                            {{ strtoupper(substr(auth()->user()->display_name, 0, 1)) }}
+                        </span>
                     </div>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-medium text-gray-900">{{ auth()->user()->display_name }}</h3>
+                    <p class="text-sm text-gray-500">{{ auth()->user()->email }}</p>
+                    <p class="text-sm text-gray-500 mt-1">Role: {{ ucfirst(auth()->user()->role) }}</p>
                 </div>
             </div>
         </div>
-    @endif
+    </div>
 
     <!-- Stats Overview -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow p-6 h-32 flex flex-col justify-between">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow p-6">
             <div class="flex items-center">
-                <div class="flex-shrink-0 bg-blue-500 rounded-lg p-3">
+                <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
                     <i class="fas fa-building text-white text-xl"></i>
                 </div>
                 <div class="ml-4">
@@ -42,100 +46,56 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6 h-32 flex flex-col justify-between">
+        <div class="bg-white rounded-lg shadow p-6">
             <div class="flex items-center">
-                <div class="flex-shrink-0 bg-green-500 rounded-lg p-3">
+                <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
                     <i class="fas fa-eye text-white text-xl"></i>
                 </div>
                 <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Total Views</p>
-                    <p class="text-2xl font-semibold text-gray-900">{{ auth()->user()->listings()->sum(function($listing) { return $listing->analytics()->where('event_type', 'view')->count(); }) }}</p>
+                    <p class="text-sm font-medium text-gray-600">Published Listings</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ auth()->user()->listings()->where('status', 'published')->count() }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6 h-32 flex flex-col justify-between">
+        <div class="bg-white rounded-lg shadow p-6">
             <div class="flex items-center">
-                <div class="flex-shrink-0 bg-yellow-500 rounded-lg p-3">
-                    <i class="fas fa-phone text-white text-xl"></i>
+                <div class="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-clock text-white text-xl"></i>
                 </div>
                 <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Contact Clicks</p>
-                    <p class="text-2xl font-semibold text-gray-900">{{ auth()->user()->listings()->sum(function($listing) { return $listing->analytics()->whereIn('event_type', ['phone_click', 'whatsapp_click'])->count(); }) }}</p>
+                    <p class="text-sm font-medium text-gray-600">Pending Listings</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ auth()->user()->listings()->where('status', 'pending')->count() }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6 h-32 flex flex-col justify-between">
+        <div class="bg-white rounded-lg shadow p-6">
             <div class="flex items-center">
-                <div class="flex-shrink-0 bg-purple-500 rounded-lg p-3">
-                    <i class="fas fa-envelope text-white text-xl"></i>
+                <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-star text-white text-xl"></i>
                 </div>
                 <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Inquiries</p>
-                    <p class="text-2xl font-semibold text-gray-900">{{ auth()->user()->listings()->sum(function($listing) { return $listing->analytics()->where('event_type', 'inquiry')->count(); }) }}</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow p-6 h-32 flex flex-col justify-between">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 bg-red-500 rounded-lg p-3">
-                    <i class="fas fa-chart-line text-white text-xl"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Revenue</p>
-                    <p class="text-2xl font-semibold text-gray-900">₦{{ number_format(auth()->user()->listings()->sum(function($listing) {
-                        return $listing->analytics()->whereIn('event_type', ['booking_payment', 'booking_confirmed'])->sum(function($listing) {
-                            return $listing->price * 30; // Assuming 30 days average booking
-                        });
-                    }, 0) }}</p>
+                    <p class="text-sm font-medium text-gray-600">Featured Listings</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ auth()->user()->listings()->where('featured', true)->count() }}</p>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Quick Actions -->
-    <div class="mb-6">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <a href="{{ route('listings.create') }}" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-                <div class="flex items-center justify-center mb-4">
-                    <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                        <i class="fas fa-plus text-white text-xl"></i>
-                    </div>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900">Create New Listing</h3>
-                <p class="text-sm text-gray-600 mt-2">Add a new workspace to your portfolio</p>
-            </a>
-
-            <a href="{{ route('featured-requests.create') }}" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-                <div class="flex items-center justify-center mb-4">
-                    <div class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center">
-                        <i class="fas fa-star text-white text-xl"></i>
-                    </div>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900">Feature Your Listing</h3>
-                <p class="text-sm text-gray-600 mt-2">Promote your workspace to reach more customers</p>
-            </a>
-
-            <a href="{{ route('analytics.index') }}" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-                <div class="flex items-center justify-center mb-4">
-                    <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
-                        <i class="fas fa-chart-bar text-white text-xl"></i>
-                    </div>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900">Analytics</h3>
-                <p class="text-sm text-gray-600 mt-2">View detailed performance metrics</p>
-            </a>
-        </div>
-    </div>
-
-    <!-- Listings Table -->
+    
+    <!-- My Listings Table -->
     <div class="bg-white rounded-lg shadow overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-medium text-gray-900">Your Listings</h2>
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-medium text-gray-900">My Listings</h2>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">{{ auth()->user()->listings()->count() }} listings</span>
+                    <a href="{{ route('listings.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-plus mr-2"></i>
+                        Create New Listing
+                    </a>
+                </div>
+            </div>
         </div>
 
         @if(auth()->user()->listings()->count() > 0)
@@ -143,100 +103,262 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Listing</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Listing Name</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Views</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inquiries</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Featured</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach(auth()->user()->listings() as $listing)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-start">
-                                        @if($listing->images->count() > 0)
-                                            <img src="{{ asset('storage/' . $listing->images->first()->image_path) }}"
-                                                 alt="{{ $listing->name }}"
-                                                 class="h-10 w-10 rounded-full object-cover mr-3">
-                                        @else
-                                            <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center mr-3">
-                                                <i class="fas fa-building text-gray-400"></i>
-                                            </div>
-                                        @endif
-                                        <div class="flex-1">
-                                            <div class="text-sm font-medium text-gray-900">{{ $listing->name }}</div>
-                                            <div class="mt-1">
-                                                @if($listing->featured)
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                        <i class="fas fa-star mr-1"></i>Featured
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{
-                                        $listing->status == 'approved' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                                    }}">
-                                        {{ $listing->status == 'approved' ? 'Approved' : 'Pending' }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    {{ $listing->category->name }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    {{ $listing->analytics()->where('event_type', 'view')->count() }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    {{ $listing->analytics()->whereIn('event_type', ['phone_click', 'whatsapp_click'])->count() }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    ₦{{ number_format($listing->analytics()->whereIn('event_type', ['booking_payment', 'booking_confirmed'])->sum(function($listing) {
-                                        return $listing->price * 30; // Assuming 30 days average booking
-                                    }), 0) }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    {{ $listing->created_at->format('M j, Y') }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex space-x-2">
-                                        <a href="{{ route('listings.edit', $listing->id) }}"
-                                           class="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                                            <i class="fas fa-edit mr-1"></i>Edit
-                                        </a>
-                                        <a href="{{ route('listings.show', $listing->slug) }}"
-                                           class="text-green-600 hover:text-green-700 text-sm font-medium ml-2">
-                                            <i class="fas fa-eye mr-1"></i>View
-                                        </a>
-                                        <a href="{{ route('listings.destroy', $listing->id) }}"
-                                           class="text-red-600 hover:text-red-700 text-sm font-medium ml-2"
-                                           onclick="return confirm('Are you sure you want to delete this listing?')">
-                                            <i class="fas fa-trash mr-1"></i>Delete
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
+                        @php
+                            $listings = auth()->user()->listings()->get();
+                            foreach($listings as $listing) {
+                                echo '<tr>';
+                                echo '<td class="px-6 py-4 whitespace-nowrap">';
+                                echo '<div class="text-sm font-medium text-gray-900">' . $listing->name . '</div>';
+                                if($listing->featured) {
+                                    echo '<div class="mt-1">';
+                                    echo '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">';
+                                    echo '<i class="fas fa-star mr-1"></i>Featured';
+                                    echo '</span>';
+                                    echo '</div>';
+                                }
+                                echo '</td>';
+                                echo '<td class="px-6 py-4 whitespace-nowrap">';
+                                echo '<span class="text-sm text-gray-900">' . ($listing->category->name ?? 'No Category') . '</span>';
+                                echo '</td>';
+                                echo '<td class="px-6 py-4 whitespace-nowrap">';
+                                echo '<span class="inline-flex px-2 py-1 text-xs leading-5 font-semibold rounded-full ';
+                                if($listing->status == 'published') {
+                                    echo 'bg-green-100 text-green-800';
+                                } elseif($listing->status == 'pending') {
+                                    echo 'bg-yellow-100 text-yellow-800';
+                                } else {
+                                    echo 'bg-gray-100 text-gray-800';
+                                }
+                                echo '">';
+                                echo ucfirst($listing->status);
+                                echo '</span>';
+                                echo '</td>';
+                                echo '<td class="px-6 py-4 whitespace-nowrap">';
+                                echo '<div class="text-sm text-gray-900">₦' . number_format($listing->price ?? 0, 0) . '</div>';
+                                if($listing->price_range) {
+                                    echo '<div class="text-xs text-gray-500">' . $listing->price_range . '</div>';
+                                }
+                                echo '</td>';
+                                echo '<td class="px-6 py-4 whitespace-nowrap">';
+                                if($listing->featured) {
+                                    echo '<span class="inline-flex px-2 py-1 text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">';
+                                    echo '<i class="fas fa-star mr-1"></i>Yes';
+                                    echo '</span>';
+                                } else {
+                                    echo '<span class="inline-flex px-2 py-1 text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">';
+                                    echo 'No';
+                                    echo '</span>';
+                                }
+                                echo '</td>';
+                                echo '<td class="px-6 py-4 whitespace-nowrap">';
+                                echo '<span class="text-sm text-gray-500">' . $listing->created_at->format('M d, Y') . '</span>';
+                                echo '</td>';
+                                echo '<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">';
+                                echo '<div class="flex space-x-2">';
+                                echo '<a href="' . route('listings.edit', $listing->id) . '" class="text-blue-600 hover:text-blue-700">';
+                                echo '<i class="fas fa-edit mr-1"></i>Edit';
+                                echo '</a>';
+                                echo '<a href="' . route('listings.show', $listing->slug) . '" class="text-green-600 hover:text-green-700">';
+                                echo '<i class="fas fa-eye mr-1"></i>View';
+                                echo '</a>';
+                                echo '<a href="' . route('listings.destroy', $listing->id) . '" class="text-red-600 hover:text-red-700" onclick="return confirm(\'Are you sure you want to delete this listing?\')">';
+                                echo '<i class="fas fa-trash mr-1"></i>Delete';
+                                echo '</a>';
+                                echo '</div>';
+                                echo '</td>';
+                                echo '</tr>';
+                            }
+                        @endphp
                     </tbody>
                 </table>
             </div>
         @else
-            <div class="text-center py-8 md:py-12 px-4 md:px-6">
-                <i class="fas fa-building text-gray-300 text-4xl md:text-5xl mb-4"></i>
-                <p class="text-gray-600 text-base md:text-lg">You haven't created any listings yet.</p>
-                <a href="{{ route('listings.create') }}"
-                   class="bg-blue-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg font-medium hover:bg-blue-700 text-sm md:text-base">
+            <div class="text-center py-12 px-4">
+                <div class="mx-auto w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center mb-4">
+                    <i class="fas fa-building text-gray-400 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No listings yet</h3>
+                <p class="text-gray-500 mb-6">Get started by creating your first workspace listing.</p>
+                <a href="{{ route('listings.create') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                     <i class="fas fa-plus mr-2"></i>
-                    <span class="hidden md:inline">Create Your First Listing</span>
-                    <span class="md:hidden">Create Listing</span>
+                    Create New Listing
                 </a>
             </div>
         @endif
+        </div>
     </div>
+
+    @if(auth()->user()->role == 'host' && auth()->user()->listings()->count() > 0)
+        <!-- Feature Request Sections - 50/50 Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Feature Request Section -->
+            <div class="bg-white rounded-lg shadow overflow-hidden lg:ml-[12%] lg:mr-0 ml-0 mr-0">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-medium text-gray-900">Feature Request</h2>
+                        <span class="text-sm text-gray-500">Request admin to feature your listings</span>
+                    </div>
+                </div>
+                <div class="px-6 py-4">
+                    <form id="featureRequestForm" action="{{ route('featured-requests.store') }}" method="POST" class="space-y-4">
+                        @csrf
+                        <div>
+                            <label for="listing_id" class="block text-sm font-medium text-gray-700 mb-2">Select Listing to Feature</label>
+                            <select id="listing_id" name="listing_id" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                                <option value="">Choose a listing...</option>
+                                @foreach(auth()->user()->listings()->get() as $listing)
+                                    <option value="{{ $listing->id }}" {{ $listing->featured ? 'disabled' : '' }}>
+                                        {{ $listing->name }} {{ $listing->featured ? '(Already Featured)' : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="plan" class="block text-sm font-medium text-gray-700 mb-2">Select Plan</label>
+                            <select id="plan" name="plan" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                                <option value="featured">Featured (₦5,000/month)</option>
+                                <option value="premium">Premium (₦12,000/month)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="duration" class="block text-sm font-medium text-gray-700 mb-2">Duration (months)</label>
+                            <select id="duration" name="duration" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                                <option value="1">1 month</option>
+                                <option value="3">3 months</option>
+                                <option value="6">6 months</option>
+                                <option value="12">12 months</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="contact_email" class="block text-sm font-medium text-gray-700 mb-2">Contact Email</label>
+                            <input type="email" id="contact_email" name="contact_email" value="{{ auth()->user()->email }}" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                        </div>
+
+                        <div>
+                            <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">Additional Notes (Optional)</label>
+                            <textarea id="notes" name="notes" rows="3" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Any additional information for the admin..."></textarea>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                <i class="fas fa-paper-plane mr-2"></i>
+                                Send Feature Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Feature Request Status -->
+            <div class="bg-white rounded-lg shadow overflow-hidden lg:mr-[12%] lg:ml-0 ml-0 mr-0">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-medium text-gray-900">Feature Request Status</h2>
+                        <span class="text-sm text-gray-500">Track your feature requests</span>
+                    </div>
+                </div>
+                <div class="px-6 py-4">
+                    @php
+                        // Get real feature requests from database
+                        $featureRequests = \App\Models\Listing::where('user_id', auth()->id())
+                            ->whereNotNull('featured_request_status')
+                            ->where('featured_request_status', '!=', 'none')
+                            ->with(['category'])
+                            ->orderBy('updated_at', 'desc')
+                            ->get();
+                    @endphp
+
+                    @if($featureRequests->count() > 0)
+                        <div class="space-y-4">
+                            @foreach($featureRequests as $listing)
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2">
+                                                <h3 class="text-sm font-medium text-gray-900">{{ $listing->name }}</h3>
+                                                <span class="inline-flex px-2 py-1 text-xs leading-5 font-semibold rounded-full
+                                                    @if($listing->featured_request_status == 'active') bg-green-100 text-green-800
+                                                    @elseif($listing->featured_request_status == 'pending') bg-yellow-100 text-yellow-800
+                                                    @elseif($listing->featured_request_status == 'rejected') bg-red-100 text-red-800
+                                                    @else bg-gray-100 text-gray-800 @endif">
+                                                    @if($listing->featured_request_status == 'active') Active
+                                                    @elseif($listing->featured_request_status == 'pending') Pending
+                                                    @elseif($listing->featured_request_status == 'rejected') Rejected
+                                                    @else Unknown @endif
+                                                </span>
+                                            </div>
+                                            <div class="mt-2 text-sm text-gray-500">
+                                                <p><strong>Requested:</strong> {{ $listing->updated_at->format('M d, Y H:i') }}</p>
+                                                @if($listing->featured_request_status == 'active')
+                                                    <p><strong>Started:</strong> {{ $listing->featured_starts_at ? $listing->featured_starts_at->format('M d, Y H:i') : 'N/A' }}</p>
+                                                    <p><strong>Expires:</strong> {{ $listing->featured_expires_at ? $listing->featured_expires_at->format('M d, Y H:i') : 'N/A' }}</p>
+                                                @endif
+                                                @if($listing->featured_plan)
+                                                    <p><strong>Plan:</strong> {{ ucfirst($listing->featured_plan) }} ({{ $listing->featured_duration }} months)</p>
+                                                @endif
+                                                @if($listing->featured_amount)
+                                                    <p><strong>Amount:</strong> ₦{{ number_format($listing->featured_amount, 0) }}</p>
+                                                @endif
+                                                @if($listing->featured_contact_email)
+                                                    <p><strong>Contact:</strong> {{ $listing->featured_contact_email }}</p>
+                                                @endif
+                                                @if($listing->featured_notes)
+                                                    <p><strong>Notes:</strong> {{ $listing->featured_notes }}</p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="ml-4">
+                                            @if($listing->featured_request_status == 'pending')
+                                                <button class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" disabled>
+                                                    <i class="fas fa-clock mr-1"></i>
+                                                    Pending
+                                                </button>
+                                            @elseif($listing->featured_request_status == 'active')
+                                                <button class="inline-flex items-center px-3 py-1 border border-transparent shadow-sm text-xs font-medium rounded text-white bg-green-600" disabled>
+                                                    <i class="fas fa-check mr-1"></i>
+                                                    Active
+                                                </button>
+                                            @elseif($listing->featured_request_status == 'rejected')
+                                                <button class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" disabled>
+                                                    <i class="fas fa-times mr-1"></i>
+                                                    Rejected
+                                                </button>
+                                            @else
+                                                <button class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" disabled>
+                                                    <i class="fas fa-question mr-1"></i>
+                                                    Unknown
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-8">
+                            <div class="mx-auto w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center mb-4">
+                                <i class="fas fa-star text-gray-400 text-xl"></i>
+                            </div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">No Feature Requests</h3>
+                            <p class="text-gray-500">You haven't made any feature requests yet.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
 @endsection

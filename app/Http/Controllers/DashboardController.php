@@ -15,7 +15,14 @@ class DashboardController extends Controller
         if ($user->isHost()) {
             return view('dashboard-host');
         } else {
-            return view('dashboard-guest');
+            // Get featured listings for guest dashboard
+            $featuredListings = \App\Models\Listing::where('featured', true)
+                ->with(['images', 'category'])
+                ->latest()
+                ->take(6)
+                ->get();
+
+            return view('dashboard-guest', compact('featuredListings'));
         }
     }
 }

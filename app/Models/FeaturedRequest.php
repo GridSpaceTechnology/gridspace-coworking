@@ -25,6 +25,14 @@ class FeaturedRequest extends Model
         'expires_at' => 'datetime',
     ];
 
+    /**
+     * Get the amount as a float, handling null values
+     */
+    public function getAmountAttribute($value)
+    {
+        return $value ? (float) $value : 0.0;
+    }
+
     public function listing()
     {
         return $this->belongsTo(Listing::class);

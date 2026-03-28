@@ -95,4 +95,9 @@ class User extends Authenticatable
     {
         return $this->approved === false;
     }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
 }

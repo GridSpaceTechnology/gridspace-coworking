@@ -50,14 +50,14 @@
                                 {{ $listing->created_at->format('M j, Y') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <a href="{{ route('listings.show', $listing->slug) }}" 
+                                <a href="{{ route('listings.show', $listing->slug) }}"
                                    target="_blank"
                                    class="text-blue-600 hover:text-blue-900 mr-3">View</a>
-                                <form method="POST" action="{{ route('admin.listings.approve', $listing) }}" class="inline">
+                                <form method="POST" action="{{ route('admin.listings.approve', $listing->slug) }}" class="inline">
                                     @csrf
                                     <button type="submit" class="text-green-600 hover:text-green-900 mr-3">Approve</button>
                                 </form>
-                                <form method="POST" action="{{ route('admin.listings.reject', $listing) }}" class="inline">
+                                <form method="POST" action="{{ route('admin.listings.reject', $listing->slug) }}" class="inline">
                                     @csrf
                                     <button type="submit" class="text-red-600 hover:text-red-900">Reject</button>
                                 </form>

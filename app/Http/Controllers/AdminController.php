@@ -26,7 +26,7 @@ class AdminController extends Controller
             'total_inquiries' => \App\Models\Inquiry::count(),
             'total_bookings' => \App\Models\Booking::count(),
             'pending_bookings' => \App\Models\Booking::where('status', 'pending')->count(),
-            'pending_featured_requests' => Listing::where('featured_request_status', 'pending')->count(),
+            'pending_featured_requests' => Listing::where('featured_request_status', 'pending')->where('featured', false)->count(),
         ];
 
         $recentListings = Listing::with(['user', 'category'])
@@ -41,20 +41,15 @@ class AdminController extends Controller
 
         $recentBookings = \App\Models\Booking::with(['listing', 'listing.user', 'user'])
             ->orderBy('created_at', 'desc')
-            ->limit(10)
+            ->limit(3)
             ->get();
 
         $featuredRequests = Listing::with(['user', 'category'])
             ->where('featured_request_status', 'pending')
+            ->where('featured', false)  // Exclude already featured listings
             ->orderBy('updated_at', 'desc')
             ->limit(10)
             ->get();
-
-        // Debug: Log featured requests
-        \Log::info('Admin dashboard - Featured requests count: ' . $featuredRequests->count());
-        foreach ($featuredRequests as $request) {
-            \Log::info('Featured request: Listing ID ' . $request->id . ', Status: ' . $request->featured_request_status);
-        }
 
         return view('admin.index', compact('stats', 'recentListings', 'recentInquiries', 'recentBookings', 'featuredRequests'));
     }
@@ -131,6 +126,18 @@ class AdminController extends Controller
     }
 
     /**
+     * Show all bookings.
+     */
+    public function indexBookings()
+    {
+        $bookings = \App\Models\Booking::with(['listing', 'listing.user', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('admin.bookings.index', compact('bookings'));
+    }
+
+    /**
      * Show booking details.
      */
     public function showBooking(\App\Models\Booking $booking)
@@ -152,26 +159,5 @@ class AdminController extends Controller
 
         return redirect()->back()
             ->with('success', "Booking status updated to {$validated['status']} successfully!");
-    }
-     */
-    public function approveListing(Listing $listing)
-    {
-        $listing->status = 'published';
-        $listing->save();
-
-        return redirect()->back()
-            ->with('success', 'Listing approved successfully!');
-    }
-
-    /**
-     * Reject a pending listing.
-     */
-    public function rejectListing(Listing $listing)
-    {
-        $listing->status = 'draft';
-        $listing->save();
-
-        return redirect()->back()
-            ->with('success', 'Listing rejected successfully!');
     }
 }

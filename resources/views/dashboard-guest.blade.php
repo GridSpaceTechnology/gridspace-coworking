@@ -10,8 +10,8 @@
         <p class="text-gray-600 mt-2">Discover your perfect workspace and book your next coworking space.</p>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+    <!-- Quick Actions Section -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <a href="{{ route('listings.index') }}" class="bg-white rounded-lg shadow p-4 md:p-6 hover:shadow-lg transition-shadow">
             <div class="flex items-center justify-center mb-4">
                 <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-500 rounded-full flex items-center justify-center">
@@ -19,7 +19,7 @@
                 </div>
             </div>
             <h3 class="text-base md:text-lg font-semibold text-gray-900">Browse Spaces</h3>
-            <p class="text-sm md:text-base text-gray-600 mt-2">Search for available coworking spaces in your area</p>
+            <p class="text-sm md:text-base text-gray-600 mt-2">Find your perfect workspace</p>
         </a>
 
         <a href="{{ route('bookings.index') }}" class="bg-white rounded-lg shadow p-4 md:p-6 hover:shadow-lg transition-shadow">
@@ -44,7 +44,7 @@
 
         <a href="{{ route('profile.edit') }}" class="bg-white rounded-lg shadow p-4 md:p-6 hover:shadow-lg transition-shadow">
             <div class="flex items-center justify-center mb-4">
-                <div class="w-10 h-10 md:w-12 md:h-12 bg-yellow-500 rounded-full flex items-center justify-center">
+                <div class="w-10 h-10 md:w-12 md:h-12 bg-gray-500 rounded-full flex items-center justify-center">
                     <i class="fas fa-user text-white text-lg md:text-xl"></i>
                 </div>
             </div>
@@ -53,7 +53,8 @@
         </a>
     </div>
 
-    <!-- Featured Spaces -->
+    <!-- Featured Spaces Section -->
+    <div class="mb-8">
     <div class="bg-white rounded-lg shadow p-6 mb-8">
         <h2 class="text-xl font-semibold text-gray-900 mb-4">
             <i class="fas fa-star text-yellow-500 mr-2"></i>
@@ -88,17 +89,19 @@
                                     <i class="fas fa-map-marker-alt mr-1"></i>
                                     <span class="text-xs md:text-sm">{{ $listing->address }}</span>
                                 </div>
-                                <div class="text-blue-600 font-semibold text-sm md:text-base">
-                                    {{ $listing->price_range }}
-                                </div>
                             </div>
                         </div>
 
                         <div class="px-4 py-3 bg-gray-50">
-                            <a href="{{ route('listings.show', $listing->slug) }}"
-                               class="w-full bg-blue-600 text-white text-center py-2 md:py-3 rounded-lg hover:bg-blue-700 transition-colors text-sm md:text-base">
-                                View Details
-                            </a>
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                                <div class="text-blue-600 font-semibold text-sm md:text-base">
+                                    {{ $listing->price_range }}
+                                </div>
+                                <a href="{{ route('listings.show', $listing->slug) }}"
+                                   class="bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm md:text-base">
+                                    View Details
+                                </a>
+                            </div>
                         </div>
                     </div>
                 @endforeach
@@ -110,6 +113,75 @@
                 <a href="{{ route('listings.index') }}" class="text-blue-600 hover:text-blue-700 font-medium text-base md:text-lg">
                     Browse All Spaces
                 </a>
+            </div>
+        @endif
+    </div>
+
+    <!-- My Recent Inquiries -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-900">
+                <i class="fas fa-envelope text-purple-500 mr-2"></i>
+                My Recent Inquiries
+            </h2>
+            <a href="{{ route('inquiries.index') }}"
+               class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                View All →
+            </a>
+        </div>
+
+        @php
+            $recentInquiries = \App\Models\Inquiry::where('email', auth()->user()->email)
+                ->with('listing')
+                ->latest()
+                ->limit(3)
+                ->get();
+        @endphp
+
+        @if($recentInquiries->count() > 0)
+            <div class="space-y-4">
+                @foreach($recentInquiries as $inquiry)
+                    <div class="border-l-4 border-purple-500 pl-4 hover:bg-gray-50 rounded-r-lg transition-colors">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                @if($inquiry->listing)
+                                    <h4 class="text-sm font-medium text-gray-900">
+                                        <a href="{{ route('listings.show', $inquiry->listing->slug) }}"
+                                           class="text-blue-600 hover:text-blue-800">
+                                            {{ $inquiry->listing->name }}
+                                        </a>
+                                    </h4>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        {{ Str::limit($inquiry->message, 100) }}
+                                    </p>
+                                @else
+                                    <h4 class="text-sm font-medium text-gray-900">General Inquiry</h4>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        {{ Str::limit($inquiry->message, 100) }}
+                                    </p>
+                                @endif
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs text-gray-500">
+                                    {{ $inquiry->created_at->diffForHumans() }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <div class="text-center py-8">
+                <div class="text-gray-400 mb-4">
+                    <i class="fas fa-envelope text-3xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No Inquiries Yet</h3>
+                <p class="text-gray-600 text-sm">
+                    You haven't made any inquiries yet.
+                    <a href="{{ route('listings.index') }}" class="text-blue-600 hover:text-blue-800 font-medium">
+                        Browse Spaces
+                    </a> to make your first inquiry.
+                </p>
             </div>
         @endif
     </div>

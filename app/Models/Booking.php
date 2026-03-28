@@ -19,6 +19,7 @@ class Booking extends Model
         'guest_name',
         'guest_email',
         'guest_phone',
+        'number_of_people',
         'notes',
     ];
 
@@ -27,6 +28,14 @@ class Booking extends Model
         'check_out_date' => 'datetime',
         'total_price' => 'decimal:2',
     ];
+
+    /**
+     * Get the total_price as a float, handling null values
+     */
+    public function getTotalPriceAttribute($value)
+    {
+        return $value ? (float) $value : 0.0;
+    }
 
     public function listing()
     {

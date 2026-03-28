@@ -103,14 +103,15 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex px-2 py-1 text-xs leading-5 font-semibold rounded-full
-                                    {{ $listing->featured_request_status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                    {{ $listing->featured ? 'bg-green-100 text-green-800' :
+                                       ($listing->featured_request_status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                                        ($listing->featured_request_status === 'active' ? 'bg-green-100 text-green-800' :
-                                       ($listing->featured_request_status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800')) }}">
-                                    {{ ucfirst($listing->featured_request_status) }}
+                                       ($listing->featured_request_status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'))) }}">
+                                    {{ $listing->featured ? 'Featured' : ucfirst($listing->featured_request_status) }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                @if($listing->featured_request_status === 'pending')
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if($listing->featured_request_status === 'pending' && !$listing->featured)
                                     <form method="POST" action="{{ route('admin.featured-requests.approve', $listing) }}" class="inline">
                                         @csrf
                                         <button type="submit" class="text-green-600 hover:text-green-900 mr-3">Approve</button>
@@ -120,7 +121,10 @@
                                         <button type="submit" class="text-red-600 hover:text-red-900">Reject</button>
                                     </form>
                                 @else
-                                    <span class="text-gray-400">No actions</span>
+                                    <span class="text-green-600 font-medium">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        {{ $listing->featured ? 'Featured' : ucfirst($listing->featured_request_status) }}
+                                    </span>
                                 @endif
                             </td>
                         </tr>

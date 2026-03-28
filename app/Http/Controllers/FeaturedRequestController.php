@@ -11,27 +11,17 @@ class FeaturedRequestController extends Controller
 {
     public function create()
     {
-        // Debug: Check if user is authenticated
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'Please login to feature your listing.');
         }
 
         $userId = Auth::id();
 
-        // Debug: Get all user listings first
-        $allUserListings = Listing::where('user_id', $userId)->get();
-
-        // Debug: Get published listings (temporarily include all statuses to test)
         $listings = Listing::where('user_id', $userId)
             ->with(['category', 'city'])
             ->get();
 
-        // Debug: Log the counts for troubleshooting
-        \Log::info('User ID: ' . $userId);
-        \Log::info('All user listings count: ' . $allUserListings->count());
-        \Log::info('Published listings count: ' . $listings->count());
-
-        return view('featured.request', compact('listings'));
+        return view('featured.create', compact('listings'));
     }
 
     public function store(Request $request)
@@ -69,28 +59,9 @@ class FeaturedRequestController extends Controller
             'featured_notes' => $validated['notes'] ?? null,
         ];
 
-        // Debug: Log update data
-        \Log::info('Update data for listing ' . $listing->id . ': ' . json_encode($updateData));
+        $listing->update($updateData);
 
-        // Try direct database update
-        try {
-            $result = \DB::table('listings')
-                ->where('id', $listing->id)
-                ->update($updateData);
-
-            \Log::info('Direct DB update result: ' . ($result ? 'success' : 'failed'));
-            \Log::info('Rows affected: ' . $result);
-
-            // Refresh the model to get updated values
-            $listing->refresh();
-            \Log::info('Featured request status after direct update: ' . $listing->featured_request_status);
-
-        } catch (\Exception $e) {
-            \Log::error('Update failed: ' . $e->getMessage());
-        }
-
-        return redirect()->route('dashboard')
-            ->with('success', 'Your featured request has been submitted! We will contact you within 24 hours for payment.');
+        return back()->with('success', 'Featured request submitted successfully!');
     }
 
     public function index()

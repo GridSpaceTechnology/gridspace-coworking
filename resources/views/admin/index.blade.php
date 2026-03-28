@@ -311,7 +311,15 @@
         <!-- Recent Bookings -->
         <div class="bg-white rounded-lg shadow-lg">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-medium text-gray-900">Recent Bookings</h2>
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-medium text-gray-900">Recent Bookings</h2>
+                    @if(\App\Models\Booking::count() > 3)
+                        <a href="{{ route('admin.bookings.index') }}"
+                           class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            View All →
+                        </a>
+                    @endif
+                </div>
             </div>
             <div class="p-6">
                 @if($recentBookings->count() > 0)
@@ -361,6 +369,16 @@
                             </div>
                         @endforeach
                     </div>
+
+                    @if(\App\Models\Booking::count() > 3)
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <a href="{{ route('admin.bookings.index') }}"
+                               class="block w-full text-center bg-blue-50 text-blue-600 hover:bg-blue-100 py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                                <i class="fas fa-list mr-2"></i>
+                                View All {{ \App\Models\Booking::count() }} Bookings
+                            </a>
+                        </div>
+                    @endif
                 @else
                     <div class="text-center py-8">
                         <i class="fas fa-calendar text-4xl text-gray-300 mb-3"></i>
@@ -411,6 +429,11 @@
                                         </div>
                                     </div>
                                     <div class="flex items-center space-x-2">
+                                        <a href="{{ route('listings.show', $listing->slug) }}"
+                                           class="text-blue-600 hover:text-blue-900 text-sm"
+                                           title="View Listing Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
                                         <form method="POST" action="{{ route('admin.featured-requests.approve', $listing) }}" class="inline">
                                             @csrf
                                             <button type="submit"

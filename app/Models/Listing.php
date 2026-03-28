@@ -22,6 +22,9 @@ class Listing extends Model
         'whatsapp_number',
         'website',
         'price_range',
+        'price',
+        'price_period',
+        'price_per_period',
         'capacity',
         'featured',
         'status',
@@ -30,7 +33,33 @@ class Listing extends Model
     protected $casts = [
         'featured' => 'boolean',
         'capacity' => 'integer',
+        'price' => 'decimal:2',
+        'price_per_period' => 'decimal:2',
     ];
+
+    /**
+     * Get the price as a float, handling null values
+     */
+    public function getPriceAttribute($value)
+    {
+        return $value ? (float) $value : 0.0;
+    }
+
+    public function getFormattedPriceAttribute()
+    {
+        $period = $this->price_period ?? 'night';
+        $price = (float) ($this->price ?? 0);
+
+        return "₦" . number_format($price, 0) . "/{$period}";
+    }
+
+    public function getPricePerPeriodAttribute()
+    {
+        $period = $this->price_period ?? 'night';
+        $price = (float) ($this->price_per_period ?? $this->price ?? 0);
+
+        return "₦" . number_format($price, 0) . "/{$period}";
+    }
 
     public function user()
     {

@@ -18,7 +18,7 @@
                             <strong>Booking Reference:</strong> #{{ str_pad($booking->id, 6, '0', STR_PAD_LEFT) }}
                         </p>
                         <p class="mt-2">
-                            <strong>Status:</strong> 
+                            <strong>Status:</strong>
                             <span class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                 {{ ucfirst($booking->status) }}
                             </span>
@@ -35,24 +35,29 @@
                     <h3 class="text-lg font-medium text-gray-900 mb-4">
                         Booking Details
                     </h3>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <p class="text-sm font-medium text-gray-500">Space</p>
                             <p class="text-lg font-semibold">{{ $booking->listing->title }}</p>
                             <p class="text-gray-600">{{ $booking->listing->category->name }} • {{ $booking->listing->city->name }}</p>
                         </div>
-                        
+
                         <div>
                             <p class="text-sm font-medium text-gray-500">Check-in</p>
                             <p class="text-lg font-semibold">{{ \Carbon\Carbon::parse($booking->check_in_date)->format('F j, Y') }}</p>
                         </div>
-                        
+
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Number of People</p>
+                            <p class="text-lg font-semibold">{{ $booking->number_of_people ?? 'Not specified' }}</p>
+                        </div>
+
                         <div>
                             <p class="text-sm font-medium text-gray-500">Check-out</p>
                             <p class="text-lg font-semibold">{{ \Carbon\Carbon::parse($booking->check_out_date)->format('F j, Y') }}</p>
                         </div>
-                        
+
                         <div>
                             <p class="text-sm font-medium text-gray-500">Total Price</p>
                             <p class="text-lg font-bold text-blue-600">₦{{ number_format($booking->total_price, 0) }}</p>
@@ -64,23 +69,28 @@
                         <h3 class="text-lg font-medium text-gray-900 mb-4">
                             Guest Information
                         </h3>
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <p class="text-sm font-medium text-gray-500">Name</p>
                                 <p class="text-lg">{{ $booking->guest_name }}</p>
                             </div>
-                            
+
                             <div>
                                 <p class="text-sm font-medium text-gray-500">Email</p>
                                 <p class="text-lg">{{ $booking->guest_email }}</p>
                             </div>
-                            
+
                             <div>
                                 <p class="text-sm font-medium text-gray-500">Phone</p>
                                 <p class="text-lg">{{ $booking->guest_phone }}</p>
                             </div>
-                            
+
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Number of People</p>
+                                <p class="text-lg font-semibold">{{ $booking->number_of_people ?? 'Not specified' }}</p>
+                            </div>
+
                             @if($booking->notes)
                                 <div class="md:col-span-2">
                                     <p class="text-sm font-medium text-gray-500">Notes</p>
