@@ -55,6 +55,30 @@ class AdminController extends Controller
     }
 
     /**
+     * Show all users for admin management.
+     */
+    public function usersIndex()
+    {
+        $users = \App\Models\User::withCount(['listings', 'bookings'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('admin.users.index', compact('users'));
+    }
+
+    /**
+     * Show all listings for admin management.
+     */
+    public function listingsIndex()
+    {
+        $listings = Listing::with(['user', 'category', 'city', 'images'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('admin.listings.index', compact('listings'));
+    }
+
+    /**
      * Show pending listings for admin approval.
      */
     public function pendingListings()

@@ -108,6 +108,49 @@
         </div>
     </div>
 
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Create Listing -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-purple-500 rounded-lg p-3">
+                    <i class="fas fa-plus text-white text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Create Listing</p>
+                    <p class="text-lg font-semibold text-gray-900">Add New Space</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{{ route('listings.create') }}"
+                   class="inline-flex items-center px-4 py-2 bg-purple-600 border border-transparent rounded-md shadow-sm text-white text-base font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>
+                    Create New Listing
+                </a>
+            </div>
+        </div>
+
+        <!-- Manage Users -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-indigo-500 rounded-lg p-3">
+                    <i class="fas fa-users text-white text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Manage Users</p>
+                    <p class="text-lg font-semibold text-gray-900">User Accounts</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <a href="{{ route('admin.users.index') }}"
+                   class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md shadow-sm text-white text-base font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                    <i class="fas fa-users mr-2"></i>
+                    Manage Users
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- Featured Requests Alert -->
     @if($stats['pending_featured_requests'] > 0)
         <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
@@ -259,13 +302,11 @@
                 @else
                     <div class="text-center py-8">
                         <i class="fas fa-building text-4xl text-gray-300 mb-3"></i>
-                        <p class="text-gray-500">No listings yet</p>
+                        <p class="text-gray-500">No listings found</p>
                     </div>
                 @endif
-            </div>
         </div>
-
-        <!-- Recent Inquiries -->
+    </div>
         <div class="bg-white rounded-lg shadow-lg">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h2 class="text-lg font-medium text-gray-900">Recent Inquiries</h2>

@@ -71,6 +71,8 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
     Route::get('/admin/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
     Route::get('/admin/analytics/export', [AnalyticsController::class, 'export'])->name('analytics.export');
+    Route::get('/admin/listings', [AdminController::class, 'listingsIndex'])->name('admin.listings.index');
+    Route::get('/admin/users', [AdminController::class, 'usersIndex'])->name('admin.users.index');
     Route::patch('/admin/listings/{listing}/featured', [AdminController::class, 'toggleFeatured'])->name('admin.toggle-featured');
     Route::post('/admin/listings/{listing:slug}/approve', [AdminController::class, 'approveListing'])->name('admin.listings.approve');
     Route::post('/admin/listings/{listing:slug}/reject', [AdminController::class, 'rejectListing'])->name('admin.listings.reject');
