@@ -5,6 +5,54 @@
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Success/Error Messages -->
+        @if(session('success'))
+            <div class="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle text-green-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <!-- Validation Errors -->
+        @if($errors->any())
+            <div class="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-red-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-red-800">
+                            {{ __('There were some problems with your input:') }}
+                        </p>
+                        <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Header -->
         <div class="text-center mb-8">
             <div class="flex justify-center items-center mb-6">
@@ -85,10 +133,6 @@
                                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
                                     </div>
-                                </div>
-
-                                <!-- Email & Phone -->
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
                                         <input type="email" id="email" name="email" value="{{ old('email') }}" required autocomplete="username"
@@ -107,20 +151,19 @@
                                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Additional Information -->
-                            <div class="bg-gray-50 p-6 rounded-lg shadow space-y-4">
-                                <h3 class="text-lg font-medium text-gray-900 mb-4">
-                                    <i class="fas fa-info-circle mr-2 text-blue-600"></i>
-                                    Account Information
-                                </h3>
-
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="location" class="block text-sm font-medium text-gray-700">Location</label>
+                                        <input type="text" id="location" name="location" value="{{ old('location') }}" required
+                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                               placeholder="Lagos, Nigeria">
+                                        @error('location')
+                                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                     <div>
                                         <label for="role" class="block text-sm font-medium text-gray-700">Account Type</label>
-                                        <select id="role" name="role" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        <select id="role" name="role" required
+                                                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                             <option value="">Select Account Type</option>
                                             <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>I'm looking for a workspace</option>
                                             <option value="host" {{ old('role') == 'host' ? 'selected' : '' }}>I want to list my workspace</option>
@@ -129,65 +172,7 @@
                                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
                                     </div>
-                                    <div>
-                                        <label for="residence" class="block text-sm font-medium text-gray-700">Residence</label>
-                                        <input type="text" id="residence" name="residence" value="{{ old('residence') }}"
-                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                               placeholder="Lagos, Nigeria">
-                                        @error('residence')
-                                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
                                 </div>
-                            </div>
-
-                                <!-- Location Details - REMOVED FOR SIMPLER SIGNUP -->
-                                {{-- <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="local_government_area" class="block text-sm font-medium text-gray-700">Local Government Area</label>
-                                        <input type="text" id="local_government_area" name="local_government_area" value="{{ old('local_government_area') }}"
-                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                               placeholder="Ikeja">
-                                        @error('local_government_area')
-                                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <div>
-                                        <label for="state_of_origin" class="block text-sm font-medium text-gray-700">State of Origin</label>
-                                        <input type="text" id="state_of_origin" name="state_of_origin" value="{{ old('state_of_origin') }}"
-                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                               placeholder="Lagos">
-                                        @error('state_of_origin')
-                                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                </div> --}}
-
-                                <!-- Final Details - REMOVED FOR SIMPLER SIGNUP -->
-                                {{-- <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="nationality" class="block text-sm font-medium text-gray-700">Nationality</label>
-                                        <input type="text" id="nationality" name="nationality" value="{{ old('nationality') }}"
-                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                               placeholder="Nigerian">
-                                        @error('nationality')
-                                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <div>
-                                        <label for="religion" class="block text-sm font-medium text-gray-700">Religion</label>
-                                        <input type="text" id="religion" name="religion" value="{{ old('religion') }}"
-                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                               placeholder="">
-                                        @error('religion')
-                                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                </div> --}}
-                            </div>
-
-                            <!-- Space before Security Section -->
-                            <div class="h-4"></div>
 
                             <!-- Password Section -->
                             <div class="bg-gray-50 p-6 rounded-lg shadow space-y-4">
