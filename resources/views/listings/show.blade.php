@@ -294,6 +294,24 @@
                 </div>
             @endif
 
+            <!-- Feature Request Section (only for listing owner) -->
+            @if(auth()->check() && auth()->id() === $listing->user_id && !$listing->featured)
+                <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <h4 class="text-md font-semibold text-gray-900 mb-3">
+                        <i class="fas fa-star text-yellow-500 mr-2"></i>
+                        Make Your Listing Featured
+                    </h4>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Get more visibility and bookings by featuring your listing at the top of search results.
+                    </p>
+                    <a href="{{ route('feature-requests.create', $listing) }}"
+                       class="w-full bg-yellow-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-yellow-700 text-center block transition-colors">
+                        <i class="fas fa-star mr-2"></i>
+                        Request Featured Listing
+                    </a>
+                </div>
+            @endif
+
             <!-- Host Information -->
             <div class="mt-6 border-t pt-6">
                 <h4 class="text-md font-semibold text-gray-900 mb-4">Host Information</h4>

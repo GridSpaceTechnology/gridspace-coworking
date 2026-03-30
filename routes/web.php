@@ -7,6 +7,7 @@ use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FeaturedController;
 use App\Http\Controllers\FeaturedRequestController;
+use App\Http\Controllers\FeatureRequestController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\HostApprovalController;
 use App\Http\Controllers\DashboardController;
@@ -16,17 +17,22 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [ListingController::class, 'index'])->name('home');
 Route::get('/listings', [ListingController::class, 'index'])->name('listings.index');
 Route::get('/featured', [FeaturedController::class, 'index'])->name('featured');
-    Route::get('/featured/request', [FeaturedRequestController::class, 'create'])->name('featured-requests.create');
-    Route::post('/featured/request', [FeaturedRequestController::class, 'store'])->name('featured-requests.store');
-Route::get('/listings/create', [ListingController::class, 'create'])->name('listings.create')->middleware('auth');
+    Route::get('/listings/create', [ListingController::class, 'create'])->name('listings.create')->middleware('auth');
 Route::get('/listings/{listing:slug}', [ListingController::class, 'show'])->name('listings.show');
 Route::get('/track/{listing}/{type}', [ListingController::class, 'track'])->name('track')->where('listing', '[0-9]+');
-Route::get('/listings/{listing:slug}/book', [BookingController::class, 'create'])->name('bookings.create');
-Route::post('/bookings/{listing:slug}', [BookingController::class, 'store'])->name('bookings.store');
-Route::get('/bookings/confirmation/{booking}', [BookingController::class, 'confirmation'])->name('bookings.confirmation');
-Route::post('/inquiries', [InquiryController::class, 'store'])->name('inquiries.store');
+Route::post('/inquiries/store', [InquiryController::class, 'store'])->name('inquiries.store');
+Route::get('/bookings/create/{listing}', [BookingController::class, 'create'])->name('bookings.create');
 
-// Auth routes
+// Feature Request routes
+Route::middleware('auth')->group(function () {
+    Route::get('/feature-requests/create/{listing}', [FeatureRequestController::class, 'create'])->name('feature-requests.create')->where('listing', '[0-9]+');
+    Route::post('/feature-requests/store/{listing}', [FeatureRequestController::class, 'store'])->name('feature-requests.store');
+    Route::get('/feature-requests', [FeatureRequestController::class, 'index'])->name('feature-requests.index');
+    Route::post('/feature-requests/{featureRequest}/approve', [FeatureRequestController::class, 'approve'])->name('feature-requests.approve');
+    Route::post('/feature-requests/{featureRequest}/reject', [FeatureRequestController::class, 'reject'])->name('feature-requests.reject');
+});
+
+// Host routes
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -86,6 +92,8 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/featured-requests', [FeaturedRequestController::class, 'index'])->name('admin.featured-requests.index');
     Route::post('/admin/featured-requests/{listing}/approve', [FeaturedRequestController::class, 'approve'])->name('admin.featured-requests.approve');
     Route::post('/admin/featured-requests/{listing}/reject', [FeaturedRequestController::class, 'reject'])->name('admin.featured-requests.reject');
+    Route::post('/admin/feature-requests/{featureRequest}/approve', [AdminController::class, 'approveFeatureRequest'])->name('admin.feature-requests.approve');
+    Route::post('/admin/feature-requests/{featureRequest}/reject', [AdminController::class, 'rejectFeatureRequest'])->name('admin.feature-requests.reject');
 });
 
 require __DIR__.'/auth.php';

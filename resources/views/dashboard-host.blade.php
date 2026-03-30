@@ -82,7 +82,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- My Listings Table -->
     <div class="bg-white rounded-lg shadow overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200">
@@ -210,7 +210,7 @@
                     </div>
                 </div>
                 <div class="px-6 py-4">
-                    <form id="featureRequestForm" action="{{ route('featured-requests.store') }}" method="POST" class="space-y-4">
+                    <form id="featureRequestForm" action="#" method="POST" class="space-y-4" onsubmit="return handleFeatureRequestSubmit(event)">
                         @csrf
                         <div>
                             <label for="listing_id" class="block text-sm font-medium text-gray-700 mb-2">Select Listing to Feature</label>
@@ -271,73 +271,99 @@
                     </div>
                 </div>
                 <div class="px-6 py-4">
-                    @php
-                        // Get real feature requests from database
-                        $featureRequests = \App\Models\Listing::where('user_id', auth()->id())
-                            ->whereNotNull('featured_request_status')
-                            ->where('featured_request_status', '!=', 'none')
-                            ->with(['category'])
-                            ->orderBy('updated_at', 'desc')
-                            ->get();
-                    @endphp
-
                     @if($featureRequests->count() > 0)
                         <div class="space-y-4">
-                            @foreach($featureRequests as $listing)
+                            @foreach($featureRequests as $featureRequest)
                                 <div class="border border-gray-200 rounded-lg p-4">
                                     <div class="flex items-start justify-between">
                                         <div class="flex-1">
-                                            <div class="flex items-center space-x-2">
-                                                <h3 class="text-sm font-medium text-gray-900">{{ $listing->name }}</h3>
-                                                <span class="inline-flex px-2 py-1 text-xs leading-5 font-semibold rounded-full
-                                                    @if($listing->featured_request_status == 'active') bg-green-100 text-green-800
-                                                    @elseif($listing->featured_request_status == 'pending') bg-yellow-100 text-yellow-800
-                                                    @elseif($listing->featured_request_status == 'rejected') bg-red-100 text-red-800
-                                                    @else bg-gray-100 text-gray-800 @endif">
-                                                    @if($listing->featured_request_status == 'active') Active
-                                                    @elseif($listing->featured_request_status == 'pending') Pending
-                                                    @elseif($listing->featured_request_status == 'rejected') Rejected
-                                                    @else Unknown @endif
-                                                </span>
+                                            <div class="flex items-center space-x-3">
+                                                @if($featureRequest->listing->images->count() > 0)
+                                                    <img src="{{ asset('storage/' . $featureRequest->listing->images->first()->image_path) }}"
+                                                         alt="{{ $featureRequest->listing->name }}"
+                                                         class="h-10 w-10 rounded-lg object-cover">
+                                                @else
+                                                    <div class="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center">
+                                                        <i class="fas fa-building text-gray-400 text-sm"></i>
+                                                    </div>
+                                                @endif
+                                                <div>
+                                                    <h3 class="text-sm font-medium text-gray-900">{{ $featureRequest->listing->name }}</h3>
+                                                    <span class="inline-flex px-2 py-1 text-xs leading-5 font-semibold rounded-full
+                                                        @if($featureRequest->status == 'approved') bg-green-100 text-green-800
+                                                        @elseif($featureRequest->status == 'pending') bg-yellow-100 text-yellow-800
+                                                        @elseif($featureRequest->status == 'rejected') bg-red-100 text-red-800
+                                                        @else bg-gray-100 text-gray-800 @endif">
+                                                        @if($featureRequest->status == 'approved') <i class="fas fa-check mr-1"></i> Approved
+                                                        @elseif($featureRequest->status == 'pending') <i class="fas fa-clock mr-1"></i> Pending
+                                                        @elseif($featureRequest->status == 'rejected') <i class="fas fa-times mr-1"></i> Rejected
+                                                        @else <i class="fas fa-question mr-1"></i> Unknown @endif
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div class="mt-2 text-sm text-gray-500">
-                                                <p><strong>Requested:</strong> {{ $listing->updated_at->format('M d, Y H:i') }}</p>
-                                                @if($listing->featured_request_status == 'active')
-                                                    <p><strong>Started:</strong> {{ $listing->featured_starts_at ? $listing->featured_starts_at->format('M d, Y H:i') : 'N/A' }}</p>
-                                                    <p><strong>Expires:</strong> {{ $listing->featured_expires_at ? $listing->featured_expires_at->format('M d, Y H:i') : 'N/A' }}</p>
+
+                                            <div class="mt-3 text-sm text-gray-500">
+                                                <p><strong>Requested:</strong> {{ $featureRequest->created_at->format('M d, Y H:i') }}</p>
+                                                @if($featureRequest->approved_at)
+                                                    <p><strong>Approved:</strong> {{ $featureRequest->approved_at->format('M d, Y H:i') }}</p>
                                                 @endif
-                                                @if($listing->featured_plan)
-                                                    <p><strong>Plan:</strong> {{ ucfirst($listing->featured_plan) }} ({{ $listing->featured_duration }} months)</p>
-                                                @endif
-                                                @if($listing->featured_amount)
-                                                    <p><strong>Amount:</strong> ₦{{ number_format($listing->featured_amount, 0) }}</p>
-                                                @endif
-                                                @if($listing->featured_contact_email)
-                                                    <p><strong>Contact:</strong> {{ $listing->featured_contact_email }}</p>
-                                                @endif
-                                                @if($listing->featured_notes)
-                                                    <p><strong>Notes:</strong> {{ $listing->featured_notes }}</p>
+                                                @if($featureRequest->rejected_at)
+                                                    <p><strong>Rejected:</strong> {{ $featureRequest->rejected_at->format('M d, Y H:i') }}</p>
                                                 @endif
                                             </div>
+
+                                            @if($featureRequest->request_message)
+                                                <div class="mt-3 p-2 bg-gray-50 rounded text-xs text-gray-600">
+                                                    <strong>Your Message:</strong> {{ $featureRequest->request_message }}
+                                                </div>
+                                            @endif
+
+                                            @if($featureRequest->payment_proof)
+                                                <div class="mt-3">
+                                                    <span class="inline-flex items-center px-2 py-1 text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                        <i class="fas fa-check-circle mr-1"></i>
+                                                        Payment Proof Uploaded
+                                                    </span>
+                                                    <a href="{{ asset('storage/' . $featureRequest->payment_proof) }}"
+                                                       target="_blank"
+                                                       class="ml-2 text-blue-600 hover:text-blue-800 text-xs">
+                                                        View Proof →
+                                                    </a>
+                                                </div>
+                                            @else
+                                                <div class="mt-3">
+                                                    <span class="inline-flex items-center px-2 py-1 text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                        Payment Proof Required
+                                                    </span>
+                                                </div>
+                                            @endif
+
+                                            @if($featureRequest->admin_notes)
+                                                <div class="mt-3 p-2 @if($featureRequest->status == 'rejected') bg-red-50 @else bg-blue-50 @endif rounded text-xs @if($featureRequest->status == 'rejected') text-red-600 @else text-blue-600 @endif">
+                                                    <strong>Admin Note:</strong> {{ $featureRequest->admin_notes }}
+                                                </div>
+                                            @endif
                                         </div>
+
                                         <div class="ml-4">
-                                            @if($listing->featured_request_status == 'pending')
-                                                <button class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" disabled>
+                                            @if($featureRequest->status == 'pending')
+                                                <button class="inline-flex items-center px-3 py-1 border border-yellow-300 shadow-sm text-xs font-medium rounded text-yellow-700 bg-yellow-50" disabled>
                                                     <i class="fas fa-clock mr-1"></i>
-                                                    Pending
+                                                    Pending Review
                                                 </button>
-                                            @elseif($listing->featured_request_status == 'active')
+                                            @elseif($featureRequest->status == 'approved')
                                                 <button class="inline-flex items-center px-3 py-1 border border-transparent shadow-sm text-xs font-medium rounded text-white bg-green-600" disabled>
                                                     <i class="fas fa-check mr-1"></i>
-                                                    Active
+                                                    Approved
                                                 </button>
-                                            @elseif($listing->featured_request_status == 'rejected')
-                                                <button class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" disabled>
+                                            @elseif($featureRequest->status == 'rejected')
+                                                <button class="inline-flex items-center px-3 py-1 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-red-50" disabled>
                                                     <i class="fas fa-times mr-1"></i>
                                                     Rejected
                                                 </button>
                                             @else
-                                                <button class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" disabled>
+                                                <button class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white" disabled>
                                                     <i class="fas fa-question mr-1"></i>
                                                     Unknown
                                                 </button>
@@ -361,4 +387,22 @@
         </div>
     @endif
 </div>
+
+<script>
+function handleFeatureRequestSubmit(event) {
+    event.preventDefault();
+
+    const listingId = document.getElementById('listing_id').value;
+
+    if (!listingId) {
+        alert('Please select a listing to feature.');
+        return false;
+    }
+
+    // Redirect to feature request page with selected listing
+    window.location.href = `/feature-requests/create/${listingId}`;
+
+    return false;
+}
+</script>
 @endsection

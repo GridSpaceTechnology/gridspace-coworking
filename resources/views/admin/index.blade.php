@@ -182,10 +182,13 @@
                     <div class="ml-4">
                         <h3 class="text-lg font-medium text-gray-900">Featured Requests</h3>
                         <p class="text-sm text-gray-600">Review featured listing requests</p>
-                        @if($stats['pending_featured_requests'] > 0)
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mt-1">
-                                {{ $stats['pending_featured_requests'] }} pending
-                            </span>
+                        @if($featuredRequests->count() > 0)
+                            <div class="mt-2">
+                                <span class="inline-flex items-center px-2 py-1 text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    <i class="fas fa-clock mr-1"></i>
+                                    {{ $featuredRequests->count() }} pending
+                                </span>
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -436,54 +439,91 @@
                     <i class="fas fa-star text-yellow-500 mr-2"></i>
                     Featured Requests
                 </h3>
-                <a href="{{ route('admin.featured-requests.index') }}"
-                   class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                    View All →
-                </a>
+                <div class="flex items-center space-x-3">
+                    <span class="text-sm text-gray-500">
+                        {{ $featuredRequests->count() }} pending
+                    </span>
+                    <a href="{{ route('admin.featured-requests.index') }}"
+                       class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        View All →
+                    </a>
+                </div>
             </div>
             <div class="p-6">
                 @if($featuredRequests->count() > 0)
                     <div class="space-y-4">
-                        @foreach($featuredRequests as $listing)
+                        @foreach($featuredRequests as $featureRequest)
                             <div class="border-l-4 border-yellow-500 pl-4 hover:bg-gray-50 rounded-r-lg transition-colors">
                                 <div class="flex items-start justify-between">
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">
-                                            {{ $listing->name }}
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3">
+                                            @if($featureRequest->listing->images->count() > 0)
+                                                <img src="{{ asset('storage/' . $featureRequest->listing->images->first()->image_path) }}"
+                                                     alt="{{ $featureRequest->listing->name }}"
+                                                     class="h-8 w-8 rounded-full object-cover">
+                                            @else
+                                                <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                                    <i class="fas fa-building text-gray-400 text-xs"></i>
+                                                </div>
+                                            @endif
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    {{ $featureRequest->listing->name }}
+                                                </div>
+                                                <div class="text-xs text-gray-500">
+                                                    Requested by: {{ $featureRequest->user->firstname }} {{ $featureRequest->user->lastname }}
+                                                </div>
+                                                <div class="text-xs text-gray-500">
+                                                    {{ $featureRequest->created_at->format('M j, Y \a\t g:i A') }}
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="text-xs text-gray-500">
-                                            Requested by: {{ $listing->user->firstname }} {{ $listing->user->lastname }}
-                                        </div>
-                                        <div class="text-xs text-gray-500">
-                                            Plan: {{ ucfirst($listing->featured_plan) }} - {{ $listing->featured_duration }} months
-                                        </div>
-                                        <div class="text-xs text-gray-500 mt-1">
-                                            {{ $listing->updated_at->format('M j, Y \a\t g:i A') }}
-                                        </div>
-                                        <div class="mt-2">
-                                            <span class="inline-flex px-2 py-1 text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                Pending
-                                            </span>
-                                            <span class="ml-2 text-xs text-gray-600">
-                                                Amount: ₦{{ number_format($listing->featured_amount) }}
-                                            </span>
-                                        </div>
+
+                                        @if($featureRequest->request_message)
+                                            <div class="mt-2 p-2 bg-gray-50 rounded text-xs text-gray-600">
+                                                <strong>Message:</strong> {{ $featureRequest->request_message }}
+                                            </div>
+                                        @endif
+
+                                        @if($featureRequest->payment_proof)
+                                            <div class="mt-2">
+                                                <span class="inline-flex items-center px-2 py-1 text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                    <i class="fas fa-check-circle mr-1"></i>
+                                                    Payment Proof Uploaded
+                                                </span>
+                                                <a href="{{ asset('storage/' . $featureRequest->payment_proof) }}"
+                                                   target="_blank"
+                                                   class="ml-2 text-blue-600 hover:text-blue-800 text-xs">
+                                                    View Proof →
+                                                </a>
+                                            </div>
+                                        @else
+                                            <div class="mt-2">
+                                                <span class="inline-flex items-center px-2 py-1 text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                    No Payment Proof
+                                                </span>
+                                            </div>
+                                        @endif
                                     </div>
+
                                     <div class="flex items-center space-x-2">
-                                        <a href="{{ route('listings.show', $listing->slug) }}"
+                                        <a href="{{ route('listings.show', $featureRequest->listing->slug) }}"
                                            class="text-blue-600 hover:text-blue-900 text-sm"
                                            title="View Listing Details">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <form method="POST" action="{{ route('admin.featured-requests.approve', $listing) }}" class="inline">
-                                            @csrf
-                                            <button type="submit"
-                                                    class="text-green-600 hover:text-green-900 text-sm"
-                                                    onclick="return confirm('Approve this featured request?')">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                        </form>
-                                        <form method="POST" action="{{ route('admin.featured-requests.reject', $listing) }}" class="inline">
+                                        @if($featureRequest->payment_proof)
+                                            <form method="POST" action="{{ route('admin.feature-requests.approve', $featureRequest) }}" class="inline">
+                                                @csrf
+                                                <button type="submit"
+                                                        class="text-green-600 hover:text-green-900 text-sm"
+                                                        onclick="return confirm('Approve this featured request and make the listing featured?')">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            </form>
+                                        @endif
+                                        <form method="POST" action="{{ route('admin.feature-requests.reject', $featureRequest) }}" class="inline">
                                             @csrf
                                             <button type="submit"
                                                     class="text-red-600 hover:text-red-900 text-sm"

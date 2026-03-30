@@ -29,7 +29,7 @@ class AdminController extends Controller
             'pending_featured_requests' => Listing::where('featured_request_status', 'pending')->where('featured', false)->count(),
         ];
 
-        $recentListings = Listing::with(['user', 'category'])
+        $recentListings = Listing::with(['user', 'category', 'images'])
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
@@ -44,10 +44,9 @@ class AdminController extends Controller
             ->limit(3)
             ->get();
 
-        $featuredRequests = Listing::with(['user', 'category'])
-            ->where('featured_request_status', 'pending')
-            ->where('featured', false)  // Exclude already featured listings
-            ->orderBy('updated_at', 'desc')
+        $featuredRequests = \App\Models\FeatureRequest::with(['user', 'listing', 'listing.images'])
+            ->where('status', 'pending')
+            ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
 
@@ -55,8 +54,24 @@ class AdminController extends Controller
     }
 
     /**
-     * Show all users for admin management.
+     * Approve a feature request.
      */
+    public function approveFeatureRequest(\App\Models\FeatureRequest $featureRequest)
+    {
+        $featureRequest->approve('Request approved by admin');
+
+        return redirect()->back()->with('success', 'Featured request approved and listing is now featured!');
+    }
+
+    /**
+     * Reject a feature request.
+     */
+    public function rejectFeatureRequest(\App\Models\FeatureRequest $featureRequest)
+    {
+        $featureRequest->reject('Request rejected by admin');
+
+        return redirect()->back()->with('success', 'Featured request rejected.');
+    }
     public function usersIndex()
     {
         $users = \App\Models\User::withCount(['listings', 'bookings'])
