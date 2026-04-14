@@ -15,12 +15,13 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            'Coworking Spaces',
-            'Meeting Rooms',
-            'Virtual Offices',
-            'Event Spaces',
-            'Corporate Workspace Solutions',
-            'Startup Infrastructure Services',
+            'Coworking Space',
+            'Meeting Room',
+            'Virtual Office',
+            'Event Space',
+            'Corporate Workspace',
+            'Studio',
+            'Startup Hub',
         ];
 
         foreach ($categories as $category) {

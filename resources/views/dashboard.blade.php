@@ -178,11 +178,11 @@
                                            class="text-blue-600 hover:text-blue-900">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('listings.edit', $listing) }}"
+                                        <a href="{{ route('listings.edit', $listing->slug) }}"
                                            class="text-indigo-600 hover:text-indigo-900">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form method="POST" action="{{ route('listings.destroy', $listing) }}"
+                                        <form method="POST" action="{{ route('listings.destroy', $listing->slug) }}"
                                               onsubmit="return confirm('Are you sure you want to delete this listing?')"
                                               class="inline">
                                             @csrf

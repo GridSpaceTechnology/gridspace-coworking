@@ -122,8 +122,12 @@ class ListingController extends Controller
             'capacity' => 'nullable|integer|min:1',
             'amenities' => 'nullable|array',
             'amenities.*' => 'exists:amenities,id',
-            'images' => 'nullable|array',
+            'images' => 'nullable|array|max:10',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'images.max' => 'You can upload a maximum of 10 images.',
+            'images.*.max' => 'Each image must not exceed 2MB. Please compress or resize your images.',
+            'images.*.mimes' => 'Images must be in JPG, PNG, or GIF format.',
         ]);
 
         $validated['user_id'] = auth()->id();
@@ -154,6 +158,7 @@ class ListingController extends Controller
                 $listing->images()->create([
                     'image_path' => $path,
                     'sort_order' => $index,
+                    'is_external' => ($index === 0), // First image is external building picture
                 ]);
             }
         }
@@ -218,17 +223,25 @@ class ListingController extends Controller
             'contact_phone' => 'required|string|max:20',
             'whatsapp_number' => 'required|string|max:20',
             'website' => 'nullable|url|max:255',
-            'price_range' => 'required|string|max:100',
+            'price' => 'required|numeric|min:0',
+            'price_period' => 'required|in:night',
             'capacity' => 'nullable|integer|min:1',
             'amenities' => 'nullable|array',
             'amenities.*' => 'exists:amenities,id',
-            'images' => 'nullable|array',
+            'images' => 'nullable|array|max:10',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'images.max' => 'You can upload a maximum of 10 images.',
+            'images.*.max' => 'Each image must not exceed 2MB.',
+            'price_period.in' => 'Price period must be per day.',
         ]);
 
         if ($validated['name'] !== $listing->name) {
             $validated['slug'] = Str::slug($validated['name']);
         }
+
+        // Build price_range from price and price_period
+        $validated['price_range'] = '₦' . number_format($validated['price']) . '/day';
 
         $listing->update($validated);
 

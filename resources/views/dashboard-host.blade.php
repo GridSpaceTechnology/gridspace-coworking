@@ -165,13 +165,13 @@
                                 echo '</td>';
                                 echo '<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">';
                                 echo '<div class="flex space-x-2">';
-                                echo '<a href="' . route('listings.edit', $listing->id) . '" class="text-blue-600 hover:text-blue-700">';
+                                echo '<a href="' . route('listings.edit', $listing->slug) . '" class="text-blue-600 hover:text-blue-700">';
                                 echo '<i class="fas fa-edit mr-1"></i>Edit';
                                 echo '</a>';
                                 echo '<a href="' . route('listings.show', $listing->slug) . '" class="text-green-600 hover:text-green-700">';
                                 echo '<i class="fas fa-eye mr-1"></i>View';
                                 echo '</a>';
-                                echo '<a href="' . route('listings.destroy', $listing->id) . '" class="text-red-600 hover:text-red-700" onclick="return confirm(\'Are you sure you want to delete this listing?\')">';
+                                echo '<a href="' . route('listings.destroy', $listing->slug) . '" class="text-red-600 hover:text-red-700" onclick="return confirm(\'Are you sure you want to delete this listing?\')">';
                                 echo '<i class="fas fa-trash mr-1"></i>Delete';
                                 echo '</a>';
                                 echo '</div>';

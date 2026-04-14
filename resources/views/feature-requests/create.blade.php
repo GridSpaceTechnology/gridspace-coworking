@@ -29,7 +29,7 @@
                     <div>
                         <h4 class="font-medium text-gray-900">{{ $listing->name }}</h4>
                         <p class="text-sm text-gray-500">{{ $listing->category->name ?? 'No Category' }}</p>
-                        <p class="text-sm text-gray-500">{{ $listing->location ?? 'No Location' }}</p>
+                        <p class="text-sm text-gray-500">{{ $listing->city ? $listing->city->name . ', ' . $listing->address : ($listing->address ?? 'No Location') }}</p>
                     </div>
                 </div>
             </div>
@@ -39,19 +39,6 @@
                 @csrf
 
                 <div class="space-y-6">
-                    <!-- Request Message -->
-                    <div>
-                        <label for="request_message" class="block text-sm font-medium text-gray-700 mb-2">
-                            Why should this listing be featured? <span class="text-gray-400">(Optional)</span>
-                        </label>
-                        <textarea id="request_message" name="request_message" rows="4"
-                                  class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-                                  placeholder="Tell us why your listing should be featured (optional)...">{{ old('request_message') }}</textarea>
-                        @error('request_message')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
                     <!-- Payment Proof -->
                     <div>
                         <label for="payment_proof" class="block text-sm font-medium text-gray-700 mb-2">

@@ -54,7 +54,7 @@ class RegisteredUserController extends Controller
             'residence' => $validated['location'], // Map location to residence field
             'role' => $validated['role'],
             'password' => Hash::make($validated['password']),
-            'approved' => true, // Regular users don't need approval
+            'approved' => true, // All users are auto-approved
         ]);
 
         // Debug: Log user creation success

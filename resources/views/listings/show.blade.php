@@ -136,56 +136,6 @@
                     </div>
                 @endif
 
-                <!-- Space Features -->
-                <div class="mb-6">
-                    <h3 class="text-xl font-bold text-gray-900 mb-4">
-                        <i class="fas fa-home text-blue-600 mr-2"></i>Space Features
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        @if($listing->capacity)
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                <div class="flex items-center text-blue-700">
-                                    <i class="fas fa-users text-2xl mr-3"></i>
-                                    <div>
-                                        <div class="font-semibold">Capacity</div>
-                                        <div class="text-2xl font-bold">{{ $listing->capacity }} people</div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-
-                        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                            <div class="flex items-center text-green-700">
-                                <i class="fas fa-wifi text-2xl mr-3"></i>
-                                <div>
-                                    <div class="font-semibold">Internet</div>
-                                    <div class="text-sm">High-speed WiFi included</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                            <div class="flex items-center text-purple-700">
-                                <i class="fas fa-clock text-2xl mr-3"></i>
-                                <div>
-                                    <div class="font-semibold">Access</div>
-                                    <div class="text-sm">24/7 Access Available</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                            <div class="flex items-center text-yellow-700">
-                                <i class="fas fa-parking text-2xl mr-3"></i>
-                                <div>
-                                    <div class="font-semibold">Parking</div>
-                                    <div class="text-sm">Free parking available</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Contact Actions -->
                 <div class="flex flex-col sm:flex-row gap-4">
                     <a href="{{ route('track', ['listing' => $listing->id, 'type' => 'phone']) }}"
@@ -334,7 +284,7 @@
                 </div>
                 <div class="mt-4">
                     <p class="text-gray-700 font-medium">{{ $listing->address }}</p>
-                    <p class="text-sm text-gray-600">{{ $listing->city->name }}</p>
+                    <p class="text-sm text-gray-600">{{ $listing->city ? $listing->city->name : 'Location not specified' }}</p>
                 </div>
             </div>
         </div>
@@ -389,8 +339,20 @@ function initMap() {
 window.initMap = initMap;
 </script>
 
+@if(env('GOOGLE_MAPS_API_KEY'))
 <!-- Google Maps API -->
 <script async defer
     src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&callback=initMap">
 </script>
+@else
+<script>
+// Show message when API key is not configured
+document.addEventListener('DOMContentLoaded', function() {
+    const mapDiv = document.getElementById('map');
+    if (mapDiv) {
+        mapDiv.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500 p-4 text-center"><i class="fas fa-map-marker-alt mr-2"></i>Map unavailable - No API key configured</div>';
+    }
+});
+</script>
+@endif
 @endsection

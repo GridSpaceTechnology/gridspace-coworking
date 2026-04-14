@@ -12,7 +12,7 @@
                 <p class="text-gray-600 mt-2">View and manage all user accounts.</p>
             </div>
             <div class="flex items-center space-x-4">
-                <a href="{{ route('admin.index') }}" 
+                <a href="{{ route('admin.index') }}"
                    class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md shadow-sm text-white text-base font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                     <i class="fas fa-arrow-left mr-2"></i>
                     Back to Dashboard
@@ -64,6 +64,9 @@
                             Bookings
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Joined
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -87,7 +90,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex px-2 py-1 text-xs leading-5 font-semibold rounded-full
-                                    {{ $user->role === 'admin' ? 'bg-purple-100 text-purple-800' : 
+                                    {{ $user->role === 'admin' ? 'bg-purple-100 text-purple-800' :
                                       ($user->role === 'host' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800') }}">
                                     {{ ucfirst($user->role) }}
                                 </span>
@@ -98,36 +101,44 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 {{ $user->bookings_count ?? 0 }}
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $user->approved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                    <i class="fas {{ $user->approved ? 'fa-check-circle' : 'fa-ban' }} mr-1"></i>
+                                    {{ $user->approved ? 'Active' : 'Disabled' }}
+                                </span>
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {{ $user->created_at->format('M j, Y') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-2 space-y-2 sm:space-y-0">
-                                    <a href="mailto:{{ $user->email }}" 
+                                    <a href="mailto:{{ $user->email }}"
                                        class="text-blue-600 hover:text-blue-900 text-sm order-1 sm:order-1"
                                        title="Email User">
                                         <i class="fas fa-envelope mr-1"></i>
                                         <span class="sm:hidden">Email</span>
                                     </a>
-                                    @if($user->role === 'host' && $user->status === 'pending')
-                                        <form method="POST" action="{{ route('admin.hosts.approve', $user) }}" class="inline order-2 sm:order-2">
+                                    @if($user->id !== Auth::id() && $user->role !== 'admin')
+                                        <form method="POST" action="{{ route('admin.users.toggle', $user) }}" class="inline order-2 sm:order-2">
                                             @csrf
+                                            @method('PATCH')
                                             <button type="submit"
-                                                    class="text-green-600 hover:text-green-900 text-sm bg-green-100 px-3 py-2 rounded-md"
-                                                    title="Approve Host"
-                                                    onclick="return confirm('Are you sure you want to approve this host?')">
-                                                <i class="fas fa-check mr-1"></i>
-                                                <span class="sm:hidden">Approve</span>
+                                                    class="{{ $user->approved ? 'text-yellow-600 hover:text-yellow-900 bg-yellow-100' : 'text-green-600 hover:text-green-900 bg-green-100' }} text-sm px-3 py-2 rounded-md"
+                                                    title="{{ $user->approved ? 'Deactivate' : 'Activate' }} User"
+                                                    onclick="return confirm('Are you sure you want to {{ $user->approved ? 'deactivate' : 'activate' }} this user?')">
+                                                <i class="fas {{ $user->approved ? 'fa-ban' : 'fa-check-circle' }} mr-1"></i>
+                                                <span class="sm:hidden">{{ $user->approved ? 'Disable' : 'Enable' }}</span>
                                             </button>
                                         </form>
-                                        <form method="POST" action="{{ route('admin.hosts.reject', $user) }}" class="inline order-3 sm:order-3">
+                                        <form method="POST" action="{{ route('admin.users.delete', $user) }}" class="inline order-3 sm:order-3"
+                                              onsubmit="return confirm('WARNING: This will permanently delete the user and all their data. Are you sure?')">
                                             @csrf
+                                            @method('DELETE')
                                             <button type="submit"
                                                     class="text-red-600 hover:text-red-900 text-sm bg-red-100 px-3 py-2 rounded-md"
-                                                    title="Reject Host"
-                                                    onclick="return confirm('Are you sure you want to reject this host?')">
-                                                <i class="fas fa-times mr-1"></i>
-                                                <span class="sm:hidden">Reject</span>
+                                                    title="Delete User">
+                                                <i class="fas fa-trash mr-1"></i>
+                                                <span class="sm:hidden">Delete</span>
                                             </button>
                                         </form>
                                     @endif
@@ -162,28 +173,28 @@
 document.addEventListener('DOMContentLoaded', function() {
     const roleFilter = document.getElementById('roleFilter');
     const statusFilter = document.getElementById('statusFilter');
-    
+
     function applyFilters() {
         const role = roleFilter ? roleFilter.value : '';
         const status = statusFilter ? statusFilter.value : '';
-        
+
         let url = new URL(window.location);
-        
+
         if (role) {
             url.searchParams.set('role', role);
         } else {
             url.searchParams.delete('role');
         }
-        
+
         if (status) {
             url.searchParams.set('status', status);
         } else {
             url.searchParams.delete('status');
         }
-        
+
         window.location.href = url.toString();
     }
-    
+
     if (roleFilter) roleFilter.addEventListener('change', applyFilters);
     if (statusFilter) statusFilter.addEventListener('change', applyFilters);
 });

@@ -71,10 +71,22 @@
                         <select name="city_id"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="">Select a city</option>
-                            @foreach($cities as $city)
-                                <option value="{{ $city->id }}" {{ old('city_id') == $city->id ? 'selected' : '' }}>
-                                    {{ $city->name }}
-                                </option>
+                            @foreach($cities->groupBy('state') as $state => $stateCities)
+                                @if($state)
+                                    <optgroup label="{{ $state }}">
+                                        @foreach($stateCities as $city)
+                                            <option value="{{ $city->id }}" {{ old('city_id') == $city->id ? 'selected' : '' }}>
+                                                {{ $city->name }}
+                                            </option>
+                                        @endforeach
+                                    </optgroup>
+                                @else
+                                    @foreach($stateCities as $city)
+                                        <option value="{{ $city->id }}" {{ old('city_id') == $city->id ? 'selected' : '' }}>
+                                            {{ $city->name }}
+                                        </option>
+                                    @endforeach
+                                @endif
                             @endforeach
                         </select>
                         @error('city_id')
@@ -157,15 +169,11 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Price Period *</label>
-                        <select name="price_period"
-                                class="w-full px-3 py-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="night" {{ old('price_period') == 'night' ? 'selected' : '' }}>Per Night</option>
-                            <option value="week" {{ old('price_period') == 'week' ? 'selected' : '' }}>Per Week</option>
-                            <option value="month" {{ old('price_period') == 'month' ? 'selected' : '' }}>Per Month</option>
-                        </select>
-                        @error('price_period')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <input type="hidden" name="price_period" value="night">
+                        <div class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700">
+                            Per Day (Fixed)
+                        </div>
+                        <p class="mt-1 text-sm text-gray-500">All prices are per day only</p>
                     </div>
                 </div>
             </div>
@@ -197,6 +205,19 @@
             <div class="mb-8">
                 <h2 class="text-xl font-semibold text-gray-900 mb-4">Images</h2>
 
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-700">
+                                <strong>Important:</strong> The first image you upload should be an <strong>external picture of the building</strong>. This helps users identify the property location. You can add more interior/workspace photos after the building exterior.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
                     <div class="text-center">
                         <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
@@ -213,6 +234,13 @@
                             Choose Files
                         </label>
                     </div>
+                    @error('images')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    @error('images.*')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    <p id="image-error" class="mt-2 text-sm text-red-600 hidden"></p>
                 </div>
             </div>
 
@@ -235,9 +263,33 @@
 document.getElementById('image-upload').addEventListener('change', function(e) {
     const files = e.target.files;
     const label = e.target.nextElementSibling;
+    const errorDisplay = document.getElementById('image-error');
+    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
 
-    if (files.length > 0) {
-        label.textContent = files.length + ' file(s) selected';
+    let oversizedFiles = [];
+    let validFiles = [];
+
+    for (let i = 0; i < files.length; i++) {
+        if (files[i].size > maxSize) {
+            oversizedFiles.push(files[i].name + ' (' + (files[i].size / (1024 * 1024)).toFixed(2) + 'MB)');
+        } else {
+            validFiles.push(files[i]);
+        }
+    }
+
+    // Show error for oversized files
+    if (oversizedFiles.length > 0) {
+        errorDisplay.textContent = 'The following images exceed 2MB limit: ' + oversizedFiles.join(', ') + '. Please compress or resize them before uploading.';
+        errorDisplay.classList.remove('hidden');
+    } else {
+        errorDisplay.classList.add('hidden');
+    }
+
+    // Update label
+    if (validFiles.length > 0) {
+        label.textContent = validFiles.length + ' file(s) selected' + (oversizedFiles.length > 0 ? ' (' + oversizedFiles.length + ' rejected)' : '');
+    } else if (oversizedFiles.length > 0) {
+        label.textContent = 'Choose Files';
     } else {
         label.textContent = 'Choose Files';
     }

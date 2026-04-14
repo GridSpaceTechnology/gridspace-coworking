@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Page Header -->
+    <!-- Page Header last -->
     <div class="mb-8">
         <div class="bg-blue-600 text-white px-6 py-4 rounded-lg shadow-lg">
             <div class="flex items-center justify-between">
@@ -29,35 +29,34 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Listing
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Name
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Email
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Phone
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Message
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Date
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status
-                            </th>
+                            @if(Auth::user()->role === 'admin')
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Contacted
+                                </th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($inquiries as $inquiry)
                             <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                     @if($inquiry->listing)
-                                        <a href="{{ route('listings.show', $inquiry->listing->slug) }}" 
+                                        <a href="{{ route('listings.show', $inquiry->listing->slug) }}"
                                            class="text-blue-600 hover:text-blue-800 font-medium">
                                             {{ $inquiry->listing->name }}
                                         </a>
@@ -65,28 +64,31 @@
                                         <span class="text-gray-500">No listing</span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {{ $inquiry->name }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $inquiry->email }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $inquiry->phone }}
                                 </td>
-                                <td class="px-6 py-4">
-                                    <div class="max-w-xs truncate" title="{{ $inquiry->message }}">
+                                <td class="px-4 py-4 text-sm text-gray-900 max-w-xs">
+                                    <div class="truncate" title="{{ $inquiry->message }}">
                                         {{ Str::limit($inquiry->message, 50) }}
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $inquiry->created_at->format('M j, Y') }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-xs font-medium rounded-full 
-                                        {{ $inquiry->created_at->diffForHumans() }}
-                                    </span>
-                                </td>
+                                @if(Auth::user()->role === 'admin')
+                                    <td class="px-4 py-4 whitespace-nowrap text-center">
+                                        <form method="POST" action="{{ route('admin.inquiries.toggle-contacted', $inquiry) }}" class="inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="{{ $inquiry->contacted ? 'text-green-600 hover:text-green-800' : 'text-gray-400 hover:text-gray-600' }} transition-colors" title="{{ $inquiry->contacted ? 'Mark as not contacted' : 'Mark as contacted' }}">
+                                                <i class="fas {{ $inquiry->contacted ? 'fa-check-circle text-xl' : 'fa-circle text-xl' }}"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                @endif
                             </tr>
                         @endforeach
                     </tbody>
@@ -99,7 +101,7 @@
                 <i class="fas fa-envelope text-4xl mb-4"></i>
             </div>
             <h3 class="text-xl font-semibold text-gray-900 mb-2">No Inquiries Yet</h3>
-            <p class="text-gray-600 mb-6">You haven't submitted any workspace inquiries yet. 
+            <p class="text-gray-600 mb-6">You haven't submitted any workspace inquiries yet.
                 <a href="{{ route('listings.index') }}" class="text-blue-600 hover:text-blue-800 font-medium">
                     Browse Spaces
                 </a> to find your perfect workspace and make an inquiry.

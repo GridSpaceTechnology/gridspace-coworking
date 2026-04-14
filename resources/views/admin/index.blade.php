@@ -73,18 +73,6 @@
 
         <div class="bg-white rounded-lg shadow p-6">
             <div class="flex items-center">
-                <div class="flex-shrink-0 bg-orange-500 rounded-lg p-3">
-                    <i class="fas fa-user-check text-white text-xl"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Pending Hosts</p>
-                    <p class="text-2xl font-semibold text-gray-900">{{ $stats['pending_hosts'] }}</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center">
                 <div class="flex-shrink-0 bg-blue-500 rounded-lg p-3">
                     <i class="fas fa-calendar-check text-white text-xl"></i>
                 </div>

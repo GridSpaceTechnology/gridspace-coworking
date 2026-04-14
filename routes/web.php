@@ -9,7 +9,6 @@ use App\Http\Controllers\FeaturedController;
 use App\Http\Controllers\FeaturedRequestController;
 use App\Http\Controllers\FeatureRequestController;
 use App\Http\Controllers\BookingController;
-use App\Http\Controllers\HostApprovalController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -59,13 +58,14 @@ Route::middleware('auth')->group(function () {
     })->name('debug.user');
     Route::get('/my-bookings', [BookingController::class, 'index'])->name('bookings.index');
     Route::get('/my-inquiries', [InquiryController::class, 'index'])->name('inquiries.index');
+    Route::get('/inquiries/{inquiry}', [InquiryController::class, 'show'])->name('inquiries.show');
     Route::patch('/bookings/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.update-status');
 
     // Listing management routes - require auth for create, host/admin for other actions
     Route::post('/listings', [ListingController::class, 'store'])->name('listings.store');
     Route::get('/admin/listings/pending', [AdminController::class, 'pendingListings'])->name('admin.listings.pending');
     Route::post('/admin/listings/bulk-approve', [AdminController::class, 'bulkApprove'])->name('admin.bulk-approve');
-    Route::post('/admin/listings/{listing:slug}/edit', [ListingController::class, 'edit'])->name('listings.edit');
+    Route::get('/listings/{listing:slug}/edit', [ListingController::class, 'edit'])->name('listings.edit');
     Route::put('/listings/{listing:slug}', [ListingController::class, 'update'])->name('listings.update');
     Route::delete('/listings/{listing:slug}', [ListingController::class, 'destroy'])->name('listings.destroy');
     Route::get('/admin/listings-approval', [AdminController::class, 'listingsApproval'])->name('admin.listings.approval');
@@ -81,15 +81,16 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/analytics/export', [AnalyticsController::class, 'export'])->name('analytics.export');
     Route::get('/admin/listings', [AdminController::class, 'listingsIndex'])->name('admin.listings.index');
     Route::get('/admin/users', [AdminController::class, 'usersIndex'])->name('admin.users.index');
+    Route::delete('/admin/users/{user}', [AdminController::class, 'deleteUser'])->name('admin.users.delete');
+    Route::patch('/admin/users/{user}/toggle', [AdminController::class, 'toggleUserStatus'])->name('admin.users.toggle');
     Route::patch('/admin/listings/{listing}/featured', [AdminController::class, 'toggleFeatured'])->name('admin.toggle-featured');
     Route::post('/admin/listings/{listing:slug}/approve', [AdminController::class, 'approveListing'])->name('admin.listings.approve');
     Route::post('/admin/listings/{listing:slug}/reject', [AdminController::class, 'rejectListing'])->name('admin.listings.reject');
     Route::get('/admin/bookings', [AdminController::class, 'indexBookings'])->name('admin.bookings.index');
     Route::get('/admin/bookings/{booking}', [AdminController::class, 'showBooking'])->name('admin.bookings.show');
     Route::patch('/admin/bookings/{booking}/status', [AdminController::class, 'updateBookingStatus'])->name('admin.bookings.update-status');
-    Route::get('/admin/host-approval', [HostApprovalController::class, 'index'])->name('admin.hosts.approval');
-    Route::post('/admin/host-approval/{user}/approve', [HostApprovalController::class, 'approve'])->name('admin.hosts.approve');
-    Route::post('/admin/host-approval/{user}/reject', [HostApprovalController::class, 'reject'])->name('admin.hosts.reject');
+    Route::get('/admin/inquiries', [AdminController::class, 'inquiriesIndex'])->name('admin.inquiries.index');
+    Route::patch('/admin/inquiries/{inquiry}/toggle-contacted', [AdminController::class, 'toggleInquiryContacted'])->name('admin.inquiries.toggle-contacted');
     Route::get('/admin/listings/pending', [AdminController::class, 'pendingListings'])->name('admin.listings.pending');
     Route::get('/admin/featured-requests', [FeaturedRequestController::class, 'index'])->name('admin.featured-requests.index');
     Route::post('/admin/featured-requests/{listing}/approve', [FeaturedRequestController::class, 'approve'])->name('admin.featured-requests.approve');

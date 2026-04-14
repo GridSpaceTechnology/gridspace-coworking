@@ -17,9 +17,37 @@ class InquiryController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $inquiries = Inquiry::where('email', $user->email)->with('listing')->latest()->get();
+
+        // For admins, show all inquiries
+        if ($user->role === 'admin') {
+            $inquiries = Inquiry::with('listing')
+                ->latest()
+                ->get();
+        }
+        // For hosts, show inquiries for their listings
+        elseif ($user->role === 'host') {
+            $listingIds = $user->listings()->pluck('id');
+            $inquiries = Inquiry::whereIn('listing_id', $listingIds)
+                ->with('listing')
+                ->latest()
+                ->get();
+        } else {
+            // For regular users, show inquiries they submitted
+            $inquiries = Inquiry::where('email', $user->email)
+                ->with('listing')
+                ->latest()
+                ->get();
+        }
 
         return view('inquiries.index', compact('inquiries'));
+    }
+
+    /**
+     * Display a single inquiry.
+     */
+    public function show(Inquiry $inquiry)
+    {
+        return view('inquiries.show', compact('inquiry'));
     }
 
     /**

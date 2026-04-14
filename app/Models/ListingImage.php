@@ -13,10 +13,12 @@ class ListingImage extends Model
         'listing_id',
         'image_path',
         'sort_order',
+        'is_external',
     ];
 
     protected $casts = [
         'sort_order' => 'integer',
+        'is_external' => 'boolean',
     ];
 
     public function listing()

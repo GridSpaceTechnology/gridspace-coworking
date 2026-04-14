@@ -6,7 +6,9 @@ use App\Models\Listing;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\User;
+use App\Models\FeatureRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -22,12 +24,17 @@ class AdminController extends Controller
             'pending_listings' => Listing::where('status', 'pending')->count(),
             'total_users' => User::count(),
             'total_hosts' => User::where('role', 'host')->count(),
-            'pending_hosts' => User::where('role', 'host')->where('approved', false)->count(),
             'total_inquiries' => \App\Models\Inquiry::count(),
             'total_bookings' => \App\Models\Booking::count(),
             'pending_bookings' => \App\Models\Booking::where('status', 'pending')->count(),
-            'pending_featured_requests' => Listing::where('featured_request_status', 'pending')->where('featured', false)->count(),
+            'pending_featured_requests' => FeatureRequest::where('status', 'pending')->count(),
         ];
+
+        // Get featured listing requests from feature_requests table
+        $featuredRequests = FeatureRequest::where('status', 'pending')
+            ->with(['user', 'listing'])
+            ->latest()
+            ->get();
 
         $recentListings = Listing::with(['user', 'category', 'images'])
             ->orderBy('created_at', 'desc')
@@ -72,13 +79,56 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'Featured request rejected.');
     }
+
+    /**
+     * Show users index.
+     */
     public function usersIndex()
     {
-        $users = \App\Models\User::withCount(['listings', 'bookings'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
-
+        $users = User::latest()->paginate(20);
         return view('admin.users.index', compact('users'));
+    }
+
+    /**
+     * Delete a user.
+     */
+    public function deleteUser(User $user)
+    {
+        // Prevent deleting admin users
+        if ($user->role === 'admin') {
+            return redirect()->back()->with('error', 'Cannot delete admin users.');
+        }
+
+        // Prevent deleting yourself
+        if ($user->id === Auth::id()) {
+            return redirect()->back()->with('error', 'You cannot delete your own account.');
+        }
+
+        $user->delete();
+
+        return redirect()->back()->with('success', 'User deleted successfully.');
+    }
+
+    /**
+     * Toggle user active status.
+     */
+    public function toggleUserStatus(User $user)
+    {
+        // Prevent disabling admin users
+        if ($user->role === 'admin' && $user->id !== Auth::id()) {
+            return redirect()->back()->with('error', 'Cannot change status of admin users.');
+        }
+
+        // Prevent disabling yourself
+        if ($user->id === Auth::id()) {
+            return redirect()->back()->with('error', 'You cannot disable your own account.');
+        }
+
+        $user->approved = !$user->approved;
+        $user->save();
+
+        $status = $user->approved ? 'activated' : 'deactivated';
+        return redirect()->back()->with('success', "User {$status} successfully.");
     }
 
     /**
@@ -198,5 +248,28 @@ class AdminController extends Controller
 
         return redirect()->back()
             ->with('success', "Booking status updated to {$validated['status']} successfully!");
+    }
+
+    /**
+     * Display all inquiries for admin management.
+     */
+    public function inquiriesIndex()
+    {
+        $inquiries = \App\Models\Inquiry::with(['listing', 'listing.user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('admin.inquiries', compact('inquiries'));
+    }
+
+    /**
+     * Toggle the contacted status of an inquiry.
+     */
+    public function toggleInquiryContacted(\App\Models\Inquiry $inquiry)
+    {
+        $inquiry->contacted = !$inquiry->contacted;
+        $inquiry->save();
+
+        return back()->with('success', 'Inquiry contact status updated.');
     }
 }
