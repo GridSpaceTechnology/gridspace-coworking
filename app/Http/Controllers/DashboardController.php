@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Booking;
+use App\Models\Listing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,24 +13,34 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Route to appropriate dashboard based on user role
         if ($user->isHost()) {
-            // Load host's feature requests
             $featureRequests = \App\Models\FeatureRequest::with(['listing', 'listing.images'])
                 ->where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
 
             return view('dashboard-host', compact('featureRequests'));
-        } else {
-            // Get featured listings for guest dashboard
-            $featuredListings = \App\Models\Listing::where('featured', true)
-                ->with(['images', 'category'])
-                ->latest()
-                ->take(6)
-                ->get();
-
-            return view('dashboard-guest', compact('featuredListings'));
         }
+
+        $featuredListings = Listing::where('featured', true)
+            ->where('status', 'published')
+            ->with(['images', 'category', 'city'])
+            ->latest()
+            ->take(6)
+            ->get();
+
+        $recommendedListing = $featuredListings->first()
+            ?? Listing::where('status', 'published')
+                ->with(['images', 'category', 'city'])
+                ->latest()
+                ->first();
+
+        $recentBookings = Booking::with('listing')
+            ->where('user_id', $user->id)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('dashboard-guest', compact('featuredListings', 'recommendedListing', 'recentBookings'));
     }
 }

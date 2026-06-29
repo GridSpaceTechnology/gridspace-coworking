@@ -39,7 +39,6 @@ class RegisteredUserController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'phone' => ['required', 'string', 'max:20'],
             'location' => ['required', 'string', 'max:255'],
-            'role' => ['required', 'in:user,host'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -51,10 +50,11 @@ class RegisteredUserController extends Controller
             'lastname' => $validated['lastname'],
             'email' => $validated['email'],
             'phone' => $validated['phone'],
-            'residence' => $validated['location'], // Map location to residence field
-            'role' => $validated['role'],
+            'residence' => $validated['location'],
+            'role' => 'user',
             'password' => Hash::make($validated['password']),
-            'approved' => true, // All users are auto-approved
+            'approved' => true,
+            'onboarding_step' => 0,
         ]);
 
         // Debug: Log user creation success
@@ -64,14 +64,10 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        // Debug: Log login success
-        \Log::info('User logged in successfully');
+        $intent = $request->input('role') === 'host' ? 'host' : 'search';
 
-        // Redirect based on user role
-        if ($user->isHost()) {
-            return redirect(route('dashboard', absolute: false));
-        } else {
-            return redirect(route('home', absolute: false))->with('success', 'Welcome to Gridspace Cowork!');
-        }
+        return redirect()
+            ->route('onboarding.step1')
+            ->with('onboarding_intent', $intent);
     }
 }

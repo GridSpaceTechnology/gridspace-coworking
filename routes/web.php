@@ -10,6 +10,7 @@ use App\Http\Controllers\FeaturedRequestController;
 use App\Http\Controllers\FeatureRequestController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\OnboardingController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -35,6 +36,15 @@ Route::middleware('auth')->group(function () {
 
 // Host routes
 Route::middleware('auth')->group(function () {
+    Route::get('/onboarding/step-1', [OnboardingController::class, 'step1'])->name('onboarding.step1');
+    Route::post('/onboarding/step-1', [OnboardingController::class, 'storeStep1'])->name('onboarding.step1.store');
+    Route::get('/onboarding/step-2', [OnboardingController::class, 'step2'])->name('onboarding.step2');
+    Route::post('/onboarding/step-2', [OnboardingController::class, 'storeStep2'])->name('onboarding.step2.store');
+    Route::get('/onboarding/step-3', [OnboardingController::class, 'step3'])->name('onboarding.step3');
+    Route::post('/onboarding/step-3', [OnboardingController::class, 'storeStep3'])->name('onboarding.step3.store');
+    Route::get('/onboarding/step-4', [OnboardingController::class, 'step4'])->name('onboarding.step4');
+    Route::post('/onboarding/step-4', [OnboardingController::class, 'storeStep4'])->name('onboarding.step4.store');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

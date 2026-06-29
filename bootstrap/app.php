@@ -14,10 +14,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'host' => \App\Http\Middleware\HostMiddleware::class,
+            'onboarding' => \App\Http\Middleware\EnsureOnboardingComplete::class,
         ]);
 
         $middleware->appendToGroup('web', [
             \App\Http\Middleware\CheckUserStatus::class,
+            \App\Http\Middleware\EnsureOnboardingComplete::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

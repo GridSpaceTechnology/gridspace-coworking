@@ -1,349 +1,410 @@
-@extends('layouts.app')
+@extends('layouts.home')
 
-@section('title', 'Gridspace - Find Your Perfect Workspace')
+@section('title', 'GridSpace - Find a flexible workspace near you')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Hero Section -->
-    <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-8 mb-8 text-white">
-        <div class="text-center">
-            <h1 class="text-4xl font-bold mb-4">Find Your Perfect Workspace</h1>
-            <p class="text-xl mb-8">Discover coworking spaces, meeting rooms, and more in your area</p>
+@php
+    $heroImage = 'https://lh3.googleusercontent.com/aida-public/AB6AXuCVbUx5ex8rgVuC6bVY0a_jZOq5akzUT-fOpWN3yeh1F62BWVXvHvEjE8hivErkk--Quny_qyqCWoVBTzHUucED4I1lt0Oc1zvjFKlRj6azHEHnnOue13LrIwNaTICNFEwBY60dIq02N0y9BvZRtSApg6hnfE-7nu9FdVb1iqAkL3FLbCq994QclvUbsnqE9yJe6WLRW63BKjntRlJ_iJcGtQEfjSTtFVlLOSOVOSJAnjoT-KW1Jf2jkaMQMjEZ1BV-8k_CLDWXtl0';
+    $fallbackListingImage = 'https://lh3.googleusercontent.com/aida-public/AB6AXuCTp2s1Hs1YRRylGaNnImFuO1FKV9Cs-9v-C35165x9zxj8SCO1o9Y4SI1cLeM-8HhcFlgXYvmsWGaLxuW03DSNPDDIi6vmwSGp9Ou08_7LUsNDNroTY8Vot3T5Us7aZh3vlblUCI0W5oCwCdH4aQSYWs5swvJfUZ0tPsfgxsAzzT4aHIhCq8iFOEPLxFPYyo0-iUFG5y5bUfmEAbZjYjw2pjd467lJQuVmnGOcWyXA5_WshG_FTI2B3nocn1ugAsMMdZIroWK_9o8';
+    $cityImages = [
+        'lagos' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuAO6jnccSDYZ5gHIUXzZTq3YmTm95mZxW2FOjI_noAAba-oP15hL3bAtyugJyW32d6kibpjtniQyzBL4O_KezektHSRz-9wlFrek6wHR0TT1QpCv_sMIR8mbhO2Sb4mCsxiO55HB-7n8EtNto5TUlVzMiJ4MCa2MSNRZMHG9oJ_3X0zpe3MFV46ehpp6N2KQX3Q6xTZ2y3AS8Jh6dpuXzn_JtRkDKaJtNjlnPB36H9QH5yaLGbORCuMiLv_KZaaxMqfaacwVDENnJE',
+        'abuja' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuDEKdEXlOEUgMn-Dlmz1iFznljkhOdIvrdk3nHhwRaHafhxkAVo8p9q97vhNykUcfEJnNCpM3Slxrnr5w86NM2wb9qTc7t31SrtPQnfw0JffDhcsKnPHN3ImRocnesV4nWOPie0Inp4jxxw1H3R5fI_6q45oCdt8ejv-itz-bWtbzjVFfGeF3TMHaIC4Z7ws_1UsdwJx7x83psOFUMeFAyleswb7OT-6fJhOktgg3b5gloOFDXmt94jRbIplfSJwhfUKqjTHgE1038',
+        'port-harcourt' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuB41M8XWR7htCvg-6ZzpqOih19rW0EYxH4a_c9zxhZBMRw7ACW4jRuxDEJyFBlw4W13eOiwUBb9KDwO3tBzg7PztX_7d5JnpnOpVQ1nGNb7kAexFaIR4bO8SYEe7ib09_4aKagTZgGGVZpHUEgo6rU7vaTYsSfP8IhSuJF8xngHtaVrOcsx3Z5n5bscvovPPYWwLhh2DDDHYlIJESfrMN-LzGiClmdGphInRAqtnCTf9DH3m5URtVhQakBc0sGihWspyVZvlG_5jiw',
+    ];
+    $defaultCityImage = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAO6jnccSDYZ5gHIUXzZTq3YmTm95mZxW2FOjI_noAAba-oP15hL3bAtyugJyW32d6kibpjtniQyzBL4O_KezektHSRz-9wlFrek6wHR0TT1QpCv_sMIR8mbhO2Sb4mCsxiO55HB-7n8EtNto5TUlVzMiJ4MCa2MSNRZMHG9oJ_3X0zpe3MFV46ehpp6N2KQX3Q6xTZ2y3AS8Jh6dpuXzn_JtRkDKaJtNjlnPB36H9QH5yaLGbORCuMiLv_KZaaxMqfaacwVDENnJE';
+@endphp
 
-            <!-- Quick Search -->
-            <form method="GET" action="{{ route('home') }}" class="max-w-2xl mx-auto" id="quickSearchForm">
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <div class="flex-1 relative">
-                        <input
-                            type="text"
-                            name="search"
-                            placeholder="Search by location, name, or description..."
-                            value="{{ request('search') }}"
-                            class="w-full px-4 py-3 pr-10 rounded-lg border-0 focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400"
-                            id="searchInput"
-                            autocomplete="off"
-                        >
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                            <i class="fas fa-search text-gray-400"></i>
-                        </div>
+<!-- Hero -->
+<section class="relative bg-surface py-16 lg:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 items-center">
+        <div>
+            <h1 class="text-5xl lg:text-6xl font-extrabold text-navy leading-tight mb-6">
+                Find a flexible <br/><span class="text-primary">workspace</span> near you
+            </h1>
+            <p class="text-lg text-gray-600 mb-10 max-w-lg">
+                Discover verified, flexible workspaces with reliable power, high-speed internet, and everything you need to stay productive on the go.
+            </p>
 
-                        <!-- Live Search Results Dropdown -->
-                        <div id="searchResults" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 hidden z-50 max-h-96 overflow-y-auto">
-                        </div>
-                    </div>
-                    <button type="submit" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 shadow-md">
-                        <i class="fas fa-search mr-2"></i>Search
-                    </button>
+            <form method="GET" action="{{ route('home') }}" id="heroSearchForm" class="bg-white p-2 rounded-grid shadow-xl border border-gray-100 flex flex-col md:flex-row items-center gap-2 max-w-2xl relative">
+                <div class="flex-1 flex items-center px-4 md:border-r border-gray-200 w-full">
+                    <svg class="w-5 h-5 text-gray-400 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <input type="text" name="search" id="searchInput" value="{{ request('search') }}" placeholder="Enter location or workspace name" class="w-full border-none focus:ring-0 text-sm py-3" autocomplete="off"/>
                 </div>
-
-                <!-- Active Search Indicator -->
-                @if(request('search'))
-                    <div class="mt-3 text-center">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
-                            <i class="fas fa-filter mr-2"></i>
-                            Searching for: "{{ request('search') }}"
-                            <a href="{{ route('home') }}" class="ml-2 hover:text-blue-600">
-                                <i class="fas fa-times"></i>
-                            </a>
-                        </span>
-                    </div>
-                @endif
+                <div class="flex-1 flex items-center px-4 w-full">
+                    <svg class="w-5 h-5 text-gray-400 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <select name="city" class="w-full border-none focus:ring-0 text-sm py-3 bg-transparent text-gray-700">
+                        <option value="">All cities</option>
+                        @foreach($cities as $city)
+                            <option value="{{ $city->slug }}" @selected(request('city') === $city->slug)>{{ $city->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <button type="submit" class="w-full md:w-auto bg-primary text-white font-bold px-8 py-3 rounded-grid hover:bg-orange-600 transition flex items-center justify-center gap-2 shrink-0">
+                    Find a Space
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </button>
+                <div id="searchResults" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-grid shadow-xl border border-gray-100 hidden z-50 max-h-96 overflow-y-auto"></div>
             </form>
+
+            <div class="mt-12 flex flex-wrap gap-8 items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-primary">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3.005 3.005 0 013.75-2.906z"/></svg>
+                    </div>
+                    <div>
+                        <p class="font-extrabold text-navy text-xl">50K+</p>
+                        <p class="text-xs text-gray-500 uppercase tracking-wider">Happy Users</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-primary">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                    </div>
+                    <div>
+                        <p class="font-extrabold text-navy text-xl">{{ $cities->sum('listings_count') ?: '1200' }}+</p>
+                        <p class="text-xs text-gray-500 uppercase tracking-wider">Locations</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-primary">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    </div>
+                    <div>
+                        <p class="font-extrabold text-navy text-xl">4.9/5</p>
+                        <p class="text-xs text-gray-500 uppercase tracking-wider">Rating</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative flex justify-center">
+            <div class="relative w-full max-w-md aspect-[3/4] overflow-hidden rounded-2xl shadow-2xl">
+                <img src="{{ $heroImage }}" alt="Workspace" class="w-full h-full object-cover"/>
+            </div>
+            <div class="absolute -top-4 -right-4 w-24 h-24 border-t-4 border-r-4 border-primary rounded-tr-3xl"></div>
+            <div class="absolute -bottom-4 -left-4 w-24 h-24 border-b-4 border-l-4 border-navy rounded-bl-3xl"></div>
         </div>
     </div>
+</section>
 
-    <!-- Category Quick Links -->
-    <div class="mb-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Browse by Category</h2>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            @foreach($categories as $category)
-                <a href="{{ route('home', ['category' => $category->slug]) }}"
-                   class="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 text-center group">
-                    <div class="text-3xl text-gray-400 mb-2 group-hover:text-blue-600">
-                        @switch($category->name)
-                            @case('Coworking Spaces')
-                                <i class="fas fa-laptop-house"></i>
-                                @break
-                            @case('Meeting Rooms')
-                                <i class="fas fa-users"></i>
-                                @break
-                            @case('Virtual Offices')
-                                <i class="fas fa-building"></i>
-                                @break
-                            @case('Event Spaces')
-                                <i class="fas fa-calendar-alt"></i>
-                                @break
-                            @case('Corporate Workspace Solutions')
-                                <i class="fas fa-briefcase"></i>
-                                @break
-                            @case('Startup Infrastructure Services')
-                                <i class="fas fa-rocket"></i>
-                                @break
-                            @default
-                                <i class="fas fa-door-open"></i>
-                        @endswitch
+@if($hasActiveFilters)
+<section class="py-12 bg-white border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+            <div>
+                <h2 class="text-2xl font-extrabold text-navy">Search Results</h2>
+                <p class="text-gray-500 text-sm mt-1">{{ $listings->total() }} workspace{{ $listings->total() === 1 ? '' : 's' }} found</p>
+            </div>
+            <a href="{{ route('home') }}" class="text-sm font-semibold text-primary hover:text-orange-600">Clear filters</a>
+        </div>
+
+        @if($listings->count() > 0)
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
+                @foreach($listings as $listing)
+                    @include('listings.partials.card', ['listing' => $listing, 'fallbackImage' => $fallbackListingImage])
+                @endforeach
+            </div>
+            {{ $listings->links() }}
+        @else
+            <div class="text-center py-16 bg-surface rounded-xl">
+                <p class="text-gray-600 mb-4">No workspaces match your search. Try different filters.</p>
+                <a href="{{ route('home') }}" class="inline-block bg-primary text-white font-bold px-8 py-3 rounded-grid hover:bg-orange-600 transition">Browse all spaces</a>
+            </div>
+        @endif
+    </div>
+</section>
+@endif
+
+<!-- Featured Workspaces -->
+<section id="featured-workspaces" class="py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-extrabold text-navy mb-4">Featured Workspaces</h2>
+            <p class="text-gray-500">Discover the most popular coworking spaces trusted by thousands of professionals</p>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            @forelse($featuredListings as $listing)
+                @include('listings.partials.card', ['listing' => $listing, 'fallbackImage' => $fallbackListingImage])
+            @empty
+                <div class="col-span-full text-center py-12 text-gray-500">
+                    <p>No featured workspaces yet. Check back soon!</p>
+                </div>
+            @endforelse
+        </div>
+        <div class="text-center">
+            <a href="{{ route('featured') }}" class="inline-block bg-primary text-white font-bold px-10 py-3 rounded-grid hover:bg-orange-600 transition">View All Spaces</a>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section id="how-it-works" class="py-20 bg-surface">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-extrabold text-navy mb-4">How GridSpace Works</h2>
+            <p class="text-gray-500">Get access to productive workspaces in just three simple steps.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-12">
+            <div class="text-center flex flex-col items-center">
+                <div class="w-16 h-16 bg-navy text-white rounded-full flex items-center justify-center mb-6 shadow-lg">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                <h3 class="text-xl font-bold text-navy mb-4">Search &amp; Discover</h3>
+                <p class="text-gray-500">Browse verified workspaces in your area with detailed photos, amenities and real-time availability.</p>
+            </div>
+            <div class="text-center flex flex-col items-center">
+                <div class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mb-6 shadow-lg">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <h3 class="text-xl font-bold text-navy mb-4">Book Instantly</h3>
+                <p class="text-gray-500">Reserve your perfect workspace instantly with secure payment and flexible booking options.</p>
+            </div>
+            <div class="text-center flex flex-col items-center">
+                <div class="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center mb-6 shadow-lg">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <h3 class="text-xl font-bold text-navy mb-4">Work Productively</h3>
+                <p class="text-gray-500">Arrive and get productive immediately with reliable power, fast WiFi and a professional environment.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose GridSpace -->
+<section class="py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-extrabold text-navy mb-4">Why Choose GridSpace</h2>
+            <p class="text-gray-500">Experience the difference with our commitment to quality and reliability</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-surface p-10 rounded-xl flex items-start space-x-6">
+                <div class="bg-green-100 p-3 rounded-lg text-green-600 shrink-0">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold text-navy mb-2">Reliable Power &amp; Internet</h4>
+                    <p class="text-gray-600">Never worry about connectivity with guaranteed backup power and high-speed internet at every location.</p>
+                </div>
+            </div>
+            <div class="bg-navy p-10 rounded-xl flex items-start space-x-6 text-white">
+                <div class="bg-primary p-3 rounded-lg text-white shrink-0">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold mb-2">Verified &amp; Secure</h4>
+                    <p class="text-blue-100">Every workspace is thoroughly vetted and verified to ensure quality, safety, and professionalism.</p>
+                </div>
+            </div>
+            <div class="bg-surface p-10 rounded-xl flex items-start space-x-6">
+                <div class="bg-purple-100 p-3 rounded-lg text-purple-600 shrink-0">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold text-navy mb-2">Affordable Rates</h4>
+                    <p class="text-gray-600">Get access to quality workspaces that suit your budget, whether you're looking for a day or a month.</p>
+                </div>
+            </div>
+            <div class="bg-blue-50 p-10 rounded-xl flex items-start space-x-6">
+                <div class="bg-blue-100 p-3 rounded-lg text-blue-600 shrink-0">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold text-navy mb-2">Flexible Booking</h4>
+                    <p class="text-gray-600">Book by the hour, day, or month with easy cancellation and modification options.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Locations -->
+<section class="py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl font-extrabold text-navy mb-4">Popular Locations</h2>
+        <p class="text-gray-500 mb-12">Explore workspaces in Nigeria's thriving business districts</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            @foreach($cities->take(3) as $city)
+                <a href="{{ route('home', ['city' => $city->slug]) }}" class="relative group cursor-pointer h-80 rounded-xl overflow-hidden shadow-lg block">
+                    <img src="{{ $cityImages[$city->slug] ?? $defaultCityImage }}" alt="{{ $city->name }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500"/>
+                    <div class="absolute inset-0 gradient-overlay"></div>
+                    <div class="absolute bottom-6 left-6 text-left">
+                        <h3 class="text-2xl font-bold text-white">{{ $city->name }}</h3>
+                        <p class="text-gray-200">{{ $city->listings_count }}+ workspaces</p>
                     </div>
-                    <p class="text-sm font-medium text-gray-900">{{ $category->name }}</p>
                 </a>
             @endforeach
         </div>
     </div>
+</section>
 
-    <!-- Search Results -->
-    <div class="flex flex-col lg:flex-row gap-8">
-        <!-- Filters Sidebar -->
-        <div class="lg:w-1/4">
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
-
-                <form method="GET" action="{{ route('home') }}">
-                    <!-- Category Filter -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                        <select name="category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">All Categories</option>
-                            @foreach($categories as $category)
-                                <option value="{{ $category->slug }}" {{ request('category') == $category->slug ? 'selected' : '' }}>
-                                    {{ $category->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <!-- City Filter -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
-                        <select name="city" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">All Cities</option>
-                            @foreach($cities as $city)
-                                <option value="{{ $city->slug }}" {{ request('city') == $city->slug ? 'selected' : '' }}>
-                                    {{ $city->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <!-- Capacity Filter -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Minimum Capacity</label>
-                        <input type="number"
-                               name="capacity"
-                               value="{{ request('capacity') }}"
-                               min="1"
-                               placeholder="e.g., 10"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-
-                    <!-- Price Range Filter -->
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
-                        <input type="text"
-                               name="price_range"
-                               value="{{ request('price_range') }}"
-                               placeholder="e.g., $500-1000"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-
-                    <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 font-medium">
-                        Apply Filters
-                    </button>
-                </form>
+<!-- Hosting CTA -->
+<section class="py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-gray-50 rounded-3xl overflow-hidden shadow-sm grid lg:grid-cols-2">
+            <div class="p-12 lg:p-20">
+                <h2 class="text-4xl font-extrabold text-navy mb-6">Earn Money Hosting Workspaces</h2>
+                <p class="text-gray-600 mb-10 text-lg">
+                    Transform your unused office space into a revenue stream. Join thousands of hosts earning money by sharing their workspace with professionals.
+                </p>
+                <ul class="space-y-6 mb-12">
+                    <li class="flex items-start">
+                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center text-green-600 mt-1 mr-4 shrink-0">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-navy">Flexible Earnings</h4>
+                            <p class="text-sm text-gray-500">Set your own prices and availability. Be your own boss on your schedule.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mt-1 mr-4 shrink-0">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-navy">Secure Platform</h4>
+                            <p class="text-sm text-gray-500">Verified users and secure payments handled by our platform.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 mt-1 mr-4 shrink-0">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-navy">Build Community</h4>
+                            <p class="text-sm text-gray-500">Connect with entrepreneurs and professionals in your area.</p>
+                        </div>
+                    </li>
+                </ul>
+                <a href="{{ route('register') }}" class="inline-block bg-primary text-white font-bold px-10 py-4 rounded-grid hover:bg-orange-600 transition shadow-lg shadow-orange-200">
+                    Start Hosting Today
+                </a>
+            </div>
+            <div class="hidden lg:block relative min-h-[320px]">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeHrIR0g906hiCOVVkHDH78TMQlcIh6wUbemceTFPOYyC3h4Rj2oaW-mz6vFIggfbmc9flbVhQZW8qOss4D-T_VOFJ-JEdZTHkurTl3c-xrIEufdAmWGlLwKIbU4s5jcwv-b92vEn60jYMMQOLJC7B3ogrI66rFsMPWCDm_yxTAXRgv7rTgVgiyybA-DeOnZkYT32qSjFC4GFlEQSuRAudnFxjXBkxEuKHF_uCbmVYT2X1NIyQeuxOdSul-kWFdNof7YFM6BOx-_A" alt="Hosting Workspace" class="w-full h-full object-cover absolute inset-0"/>
             </div>
         </div>
+    </div>
+</section>
 
-        <!-- Listings Grid -->
-        <div class="lg:w-3/4">
-            @if(request()->filled('search') || request()->filled('category') || request()->filled('city') || request()->filled('capacity') || request()->filled('price_range'))
-                <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-lg font-semibold text-blue-900">
-                                Search Results
-                                @if($listings->total() > 0)
-                                    <span class="text-blue-700 font-normal">({{ $listings->total() }} found)</span>
-                                @endif
-                            </h3>
-                            @if(request()->filled('search'))
-                                <p class="text-sm text-blue-700 mt-1">
-                                    Showing results for: <strong>"{{ request('search') }}"</strong>
-                                </p>
-                            @endif
-                        </div>
-                        <a href="{{ route('home') }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                            <i class="fas fa-times mr-1"></i>Clear all
-                        </a>
+<!-- Testimonials -->
+<section id="testimonials" class="py-24 bg-orange-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-extrabold text-navy mb-4">What Our Users Say</h2>
+            <p class="text-gray-600">Join thousands of professionals who trust GridSpace for their workspace needs</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-8">
+            @foreach([
+                ['name' => 'Chukwu Davis', 'role' => 'Freelance UX Designer', 'quote' => 'GridSpace makes it easy to find reliable workspaces with power and internet. I don\'t have to worry about power disruptions anymore.', 'image' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuAMWsP93bjk5MeV7N_0PgzIoFfz3ROdA2-Flr19gBnNDl9m0NgcIQSfcy-OuCoaIZ484CBwARVmK7LNnDigIjuqcZ8t-_NB7G1HDNl5Mdwq-ZtippM1wlo_sStjWAMtXlIbZB2GeKFWEuLo8LVP0_-vBQ5FP1qYM9LRwtsFpTSZ9ikRLEO7vRNxdsVhQoSaFse60Evry4YSpudiX2sVggg8kg0esWZa2g6syhlU0zwLeSlbiEaNoAK3Ie4bpWeSYOhix861mG4USMI'],
+                ['name' => 'Tobi Junior', 'role' => 'Software Engineer', 'quote' => 'As a developer, I love the premium vibe of the spaces I book on GridSpace. It\'s affordable and keeps me inspired.', 'image' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuD1-jKeMg0GzEsbqlGRU2uaxa3th02VbZ1aBhq_VvfgDmEMXZ7Uta6oZNEHtLN0Jq5jRD5PFp25ASrP_qaShcK-KdCuns-M9Ssj93uYqvHMAjpu-NVYtsQP5x8bTrBL-daBj3gGKdtvGVYWuzqW64PH2TXhDkkcwLBa83pgw0gsiFIOSApPRSSD4mbfYjhtU_G8ZZO3PYGO8rTP9ShiYNve7nuDySrq_fLfb2I-Wls1T2CpQDpneQk-zPkUuACk-vCEHV0b0OfTgpU'],
+                ['name' => 'Tosin Elaiya', 'role' => 'Startup Founder', 'quote' => 'My team now has a proper office without expensive leases. GridSpace gave us the flexibility we needed to grow.', 'image' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuBtaNWSgp71zsdsRAHOAib1bdD7b6J71pW9qDiul9tUfIrXZMeIqfg1Xh7SXqwIlYARDS1WB6enBrA-xSyLMKbySJ07jKUcACC5YiZGnp2bBzrQnDeLTMIFF1mIo5LLdCV2FZ1O8fLD-ArRqAl6vbpyQnQwzjw4zlum1WtxDZOQMmfRfRNq3yaeaBNIue8gQcApLy8wR1LpeWG5pGJwYb4VYHaIh_09cFNuLTwebAB26NB2qORvatqj4excm1ZXhBfwEVNOvotgJg8'],
+            ] as $testimonial)
+            <div class="bg-white p-8 rounded-xl shadow-sm relative">
+                <div class="absolute -top-4 right-8 text-primary opacity-20">
+                    <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                </div>
+                <div class="flex items-center mb-6">
+                    <img src="{{ $testimonial['image'] }}" alt="{{ $testimonial['name'] }}" class="w-12 h-12 rounded-full mr-4 object-cover"/>
+                    <div>
+                        <h4 class="font-bold text-navy">{{ $testimonial['name'] }}</h4>
+                        <p class="text-xs text-gray-400">{{ $testimonial['role'] }}</p>
                     </div>
                 </div>
-            @endif
-
-            @if($listings->count() > 0)
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @foreach($listings as $listing)
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                            @if($listing->images->count() > 0)
-                                <div class="h-48 bg-gray-200">
-                                    <img src="{{ asset('storage/' . $listing->images->first()->image_path) }}"
-                                         alt="{{ $listing->name }}"
-                                         class="w-full h-full object-cover">
-                                </div>
-                            @endif
-
-                            <div class="p-4">
-                                @if($listing->featured)
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mb-2">
-                                        <i class="fas fa-star mr-1"></i>Featured
-                                    </span>
-                                @endif
-
-                                <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ $listing->name }}</h3>
-                                <p class="text-gray-600 text-sm mb-2">{{ $listing->category->name }}</p>
-                                <p class="text-gray-500 text-sm mb-3">{{ Str::limit($listing->description, 100) }}</p>
-
-                                <div class="flex justify-between items-center">
-                                    <span class="text-blue-600 font-semibold">{{ $listing->price_range }}</span>
-                                    <a href="{{ route('listings.show', $listing->slug) }}"
-                                       class="bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
-                                        View Details
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
+                <p class="text-gray-600 mb-4 text-sm leading-relaxed">"{{ $testimonial['quote'] }}"</p>
+                <div class="flex text-yellow-400">
+                    @for($i = 0; $i < 5; $i++)
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    @endfor
                 </div>
-
-                <!-- Pagination with Record Counting -->
-                <div class="mt-8">
-                    <!-- Pagination Links -->
-                    {{ $listings->links() }}
-                </div>
-            @else
-                <div class="text-center py-12">
-                    <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
-                    <h3 class="text-xl font-medium text-gray-900 mb-2">No listings found</h3>
-                    <p class="text-gray-500 mb-4">Try adjusting your filters or search terms.</p>
-                    <a href="{{ route('home') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                        <i class="fas fa-redo mr-2"></i>Start over
-                    </a>
-                </div>
-            @endif
+            </div>
+            @endforeach
         </div>
     </div>
-</div>
+</section>
 
+<!-- Final CTA -->
+<section class="py-24 bg-white overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="relative bg-navy rounded-[2rem] p-12 lg:p-20 text-white overflow-hidden">
+            <div class="absolute top-0 right-0 w-1/3 h-full opacity-10">
+                <svg class="w-full h-full" fill="white" viewBox="0 0 100 100"><circle cx="100" cy="50" r="40"/></svg>
+            </div>
+            <div class="relative z-10 grid lg:grid-cols-2 items-center gap-12">
+                <div>
+                    <h2 class="text-4xl lg:text-5xl font-extrabold mb-6 leading-tight">Ready to Find Your Perfect Workspace?</h2>
+                    <p class="text-xl text-blue-100 mb-10">Join thousands of professionals who trust GridSpace for their workspace needs</p>
+                    <a href="{{ route('listings.index') }}" class="inline-block bg-primary text-white font-bold px-12 py-4 rounded-grid text-lg hover:bg-orange-600 transition shadow-xl">
+                        Start Searching
+                    </a>
+                </div>
+                <div class="hidden lg:block">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfT2PHai37fDLdk2Ekrw6IUqzoX3tvpgnlYk3Sdv3bczzTa6o_9pQG-WVVJO5TVcoBAlbcu-6TUti41AGtbShltcC2dO-YVj9U2QGmZSYYYCU9hY70EvZXjsERR38W9RsNVQA69om7v94Wr_sV1lTpaptvGrjNhXInG-wtkRT641mL2fGvxCKTF3h40LELTYtRXrVnuzAND4q55FesMTd4KWYSzfXwdo0mcyWamgRDiMW1BYfOu_a-0vJUAj9D3ECVf7QwD8d_2YQ" alt="Productive Professional" class="rounded-2xl shadow-2xl"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter -->
+<section class="py-20 bg-surface">
+    <div class="max-w-2xl mx-auto px-4 text-center">
+        <h2 class="text-3xl font-extrabold text-navy mb-4">Join the Grid</h2>
+        <p class="text-gray-500 mb-8">Get workspace tips, updates, and exclusive offers straight to your inbox.</p>
+        <form class="flex flex-col sm:flex-row gap-3" onsubmit="event.preventDefault();">
+            <input class="flex-1 rounded-grid border-gray-300 focus:ring-primary focus:border-primary px-6 py-3" placeholder="Enter your email" type="email"/>
+            <button class="bg-primary text-white font-bold px-8 py-3 rounded-grid hover:bg-orange-600 transition" type="submit">Subscribe Now</button>
+        </form>
+    </div>
+</section>
+@endsection
+
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
-    const quickSearchForm = document.getElementById('quickSearchForm');
     let searchTimeout;
 
-    if (searchInput && searchResults) {
-        // Live search functionality
-        searchInput.addEventListener('input', function() {
-            const query = this.value.trim();
+    if (!searchInput || !searchResults) return;
 
-            clearTimeout(searchTimeout);
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        clearTimeout(searchTimeout);
+        if (query.length < 2) {
+            searchResults.classList.add('hidden');
+            return;
+        }
+        searchTimeout = setTimeout(() => performLiveSearch(query), 300);
+    });
 
-            if (query.length < 2) {
-                searchResults.classList.add('hidden');
-                return;
-            }
-
-            // Debounce search
-            searchTimeout = setTimeout(() => {
-                performLiveSearch(query);
-            }, 300);
-        });
-
-        // Hide search results when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-                searchResults.classList.add('hidden');
-            }
-        });
-
-        // Show search results when focusing on input
-        searchInput.addEventListener('focus', function() {
-            if (this.value.trim().length >= 2) {
-                performLiveSearch(this.value.trim());
-            }
-        });
-    }
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.classList.add('hidden');
+        }
+    });
 
     function performLiveSearch(query) {
         fetch(`{{ route('home') }}?search=${encodeURIComponent(query)}&live=1`)
-            .then(response => response.json())
-            .then(data => {
-                displaySearchResults(data.listings, query);
-            })
-            .catch(error => {
-                console.error('Search error:', error);
-                searchResults.classList.add('hidden');
-            });
+            .then(r => r.json())
+            .then(data => displaySearchResults(data.listings, query))
+            .catch(() => searchResults.classList.add('hidden'));
     }
 
     function displaySearchResults(listings, query) {
-        if (listings.length === 0) {
-            searchResults.innerHTML = `
-                <div class="p-4 text-center text-gray-500">
-                    <i class="fas fa-search mb-2"></i>
-                    <p>No results found for "${query}"</p>
-                </div>
-            `;
+        if (!listings.length) {
+            searchResults.innerHTML = `<div class="p-4 text-center text-gray-500 text-sm">No results for "${query}"</div>`;
         } else {
-            const resultsHtml = listings.slice(0, 5).map(listing => `
-                <a href="/listings/${listing.slug}"
-                   class="block p-4 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors">
-                    <div class="flex items-start space-x-3">
-                        ${listing.image ? `
-                            <img src="${listing.image}" alt="${listing.name}"
-                                 class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
-                        ` : `
-                            <div class="w-12 h-12 bg-gray-200 rounded-lg flex-shrink-0 flex items-center justify-center">
-                                <i class="fas fa-building text-gray-400"></i>
-                            </div>
-                        `}
-                        <div class="flex-1 min-w-0">
-                            <h4 class="text-sm font-medium text-gray-900 truncate">${listing.name}</h4>
-                            <p class="text-xs text-gray-500 truncate">${listing.category_name}</p>
-                            <p class="text-xs text-blue-600 font-medium">${listing.price_range}</p>
-                        </div>
-                    </div>
+            searchResults.innerHTML = listings.slice(0, 5).map(l => `
+                <a href="/listings/${l.slug}" class="block p-4 hover:bg-surface border-b border-gray-100 last:border-0">
+                    <h4 class="text-sm font-bold text-navy">${l.name}</h4>
+                    <p class="text-xs text-gray-500">${l.category_name}</p>
+                    <p class="text-xs text-primary font-semibold mt-1">${l.price_range}</p>
                 </a>
             `).join('');
-
-            searchResults.innerHTML = `
-                <div class="p-2">
-                    ${resultsHtml}
-                    ${listings.length > 5 ? `
-                        <div class="p-2 text-center border-t border-gray-100">
-                            <a href="/?search=${encodeURIComponent(query)}"
-                               class="text-sm text-blue-600 hover:text-blue-800 font-medium">
-                                View all ${listings.length} results →
-                            </a>
-                        </div>
-                    ` : ''}
-                </div>
-            `;
         }
-
         searchResults.classList.remove('hidden');
-    }
-
-    // Enhance filter form with better UX
-    const filterForm = document.querySelector('form[method="GET"]:not(#quickSearchForm)');
-    if (filterForm) {
-        const filterInputs = filterForm.querySelectorAll('input, select');
-
-        filterInputs.forEach(input => {
-            input.addEventListener('change', function() {
-                // Auto-submit filter form when values change
-                if (this.type !== 'text' || this.value.length > 0) {
-                    filterForm.submit();
-                }
-            });
-        });
     }
 });
 </script>
-@endsection
+@endpush

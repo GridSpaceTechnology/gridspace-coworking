@@ -86,9 +86,38 @@ class ListingController extends Controller
 
         $listings = $query->paginate(12);
         $categories = Category::all();
-        $cities = City::all();
+        $cities = City::withCount(['listings' => function ($q) {
+            $q->where('status', 'published');
+        }])->get();
 
-        return view('listings.index', compact('listings', 'categories', 'cities'));
+        $featuredListings = Listing::with(['category', 'city', 'images'])
+            ->where('status', 'published')
+            ->where('featured', true)
+            ->inRandomOrder()
+            ->limit(3)
+            ->get();
+
+        if ($featuredListings->isEmpty()) {
+            $featuredListings = Listing::with(['category', 'city', 'images'])
+                ->where('status', 'published')
+                ->latest()
+                ->limit(3)
+                ->get();
+        }
+
+        $hasActiveFilters = $request->filled('search')
+            || $request->filled('category')
+            || $request->filled('city')
+            || $request->filled('capacity')
+            || $request->filled('price_range');
+
+        return view('listings.index', compact(
+            'listings',
+            'categories',
+            'cities',
+            'featuredListings',
+            'hasActiveFilters'
+        ));
     }
 
     /**

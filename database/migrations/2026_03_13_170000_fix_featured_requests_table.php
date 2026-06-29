@@ -12,6 +12,16 @@ return new class extends Migration
      */
     public function up(): void
     {
+        $database = DB::getDatabaseName();
+        $tables = DB::select(
+            'SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND ENGINE = ?',
+            [$database, 'MyISAM']
+        );
+
+        foreach ($tables as $table) {
+            DB::statement("ALTER TABLE `{$table->TABLE_NAME}` ENGINE=InnoDB");
+        }
+
         // Drop the problematic table if it exists
         try {
             DB::statement('DROP TABLE IF EXISTS featured_requests');

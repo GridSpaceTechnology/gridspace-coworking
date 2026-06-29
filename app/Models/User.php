@@ -36,6 +36,10 @@ class User extends Authenticatable
         'password',
         'role',
         'approved',
+        'onboarding_step',
+        'profile_photo',
+        'professional_title',
+        'workspace_usage_frequency',
     ];
 
     /**
@@ -99,5 +103,12 @@ class User extends Authenticatable
     public function bookings()
     {
         return $this->hasMany(Booking::class);
+    }
+
+    public function getProfilePhotoUrlAttribute(): ?string
+    {
+        return $this->profile_photo
+            ? asset('storage/' . $this->profile_photo)
+            : null;
     }
 }

@@ -1,219 +1,163 @@
-@extends('layouts.app')
+@extends('layouts.dashboard')
 
-@section('title', 'Dashboard - Gridspace')
+@section('title', 'GridSpace | Dashboard')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Welcome Section -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Welcome back, {{ auth()->user()->display_name }}!</h1>
-        <p class="text-gray-600 mt-2">Discover your perfect workspace and book your next coworking space.</p>
+@php
+    $user = auth()->user();
+    $recommended = $recommendedListing ?? null;
+    $recommendedImage = $recommended && $recommended->images->first()
+        ? asset('storage/' . $recommended->images->first()->image_path)
+        : 'https://lh3.googleusercontent.com/aida-public/AB6AXuDi5op3kwLxZNJjnmB1U5yfTmAMzIABpkYlz1a04TgtA_1r4GYbYx0rVK-O1zq_mU6xnjguf2rXpzURIJa-ndRJmep3X3IQIa56QEGrOB-LWfZ-Em7R7DsdnKS0aeVhDuZ1ODZUi7wupRY62YAUKquyyTWOHU3ZXzp9Io0hc5VqSqeEbdNUm4egSxsu5Oz8iE-qpZBG95wqffNDgbysVBDO0JtB6dBxgXeJkTb7Pfac7OajY9w9O2UvQiHhs_FwLLJs-90PPZrZr_g';
+    $recommendedLocation = $recommended
+        ? ($recommended->city ? $recommended->city->name . ($recommended->address ? ', ' . $recommended->address : '') : ($recommended->address ?? 'Nigeria'))
+        : null;
+    $recommendedPrice = $recommended
+        ? ($recommended->price > 0 ? $recommended->formatted_price : ($recommended->price_range ?: 'Contact for price'))
+        : null;
+@endphp
+
+<section class="mb-stack-lg">
+    <h1 class="font-manrope text-4xl md:text-5xl font-extrabold text-on-surface mb-2 tracking-tight">Welcome {{ $user->firstname }}!</h1>
+    <p class="font-inter text-lg text-on-surface-variant">Discover your next workspace or manage existing bookings</p>
+</section>
+
+@if(session('success'))
+    <div class="mb-6 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+        {{ session('success') }}
+    </div>
+@endif
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mb-stack-lg">
+    <a href="{{ route('listings.index') }}" class="bg-white border border-outline-variant rounded-xl p-6 text-center card-lift group block">
+        <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
+            <span class="material-symbols-outlined text-3xl text-on-surface-variant group-hover:text-primary">search</span>
+        </div>
+        <h3 class="font-manrope text-xl font-semibold mb-1">Find Workspace</h3>
+        <p class="font-mono text-xs text-on-surface-variant uppercase tracking-wide">Search for available workspace</p>
+    </a>
+
+    <a href="{{ route('bookings.index') }}" class="bg-white border border-outline-variant rounded-xl p-6 text-center card-lift group block">
+        <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
+            <span class="material-symbols-outlined text-3xl text-on-surface-variant group-hover:text-primary">calendar_month</span>
+        </div>
+        <h3 class="font-manrope text-xl font-semibold mb-1">My Bookings</h3>
+        <p class="font-mono text-xs text-on-surface-variant uppercase tracking-wide">View upcoming bookings</p>
+    </a>
+
+    <div class="bg-white border border-outline-variant rounded-xl p-6 text-center card-lift group">
+        <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
+            <span class="material-symbols-outlined text-3xl text-on-surface-variant group-hover:text-primary">account_balance_wallet</span>
+        </div>
+        <h3 class="font-manrope text-xl font-semibold mb-1">Wallet</h3>
+        <p class="font-mono text-xs text-on-surface-variant uppercase tracking-wide">₦0</p>
     </div>
 
-    <!-- Quick Actions Section -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <a href="{{ route('listings.index') }}" class="bg-white rounded-lg shadow p-4 md:p-6 hover:shadow-lg transition-shadow">
-            <div class="flex items-center justify-center mb-4">
-                <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-500 rounded-full flex items-center justify-center">
-                    <i class="fas fa-search text-white text-lg md:text-xl"></i>
-                </div>
-            </div>
-            <h3 class="text-base md:text-lg font-semibold text-gray-900">Browse Spaces</h3>
-            <p class="text-sm md:text-base text-gray-600 mt-2">Find your perfect workspace</p>
-        </a>
+    <a href="{{ route('inquiries.index') }}" class="bg-white border border-outline-variant rounded-xl p-6 text-center card-lift group block">
+        <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
+            <span class="material-symbols-outlined text-3xl text-on-surface-variant group-hover:text-primary">chat_bubble</span>
+        </div>
+        <h3 class="font-manrope text-xl font-semibold mb-1">Messages</h3>
+        <p class="font-mono text-xs text-on-surface-variant uppercase tracking-wide">Chat with hosts</p>
+    </a>
+</div>
 
-        <a href="{{ route('bookings.index') }}" class="bg-white rounded-lg shadow p-4 md:p-6 hover:shadow-lg transition-shadow">
-            <div class="flex items-center justify-center mb-4">
-                <div class="w-10 h-10 md:w-12 md:h-12 bg-green-500 rounded-full flex items-center justify-center">
-                    <i class="fas fa-calendar text-white text-lg md:text-xl"></i>
-                </div>
-            </div>
-            <h3 class="text-base md:text-lg font-semibold text-gray-900">My Bookings</h3>
-            <p class="text-sm md:text-base text-gray-600 mt-2">View and manage your current bookings</p>
-        </a>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+    <div class="lg:col-span-2 bg-white border border-outline-variant rounded-xl p-6 md:p-10 flex flex-col min-h-[400px]">
+        <div class="flex items-start justify-between w-full mb-6">
+            <h2 class="font-manrope text-2xl md:text-3xl font-bold text-on-surface">Recent Activity</h2>
+            @if($recentBookings->isNotEmpty())
+                <a href="{{ route('bookings.index') }}" class="font-mono text-xs text-primary-container hover:underline uppercase tracking-wide">View all</a>
+            @endif
+        </div>
 
-        <a href="{{ route('inquiries.index') }}" class="bg-white rounded-lg shadow p-4 md:p-6 hover:shadow-lg transition-shadow">
-            <div class="flex items-center justify-center mb-4">
-                <div class="w-10 h-10 md:w-12 md:h-12 bg-purple-500 rounded-full flex items-center justify-center">
-                    <i class="fas fa-envelope text-white text-lg md:text-xl"></i>
-                </div>
-            </div>
-            <h3 class="text-base md:text-lg font-semibold text-gray-900">My Inquiries</h3>
-            <p class="text-sm md:text-base text-gray-600 mt-2">Track your workspace inquiries</p>
-        </a>
-
-        <a href="{{ route('profile.edit') }}" class="bg-white rounded-lg shadow p-4 md:p-6 hover:shadow-lg transition-shadow">
-            <div class="flex items-center justify-center mb-4">
-                <div class="w-10 h-10 md:w-12 md:h-12 bg-gray-500 rounded-full flex items-center justify-center">
-                    <i class="fas fa-user text-white text-lg md:text-xl"></i>
-                </div>
-            </div>
-            <h3 class="text-base md:text-lg font-semibold text-gray-900">My Profile</h3>
-            <p class="text-sm md:text-base text-gray-600 mt-2">Update your personal information</p>
-        </a>
-    </div>
-
-    <!-- Featured Spaces Section -->
-    <div class="mb-8">
-    <div class="bg-white rounded-lg shadow p-6 mb-8">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">
-            <i class="fas fa-star text-yellow-500 mr-2"></i>
-            Featured Spaces
-        </h2>
-        <p class="text-gray-600 mb-6 text-sm md:text-base">Discover premium coworking spaces with enhanced amenities and features.</p>
-
-        @if($featuredListings->count() > 0)
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                @foreach($featuredListings as $listing)
-                    <div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden">
-                        @if($listing->images->count() > 0)
-                            <img src="{{ asset('storage/' . $listing->images->first()->image_path) }}"
-                                 alt="{{ $listing->name }}"
-                                 class="w-full h-32 md:h-48 object-cover">
-                        @endif
-
-                        <div class="p-4">
-                            <div class="flex items-start justify-between mb-2">
-                                <h3 class="text-base md:text-lg font-semibold text-gray-900">{{ $listing->name }}</h3>
-                                @if($listing->featured)
-                                    <span class="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                        <i class="fas fa-star mr-1"></i>Featured
-                                    </span>
+        @if($recentBookings->isNotEmpty())
+            <div class="space-y-4 flex-1">
+                @foreach($recentBookings as $booking)
+                    <div class="flex items-center gap-4 p-4 rounded-xl border border-outline-variant/40 hover:bg-surface-container-low transition-colors">
+                        <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-outline">event</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-manrope font-semibold text-on-surface truncate">
+                                @if($booking->listing)
+                                    <a href="{{ route('listings.show', $booking->listing->slug) }}" class="hover:text-primary-container transition-colors">
+                                        {{ $booking->listing->name }}
+                                    </a>
+                                @else
+                                    Booking #{{ $booking->id }}
                                 @endif
-                            </div>
-
-                            <p class="text-gray-600 text-sm md:text-base mb-2">{{ Str::limit($listing->description, 100) }}</p>
-
-                            <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
-                                <div class="text-gray-500 text-sm md:text-base">
-                                    <i class="fas fa-map-marker-alt mr-1"></i>
-                                    <span class="text-xs md:text-sm">{{ $listing->address }}</span>
-                                </div>
-                            </div>
+                            </p>
+                            <p class="font-inter text-sm text-on-surface-variant">
+                                {{ $booking->check_in_date?->format('M j, Y') }}
+                                @if($booking->check_out_date)
+                                    &mdash; {{ $booking->check_out_date->format('M j, Y') }}
+                                @endif
+                            </p>
                         </div>
-
-                        <div class="px-4 py-3 bg-gray-50">
-                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                                <div class="text-blue-600 font-semibold text-sm md:text-base">
-                                    {{ $listing->price_range }}
-                                </div>
-                                <a href="{{ route('listings.show', $listing->slug) }}"
-                                   class="bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm md:text-base">
-                                    View Details
-                                </a>
-                            </div>
-                        </div>
+                        <span class="font-mono text-xs uppercase tracking-wide px-3 py-1 rounded-full
+                            @if($booking->status === 'confirmed') bg-green-50 text-green-700
+                            @elseif($booking->status === 'pending') bg-yellow-50 text-yellow-700
+                            @else bg-surface-container text-on-surface-variant
+                            @endif">
+                            {{ $booking->status }}
+                        </span>
                     </div>
                 @endforeach
             </div>
         @else
-            <div class="text-center py-8 md:py-12 px-4 md:px-6">
-                <i class="fas fa-star text-gray-300 text-3xl md:text-4xl mb-4"></i>
-                <p class="text-gray-600 text-base md:text-lg">No featured spaces available at the moment.</p>
-                <a href="{{ route('listings.index') }}" class="text-blue-600 hover:text-blue-700 font-medium text-base md:text-lg">
-                    Browse All Spaces
+            <div class="flex flex-col items-center justify-center flex-1 py-12">
+                <div class="w-20 h-20 mb-6 rounded-full bg-surface-container flex items-center justify-center">
+                    <span class="material-symbols-outlined text-4xl text-outline-variant">calendar_today</span>
+                </div>
+                <p class="text-on-surface-variant font-inter text-lg mb-8">No activity yet</p>
+                <a href="{{ route('listings.index') }}" class="bg-primary-container text-white px-8 py-4 rounded-xl font-manrope font-semibold shadow-lg shadow-primary-container/20 hover:scale-[1.02] active:scale-95 transition-all">
+                    Book your first Space
                 </a>
             </div>
         @endif
     </div>
 
-    <!-- My Recent Inquiries -->
-    <div class="bg-white rounded-lg shadow p-6 mb-8">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-semibold text-gray-900">
-                <i class="fas fa-envelope text-purple-500 mr-2"></i>
-                My Recent Inquiries
-            </h2>
-            <a href="{{ route('inquiries.index') }}"
-               class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                View All →
-            </a>
-        </div>
+    <div class="bg-white border border-outline-variant rounded-xl overflow-hidden card-lift">
+        <div class="p-6">
+            <h2 class="font-manrope text-2xl md:text-3xl font-bold text-on-surface mb-6">Recommended Space</h2>
 
-        @php
-            $recentInquiries = \App\Models\Inquiry::where('email', auth()->user()->email)
-                ->with('listing')
-                ->latest()
-                ->limit(3)
-                ->get();
-        @endphp
-
-        @if($recentInquiries->count() > 0)
-            <div class="space-y-4">
-                @foreach($recentInquiries as $inquiry)
-                    <div class="border-l-4 border-purple-500 pl-4 hover:bg-gray-50 rounded-r-lg transition-colors">
-                        <div class="flex items-start justify-between">
-                            <div class="flex-1">
-                                @if($inquiry->listing)
-                                    <h4 class="text-sm font-medium text-gray-900">
-                                        <a href="{{ route('listings.show', $inquiry->listing->slug) }}"
-                                           class="text-blue-600 hover:text-blue-800">
-                                            {{ $inquiry->listing->name }}
-                                        </a>
-                                    </h4>
-                                    <p class="text-xs text-gray-500 mt-1">
-                                        {{ Str::limit($inquiry->message, 100) }}
-                                    </p>
-                                @else
-                                    <h4 class="text-sm font-medium text-gray-900">General Inquiry</h4>
-                                    <p class="text-xs text-gray-500 mt-1">
-                                        {{ Str::limit($inquiry->message, 100) }}
-                                    </p>
-                                @endif
-                            </div>
-                            <div class="text-right">
-                                <span class="text-xs text-gray-500">
-                                    {{ $inquiry->created_at->diffForHumans() }}
-                                </span>
-                            </div>
+            @if($recommended)
+                <a href="{{ route('listings.show', $recommended->slug) }}" class="block group">
+                    <div class="relative">
+                        <div class="rounded-xl overflow-hidden h-56 mb-4">
+                            <img
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                src="{{ $recommendedImage }}"
+                                alt="{{ $recommended->name }}"
+                            >
+                        </div>
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                            <span class="material-symbols-outlined text-yellow-500 text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+                            <span class="font-mono text-xs text-on-surface font-bold">4.75</span>
                         </div>
                     </div>
-                @endforeach
-            </div>
-        @else
-            <div class="text-center py-8">
-                <div class="text-gray-400 mb-4">
-                    <i class="fas fa-envelope text-3xl"></i>
+                    <div class="space-y-2">
+                        <h3 class="font-manrope text-xl font-semibold text-on-surface group-hover:text-primary-container transition-colors">{{ $recommended->name }}</h3>
+                        <div class="flex items-center gap-2 text-on-surface-variant mb-4">
+                            <span class="material-symbols-outlined text-sm">location_on</span>
+                            <span class="font-inter text-sm truncate">{{ $recommendedLocation }}</span>
+                        </div>
+                        <div class="pt-4 border-t border-outline-variant flex justify-between items-center gap-4">
+                            <p class="font-manrope text-2xl font-bold text-on-surface">{{ $recommendedPrice }}</p>
+                            <span class="text-primary-container font-manrope font-semibold group-hover:underline shrink-0">View Details</span>
+                        </div>
+                    </div>
+                </a>
+            @else
+                <div class="flex flex-col items-center justify-center py-12 text-center">
+                    <div class="w-16 h-16 mb-4 rounded-full bg-surface-container flex items-center justify-center">
+                        <span class="material-symbols-outlined text-3xl text-outline-variant">apartment</span>
+                    </div>
+                    <p class="text-on-surface-variant font-inter mb-6">No spaces to recommend yet.</p>
+                    <a href="{{ route('listings.index') }}" class="text-primary-container font-manrope font-semibold hover:underline">Browse all spaces</a>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">No Inquiries Yet</h3>
-                <p class="text-gray-600 text-sm">
-                    You haven't made any inquiries yet.
-                    <a href="{{ route('listings.index') }}" class="text-blue-600 hover:text-blue-800 font-medium">
-                        Browse Spaces
-                    </a> to make your first inquiry.
-                </p>
-            </div>
-        @endif
-    </div>
-
-    <!-- How It Works -->
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 md:p-8">
-        <h2 class="text-xl font-semibold text-gray-900 mb-6 text-center">How Gridspace Works</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-            <div class="text-center">
-                <div class="w-12 h-12 md:w-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-xl md:text-2xl font-bold text-blue-600">1</span>
-                </div>
-                <h3 class="text-base md:text-lg font-semibold text-gray-900">Browse</h3>
-                <p class="text-sm md:text-base text-gray-600">Search for available coworking spaces in your area</p>
-            </div>
-
-            <div class="text-center">
-                <div class="w-12 h-12 md:w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-xl md:text-2xl font-bold text-green-600">2</span>
-                </div>
-                <h3 class="text-base md:text-lg font-semibold text-gray-900">Book</h3>
-                <p class="text-sm md:text-base text-gray-600">Reserve your perfect workspace with easy booking</p>
-            </div>
-
-            <div class="text-center">
-                <div class="w-12 h-12 md:w-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-xl md:text-2xl font-bold text-purple-600">3</span>
-                </div>
-                <h3 class="text-base md:text-lg font-semibold text-gray-900">Enjoy</h3>
-                <p class="text-sm md:text-base text-gray-600">Experience your booked workspace</p>
-            </div>
+            @endif
         </div>
     </div>
 </div>
