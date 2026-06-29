@@ -4,7 +4,10 @@
 
 @section('content')
 <header class="w-full h-20 bg-surface shadow-sm flex items-center px-4 md:px-12 justify-between fixed top-0 left-0 z-50">
-    <a href="{{ route('home') }}" class="font-manrope text-xl font-bold text-on-surface">GridSpace</a>
+    <a href="{{ route('home') }}" class="flex items-center gap-2">
+        <img src="{{ asset('logo.jpeg') }}" alt="GridSpace" class="w-8 h-8 rounded-md object-contain">
+        <span class="font-manrope text-xl font-bold text-on-surface">GridSpace</span>
+    </a>
     <span class="font-mono text-xs text-secondary uppercase tracking-widest">Step 4 / 4</span>
 </header>
 
@@ -117,7 +120,10 @@
 
 <footer class="w-full bg-surface-container-highest py-4 px-4 md:px-12">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center opacity-70">
-        <span class="font-mono text-xs text-on-surface-variant">&copy; {{ date('Y') }} GridSpace. All rights reserved.</span>
+        <div class="flex items-center gap-2">
+            <img src="{{ asset('logo.jpeg') }}" alt="GridSpace" class="w-6 h-6 rounded-md object-contain">
+            <span class="font-mono text-xs text-on-surface-variant">&copy; {{ date('Y') }} GridSpace. All rights reserved.</span>
+        </div>
         <div class="flex gap-6 mt-2 md:mt-0">
             <a class="font-mono text-xs text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
             <a class="font-mono text-xs text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>

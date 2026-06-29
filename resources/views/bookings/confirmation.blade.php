@@ -1,107 +1,117 @@
-@extends('layouts.app')
+@extends('layouts.gridspace')
+
+@section('title', 'Booking Confirmation | GridSpace')
+
+@php
+    $listing = $booking->listing;
+    $listingImage = $listing?->images->first()
+        ? asset('storage/' . $listing->images->first()->image_path)
+        : null;
+@endphp
 
 @section('content')
-<div class="py-12">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <i class="fas fa-check-circle text-green-600 text-4xl"></i>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-medium text-green-800">
-                        Booking Request Submitted!
-                    </h3>
-                    <div class="mt-2 text-sm text-green-700">
-                        <p>Thank you for your booking request. The host will review your request and confirm your booking.</p>
-                        <p class="mt-2">
-                            <strong>Booking Reference:</strong> #{{ str_pad($booking->id, 6, '0', STR_PAD_LEFT) }}
-                        </p>
-                        <p class="mt-2">
-                            <strong>Status:</strong>
-                            <span class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                {{ ucfirst($booking->status) }}
-                            </span>
-                        </p>
+<div class="max-w-3xl mx-auto">
+    <div class="rounded-xl border border-green-200 bg-green-50 p-6 md:p-8 mb-8">
+        <div class="flex flex-col sm:flex-row items-start gap-4">
+            <div class="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-3xl text-green-600" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            </div>
+            <div class="flex-1">
+                <h1 class="font-manrope text-2xl md:text-3xl font-bold text-green-900 mb-2">Booking request submitted!</h1>
+                <p class="font-inter text-green-800 mb-4">Thank you for your booking request. The host will review it and confirm your reservation.</p>
+                <div class="flex flex-wrap gap-4">
+                    <div>
+                        <p class="font-mono text-xs uppercase tracking-wider text-green-700 mb-1">Reference</p>
+                        <p class="font-manrope font-bold text-green-900">#{{ str_pad($booking->id, 6, '0', STR_PAD_LEFT) }}</p>
+                    </div>
+                    <div>
+                        <p class="font-mono text-xs uppercase tracking-wider text-green-700 mb-1">Status</p>
+                        <span class="inline-block font-mono text-xs uppercase tracking-wide px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                            {{ ucfirst($booking->status) }}
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-                <!-- Booking Details -->
-                <div class="p-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">
-                        Booking Details
-                    </h3>
+    <div class="bg-white border border-outline-variant rounded-xl overflow-hidden mb-8">
+        @if($listingImage)
+            <div class="h-48 bg-surface-container">
+                <img src="{{ $listingImage }}" alt="{{ $listing->name }}" class="w-full h-full object-cover">
+            </div>
+        @endif
+        <div class="p-6 md:p-8">
+            <h2 class="font-manrope text-xl font-bold text-on-surface mb-6 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary-container">receipt_long</span>
+                Booking details
+            </h2>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Space</p>
-                            <p class="text-lg font-semibold">{{ $booking->listing->title }}</p>
-                            <p class="text-gray-600">{{ $booking->listing->category->name }} • {{ $booking->listing->city->name }}</p>
-                        </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <p class="font-mono text-xs uppercase tracking-wider text-secondary mb-1">Workspace</p>
+                    @if($listing)
+                        <p class="font-manrope text-lg font-semibold text-on-surface">{{ $listing->name }}</p>
+                        <p class="font-inter text-sm text-on-surface-variant">{{ $listing->category?->name }} &middot; {{ $listing->city?->name }}</p>
+                    @else
+                        <p class="font-inter text-on-surface-variant">Listing unavailable</p>
+                    @endif
+                </div>
+                <div>
+                    <p class="font-mono text-xs uppercase tracking-wider text-secondary mb-1">Total price</p>
+                    <p class="font-manrope text-2xl font-bold text-primary-container">₦{{ number_format($booking->total_price, 0) }}</p>
+                </div>
+                <div>
+                    <p class="font-mono text-xs uppercase tracking-wider text-secondary mb-1">Check-in</p>
+                    <p class="font-inter font-medium">{{ $booking->check_in_date->format('F j, Y') }}</p>
+                </div>
+                <div>
+                    <p class="font-mono text-xs uppercase tracking-wider text-secondary mb-1">Check-out</p>
+                    <p class="font-inter font-medium">{{ $booking->check_out_date->format('F j, Y') }}</p>
+                </div>
+                <div>
+                    <p class="font-mono text-xs uppercase tracking-wider text-secondary mb-1">Guests</p>
+                    <p class="font-inter font-medium">{{ $booking->number_of_people }}</p>
+                </div>
+            </div>
 
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Check-in</p>
-                            <p class="text-lg font-semibold">{{ \Carbon\Carbon::parse($booking->check_in_date)->format('F j, Y') }}</p>
-                        </div>
-
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Number of People</p>
-                            <p class="text-lg font-semibold">{{ $booking->number_of_people ?? 'Not specified' }}</p>
-                        </div>
-
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Check-out</p>
-                            <p class="text-lg font-semibold">{{ \Carbon\Carbon::parse($booking->check_out_date)->format('F j, Y') }}</p>
-                        </div>
-
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Total Price</p>
-                            <p class="text-lg font-bold text-blue-600">₦{{ number_format($booking->total_price, 0) }}</p>
-                        </div>
+            <div class="pt-6 border-t border-outline-variant/40">
+                <h3 class="font-manrope text-lg font-semibold text-on-surface mb-4">Guest information</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <p class="font-mono text-xs uppercase tracking-wider text-secondary mb-1">Name</p>
+                        <p class="font-inter">{{ $booking->guest_name }}</p>
                     </div>
-
-                    <!-- Guest Information -->
-                    <div class="mt-6 pt-6 border-t border-gray-200">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">
-                            Guest Information
-                        </h3>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Name</p>
-                                <p class="text-lg">{{ $booking->guest_name }}</p>
-                            </div>
-
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Email</p>
-                                <p class="text-lg">{{ $booking->guest_email }}</p>
-                            </div>
-
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Phone</p>
-                                <p class="text-lg">{{ $booking->guest_phone }}</p>
-                            </div>
-
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Number of People</p>
-                                <p class="text-lg font-semibold">{{ $booking->number_of_people ?? 'Not specified' }}</p>
-                            </div>
-
-                            @if($booking->notes)
-                                <div class="md:col-span-2">
-                                    <p class="text-sm font-medium text-gray-500">Notes</p>
-                                    <p class="text-lg">{{ $booking->notes }}</p>
-                                </div>
-                            @endif
-                        </div>
+                    <div>
+                        <p class="font-mono text-xs uppercase tracking-wider text-secondary mb-1">Email</p>
+                        <p class="font-inter">{{ $booking->guest_email }}</p>
                     </div>
+                    <div>
+                        <p class="font-mono text-xs uppercase tracking-wider text-secondary mb-1">Phone</p>
+                        <p class="font-inter">{{ $booking->guest_phone }}</p>
+                    </div>
+                    @if($booking->notes)
+                        <div class="sm:col-span-2">
+                            <p class="font-mono text-xs uppercase tracking-wider text-secondary mb-1">Notes</p>
+                            <p class="font-inter text-on-surface-variant">{{ $booking->notes }}</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        @auth
+            <a href="{{ route('bookings.index') }}" class="inline-flex items-center justify-center gap-2 bg-primary-container text-white px-8 py-4 rounded-xl font-manrope font-semibold shadow-lg shadow-primary-container/20 hover:scale-[1.02] active:scale-95 transition-all">
+                <span class="material-symbols-outlined">calendar_month</span>
+                View my bookings
+            </a>
+        @endauth
+        <a href="{{ route('listings.index') }}" class="inline-flex items-center justify-center gap-2 bg-white border border-outline-variant text-on-surface px-8 py-4 rounded-xl font-manrope font-semibold hover:border-primary-container hover:text-primary transition-all">
+            <span class="material-symbols-outlined">search</span>
+            Browse more spaces
+        </a>
     </div>
 </div>
 @endsection

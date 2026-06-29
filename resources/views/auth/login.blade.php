@@ -18,6 +18,10 @@
 @section('content')
 <main class="w-full min-h-screen flex flex-col md:flex-row overflow-hidden bg-white">
     <section class="hidden md:flex md:w-1/2 min-h-screen relative">
+        <a href="{{ route('home') }}" class="absolute top-6 left-6 z-20 inline-flex items-center gap-2.5 rounded-xl bg-white/95 dark:bg-gray-900/95 px-4 py-2.5 shadow-md hover:shadow-lg transition-shadow" title="Back to GridSpace home">
+            <img src="{{ asset('logo.jpeg') }}" alt="GridSpace" class="w-8 h-8 rounded-md object-contain">
+            <span class="font-manrope text-lg font-extrabold text-[#0A2540] dark:text-white tracking-tight">GridSpace</span>
+        </a>
         <img
             alt="Smiling professional in a workspace"
             class="absolute inset-0 w-full h-full object-cover"
@@ -37,14 +41,9 @@
     </section>
 
     <section class="w-full md:w-1/2 min-h-screen flex items-center justify-center p-6 sm:p-12 overflow-y-auto">
-        <div class="w-full max-w-md border border-gray-100 rounded-3xl p-8 md:p-12 shadow-sm bg-white">
-            <div class="md:hidden mb-8 text-center">
-                <a href="{{ route('home') }}" class="inline-flex items-center gap-2">
-                    <div class="w-8 h-8 bg-[#F15A24] rounded-sm flex items-center justify-center">
-                        <div class="w-4 h-4 bg-white rounded-full"></div>
-                    </div>
-                    <span class="text-xl font-extrabold text-[#0A2540] tracking-tight">GridSpace</span>
-                </a>
+        <div class="w-full max-w-md border border-gray-100 dark:border-gray-700 rounded-3xl p-8 md:p-12 shadow-sm bg-white dark:bg-gray-900">
+            <div class="flex justify-center mb-6">
+                @include('auth.partials.logo-home-link', ['class' => 'mb-0'])
             </div>
 
             <header class="text-center mb-10">

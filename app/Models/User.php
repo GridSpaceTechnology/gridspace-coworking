@@ -38,6 +38,7 @@ class User extends Authenticatable
         'approved',
         'onboarding_step',
         'profile_photo',
+        'wallet_balance',
         'professional_title',
         'workspace_usage_frequency',
     ];
@@ -62,6 +63,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'wallet_balance' => 'decimal:2',
         ];
     }
 

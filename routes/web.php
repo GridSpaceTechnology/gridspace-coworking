@@ -11,11 +11,17 @@ use App\Http\Controllers\FeatureRequestController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\BlogController;
+use App\Http\Controllers\InvestorController;
+use App\Http\Controllers\WalletController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::get('/', [ListingController::class, 'index'])->name('home');
 Route::get('/listings', [ListingController::class, 'index'])->name('listings.index');
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/invest', [InvestorController::class, 'index'])->name('invest.index');
+Route::post('/invest', [InvestorController::class, 'store'])->name('invest.store');
 Route::get('/featured', [FeaturedController::class, 'index'])->name('featured');
     Route::get('/listings/create', [ListingController::class, 'create'])->name('listings.create')->middleware('auth');
 Route::get('/listings/{listing:slug}', [ListingController::class, 'show'])->name('listings.show');
@@ -69,6 +75,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/my-bookings', [BookingController::class, 'index'])->name('bookings.index');
     Route::get('/my-inquiries', [InquiryController::class, 'index'])->name('inquiries.index');
     Route::get('/inquiries/{inquiry}', [InquiryController::class, 'show'])->name('inquiries.show');
+    Route::patch('/inquiries/{inquiry}/contacted', [InquiryController::class, 'toggleContacted'])->name('inquiries.toggle-contacted');
+    Route::post('/inquiries/{inquiry}/messages', [InquiryController::class, 'storeMessage'])->name('inquiries.messages.store');
+    Route::get('/wallet', [WalletController::class, 'index'])->name('wallet.index');
     Route::patch('/bookings/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.update-status');
 
     // Listing management routes - require auth for create, host/admin for other actions

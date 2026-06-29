@@ -11,8 +11,9 @@ class BookingController extends Controller
 {
     public function create(Listing $listing)
     {
-        // Get existing confirmed bookings for this listing
-        $bookedDates = \App\Models\Booking::where('listing_id', $listing->id)
+        $listing->load(['images', 'category', 'city']);
+
+        $bookedDates = Booking::where('listing_id', $listing->id)
             ->where('status', 'confirmed')
             ->get(['check_in_date', 'check_out_date']);
 
@@ -106,23 +107,37 @@ class BookingController extends Controller
 
     public function confirmation(Booking $booking)
     {
+        $booking->load(['listing.images', 'listing.category', 'listing.city']);
+
         return view('bookings.confirmation', compact('booking'));
     }
 
     public function index(Request $request)
     {
-        $query = Booking::where('user_id', Auth::id())
-            ->with('listing')
+        $userId = Auth::id();
+
+        $stats = Booking::where('user_id', $userId)
+            ->selectRaw("
+                COUNT(*) as total,
+                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN status = 'confirmed' THEN 1 ELSE 0 END) as confirmed,
+                SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
+                SUM(CASE WHEN status IN ('confirmed', 'completed') THEN total_price ELSE 0 END) as total_spent,
+                SUM(CASE WHEN status IN ('pending', 'confirmed') AND check_in_date >= ? THEN 1 ELSE 0 END) as upcoming
+            ", [now()->toDateString()])
+            ->first();
+
+        $query = Booking::where('user_id', $userId)
+            ->with(['listing.images', 'listing.city'])
             ->orderBy('created_at', 'desc');
 
-        // Filter by status if provided
         if ($request->has('status') && $request->status !== 'all') {
             $query->where('status', $request->status);
         }
 
         $bookings = $query->paginate(10);
 
-        return view('bookings.index', compact('bookings'));
+        return view('bookings.index', compact('bookings', 'stats'));
     }
 
     public function updateStatus(Request $request, Booking $booking)

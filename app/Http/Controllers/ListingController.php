@@ -23,13 +23,9 @@ class ListingController extends Controller
             ->where('status', 'published');
 
         // Enhanced featured prioritization algorithm
-        if ($request->filled('search') || $request->filled('category') || $request->filled('city')) {
-            // When searching, prioritize featured listings first
-            $query->orderBy('featured', 'desc')
-                  ->orderByRaw('CASE WHEN featured = 1 THEN RAND() ELSE created_at END DESC')
-                  ->orderBy('created_at', 'desc');
+        if ($request->route()->getName() === 'listings.index' || $request->filled('search') || $request->filled('category') || $request->filled('city') || $request->filled('categories')) {
+            $query->orderBy('featured', 'desc')->orderBy('created_at', 'desc');
         } else {
-            // Homepage: Show featured listings first, then random regular listings
             $query->orderBy('featured', 'desc')
                   ->orderByRaw('CASE WHEN featured = 1 THEN RAND() ELSE RAND() END');
         }
@@ -44,8 +40,11 @@ class ListingController extends Controller
             });
         }
 
-        // Apply filters
-        if ($request->filled('category')) {
+        if ($request->filled('categories')) {
+            $query->whereHas('category', function ($q) use ($request) {
+                $q->whereIn('slug', (array) $request->categories);
+            });
+        } elseif ($request->filled('category')) {
             $query->whereHas('category', function ($q) use ($request) {
                 $q->where('slug', $request->category);
             });
@@ -61,8 +60,24 @@ class ListingController extends Controller
             $query->where('capacity', '>=', $request->capacity);
         }
 
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', (float) $request->min_price);
+        }
+
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', (float) $request->max_price);
+        }
+
         if ($request->filled('price_range')) {
             $query->where('price_range', 'like', '%' . $request->price_range . '%');
+        }
+
+        if ($request->filled('amenities')) {
+            foreach ((array) $request->amenities as $amenityId) {
+                $query->whereHas('amenities', function ($q) use ($amenityId) {
+                    $q->where('amenities.id', $amenityId);
+                });
+            }
         }
 
         // Handle live search API request
@@ -107,17 +122,30 @@ class ListingController extends Controller
 
         $hasActiveFilters = $request->filled('search')
             || $request->filled('category')
+            || $request->filled('categories')
             || $request->filled('city')
             || $request->filled('capacity')
-            || $request->filled('price_range');
+            || $request->filled('price_range')
+            || $request->filled('min_price')
+            || $request->filled('max_price')
+            || $request->filled('amenities');
 
-        return view('listings.index', compact(
+        $amenities = Amenity::orderBy('name')->get();
+
+        $viewData = compact(
             'listings',
             'categories',
             'cities',
             'featuredListings',
-            'hasActiveFilters'
-        ));
+            'hasActiveFilters',
+            'amenities'
+        );
+
+        if ($request->route()->getName() === 'home' && ! $hasActiveFilters) {
+            return view('listings.home', $viewData);
+        }
+
+        return view('listings.search', $viewData);
     }
 
     /**

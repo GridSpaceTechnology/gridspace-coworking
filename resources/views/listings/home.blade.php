@@ -25,7 +25,7 @@
                 Discover verified, flexible workspaces with reliable power, high-speed internet, and everything you need to stay productive on the go.
             </p>
 
-            <form method="GET" action="{{ route('home') }}" id="heroSearchForm" class="bg-white p-2 rounded-grid shadow-xl border border-gray-100 flex flex-col md:flex-row items-center gap-2 max-w-2xl relative">
+            <form method="GET" action="{{ route('listings.index') }}" id="heroSearchForm" class="bg-white p-2 rounded-grid shadow-xl border border-gray-100 flex flex-col md:flex-row items-center gap-2 max-w-2xl relative">
                 <div class="flex-1 flex items-center px-4 md:border-r border-gray-200 w-full">
                     <svg class="w-5 h-5 text-gray-400 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     <input type="text" name="search" id="searchInput" value="{{ request('search') }}" placeholder="Enter location or workspace name" class="w-full border-none focus:ring-0 text-sm py-3" autocomplete="off"/>
@@ -95,7 +95,7 @@
                 <h2 class="text-2xl font-extrabold text-navy">Search Results</h2>
                 <p class="text-gray-500 text-sm mt-1">{{ $listings->total() }} workspace{{ $listings->total() === 1 ? '' : 's' }} found</p>
             </div>
-            <a href="{{ route('home') }}" class="text-sm font-semibold text-primary hover:text-orange-600">Clear filters</a>
+            <a href="{{ route('listings.index') }}" class="text-sm font-semibold text-primary hover:text-orange-600">Clear filters</a>
         </div>
 
         @if($listings->count() > 0)
@@ -108,7 +108,7 @@
         @else
             <div class="text-center py-16 bg-surface rounded-xl">
                 <p class="text-gray-600 mb-4">No workspaces match your search. Try different filters.</p>
-                <a href="{{ route('home') }}" class="inline-block bg-primary text-white font-bold px-8 py-3 rounded-grid hover:bg-orange-600 transition">Browse all spaces</a>
+                <a href="{{ route('listings.index') }}" class="inline-block bg-primary text-white font-bold px-8 py-3 rounded-grid hover:bg-orange-600 transition">Browse all spaces</a>
             </div>
         @endif
     </div>
@@ -225,7 +225,7 @@
         <p class="text-gray-500 mb-12">Explore workspaces in Nigeria's thriving business districts</p>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             @foreach($cities->take(3) as $city)
-                <a href="{{ route('home', ['city' => $city->slug]) }}" class="relative group cursor-pointer h-80 rounded-xl overflow-hidden shadow-lg block">
+                <a href="{{ route('listings.index', ['city' => $city->slug]) }}" class="relative group cursor-pointer h-80 rounded-xl overflow-hidden shadow-lg block">
                     <img src="{{ $cityImages[$city->slug] ?? $defaultCityImage }}" alt="{{ $city->name }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500"/>
                     <div class="absolute inset-0 gradient-overlay"></div>
                     <div class="absolute bottom-6 left-6 text-left">
@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function performLiveSearch(query) {
-        fetch(`{{ route('home') }}?search=${encodeURIComponent(query)}&live=1`)
+        fetch(`{{ route('listings.index') }}?search=${encodeURIComponent(query)}&live=1`)
             .then(r => r.json())
             .then(data => displaySearchResults(data.listings, query))
             .catch(() => searchResults.classList.add('hidden'));

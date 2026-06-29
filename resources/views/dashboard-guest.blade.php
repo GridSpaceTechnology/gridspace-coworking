@@ -45,13 +45,13 @@
         <p class="font-mono text-xs text-on-surface-variant uppercase tracking-wide">View upcoming bookings</p>
     </a>
 
-    <div class="bg-white border border-outline-variant rounded-xl p-6 text-center card-lift group">
+    <a href="{{ route('wallet.index') }}" class="bg-white border border-outline-variant rounded-xl p-6 text-center card-lift group block">
         <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
             <span class="material-symbols-outlined text-3xl text-on-surface-variant group-hover:text-primary">account_balance_wallet</span>
         </div>
         <h3 class="font-manrope text-xl font-semibold mb-1">Wallet</h3>
-        <p class="font-mono text-xs text-on-surface-variant uppercase tracking-wide">₦0</p>
-    </div>
+        <p class="font-mono text-xs text-on-surface-variant uppercase tracking-wide">₦{{ number_format(auth()->user()->wallet_balance ?? 0, 0) }}</p>
+    </a>
 
     <a href="{{ route('inquiries.index') }}" class="bg-white border border-outline-variant rounded-xl p-6 text-center card-lift group block">
         <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
