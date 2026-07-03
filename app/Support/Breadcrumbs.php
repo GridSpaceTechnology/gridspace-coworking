@@ -31,6 +31,8 @@ class Breadcrumbs
         'admin.bookings.index' => 'Bookings',
         'admin.blog.index' => 'Blog',
         'admin.blog.create' => 'Create Post',
+        'admin.blog.edit' => 'Edit Post',
+        'blog.show' => 'Article',
         'analytics.index' => 'Analytics',
         'admin.listings.index' => 'Listings',
         'admin.users.index' => 'Users',

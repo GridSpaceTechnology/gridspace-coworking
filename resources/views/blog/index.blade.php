@@ -50,26 +50,34 @@
 <section class="py-12 md:py-16 bg-surface -mx-4 md:-mx-margin-desktop px-4 md:px-margin-desktop">
     <div class="max-w-container-max mx-auto">
         <h2 class="font-manrope text-2xl md:text-3xl font-bold text-on-surface mb-8">Featured Story</h2>
-        <article class="article-card group relative bg-white border border-outline-variant rounded-2xl overflow-hidden flex flex-col md:flex-row cursor-pointer">
-            <div class="md:w-1/2 h-64 md:h-auto min-h-[280px] overflow-hidden">
-                <img src="{{ $featured['image'] }}" alt="{{ $featured['title'] }}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
-            </div>
-            <div class="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
-                <div class="flex items-center gap-3 mb-6 flex-wrap">
-                    <span class="px-3 py-1 bg-primary-container/10 text-primary-container rounded-full font-mono text-xs uppercase tracking-wide">{{ $featured['category'] }}</span>
-                    <span class="text-secondary font-mono text-xs uppercase tracking-wide">{{ $featured['read_time'] }} MIN READ</span>
-                </div>
-                <h3 class="font-manrope text-2xl md:text-4xl font-bold text-on-surface mb-6 group-hover:text-primary transition-colors leading-tight">{{ $featured['title'] }}</h3>
-                <p class="font-inter text-lg text-secondary mb-8">{{ $featured['excerpt'] }}</p>
-                @if(!empty($featured['author_name']))
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold">{{ $featured['author_initials'] }}</div>
-                        <div>
-                            <p class="font-inter font-bold text-on-surface">{{ $featured['author_name'] }}</p>
-                            <p class="font-mono text-xs text-secondary uppercase tracking-wide">{{ $featured['author_role'] }}</p>
-                        </div>
+        <article class="article-card group relative bg-white border border-outline-variant rounded-2xl overflow-hidden flex flex-col md:flex-row">
+            <a href="{{ route('blog.show', $featured) }}" class="md:w-1/2 h-64 md:h-auto min-h-[280px] overflow-hidden block">
+                @if($featured->image_url)
+                    <img src="{{ $featured->image_url }}" alt="{{ $featured->title }}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+                @else
+                    <div class="w-full h-full bg-surface-container flex items-center justify-center min-h-[280px]">
+                        <span class="material-symbols-outlined text-6xl text-outline">article</span>
                     </div>
                 @endif
+            </a>
+            <div class="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+                <div class="flex items-center gap-3 mb-6 flex-wrap">
+                    <span class="px-3 py-1 bg-primary-container/10 text-primary-container rounded-full font-mono text-xs uppercase tracking-wide">{{ $featured->category }}</span>
+                    <span class="text-secondary font-mono text-xs uppercase tracking-wide">{{ $featured->read_time }} MIN READ</span>
+                </div>
+                <a href="{{ route('blog.show', $featured) }}">
+                    <h3 class="font-manrope text-2xl md:text-4xl font-bold text-on-surface mb-6 group-hover:text-primary transition-colors leading-tight">{{ $featured->title }}</h3>
+                </a>
+                <p class="font-inter text-lg text-secondary mb-8">{{ $featured->excerpt }}</p>
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold">{{ $featured->author_initials }}</div>
+                    <div>
+                        <p class="font-inter font-bold text-on-surface">{{ $featured->author_display }}</p>
+                        @if($featured->author_role)
+                            <p class="font-mono text-xs text-secondary uppercase tracking-wide">{{ $featured->author_role }}</p>
+                        @endif
+                    </div>
+                </div>
             </div>
         </article>
     </div>

@@ -17,6 +17,10 @@
     </div>
 </section>
 
+@if(session('success'))
+    <div class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-2.5 text-sm text-green-800 font-inter">{{ session('success') }}</div>
+@endif
+
 <div class="grid grid-cols-3 gap-4 md:gap-gutter mb-8">
     @foreach([
         ['label' => 'Total Posts', 'value' => $stats['total']],
@@ -59,37 +63,42 @@
                 <tbody class="divide-y divide-outline-variant/30">
                     @foreach($posts as $post)
                         @php
-                            $statusClass = $post['status'] === 'published'
+                            $statusClass = $post->status === 'published'
                                 ? 'bg-blue-100 text-blue-800'
                                 : 'bg-amber-100 text-amber-800';
                         @endphp
                         <tr class="hover:bg-surface-container-low/40 transition-colors">
                             <td class="px-5 py-4">
-                                <p class="font-inter text-sm font-medium text-[#1c2c40] max-w-xs truncate">{{ $post['title'] }}</p>
+                                <p class="font-inter text-sm font-medium text-[#1c2c40] max-w-xs truncate">{{ $post->title }}</p>
+                                @if($post->featured)
+                                    <span class="text-[10px] font-semibold text-primary-container uppercase">Featured</span>
+                                @endif
                             </td>
-                            <td class="px-5 py-4 font-inter text-sm text-on-surface-variant">{{ $post['category'] }}</td>
+                            <td class="px-5 py-4 font-inter text-sm text-on-surface-variant">{{ $post->category }}</td>
                             <td class="px-5 py-4">
                                 <span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold capitalize {{ $statusClass }}">
-                                    {{ $post['status'] }}
+                                    {{ $post->status }}
                                 </span>
                             </td>
                             <td class="px-5 py-4 font-inter text-sm text-on-surface-variant whitespace-nowrap">
-                                {{ \Carbon\Carbon::parse($post['updated_at'])->format('jS M, Y') }}
+                                {{ $post->updated_at->format('jS M, Y') }}
                             </td>
                             <td class="px-5 py-4">
                                 <div class="flex items-center justify-end gap-1">
                                     <button type="button"
                                             class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors"
                                             title="Preview"
-                                            onclick="openPostModal({{ json_encode($post) }})">
+                                            onclick="openPostModal({{ json_encode($post->toPreviewArray()) }})">
                                         <span class="material-symbols-outlined text-[18px]">visibility</span>
                                     </button>
-                                    <a href="{{ route('blog.index') }}"
-                                       class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors"
-                                       title="View on site">
-                                        <span class="material-symbols-outlined text-[18px]">open_in_new</span>
-                                    </a>
-                                    <a href="{{ route('admin.blog.create') }}"
+                                    @if($post->status === 'published')
+                                        <a href="{{ route('blog.show', $post) }}" target="_blank"
+                                           class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors"
+                                           title="View on site">
+                                            <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+                                        </a>
+                                    @endif
+                                    <a href="{{ route('admin.blog.edit', $post) }}"
                                        class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors"
                                        title="Edit">
                                         <span class="material-symbols-outlined text-[18px]">edit</span>
@@ -108,7 +117,7 @@
     <div class="absolute inset-0 bg-black/50" onclick="closePostModal()"></div>
     <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
         <div class="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto pointer-events-auto shadow-2xl">
-            <img id="post-modal-image" src="" alt="" class="w-full h-40 object-cover">
+            <img id="post-modal-image" src="" alt="" class="w-full h-40 object-cover hidden">
             <div class="p-6">
                 <div class="flex items-center gap-2 mb-2">
                     <span id="post-modal-status" class="px-2 py-0.5 rounded-full text-[11px] font-semibold"></span>
@@ -120,7 +129,7 @@
                     <span id="post-modal-category"></span> · <span id="post-modal-views"></span> views
                 </p>
                 <div class="flex gap-3">
-                    <a href="{{ route('admin.blog.create') }}"
+                    <a id="post-modal-edit" href="#"
                        class="flex-1 text-center py-2.5 rounded-lg bg-primary-container text-white font-inter text-sm font-semibold hover:bg-primary">Edit</a>
                     <button type="button" onclick="closePostModal()"
                             class="flex-1 py-2.5 rounded-lg border border-outline-variant font-inter text-sm font-semibold text-on-surface-variant hover:bg-surface-container">Close</button>
@@ -134,11 +143,18 @@
 <script>
 function openPostModal(post) {
     document.getElementById('post-modal-title').textContent = post.title;
-    document.getElementById('post-modal-excerpt').textContent = post.excerpt;
+    document.getElementById('post-modal-excerpt').textContent = post.excerpt || '';
     document.getElementById('post-modal-author').textContent = post.author_name || 'GridSpace';
     document.getElementById('post-modal-category').textContent = post.category;
     document.getElementById('post-modal-views').textContent = (post.views || 0).toLocaleString();
-    document.getElementById('post-modal-image').src = post.image || '';
+    const img = document.getElementById('post-modal-image');
+    if (post.image) {
+        img.src = post.image;
+        img.classList.remove('hidden');
+    } else {
+        img.classList.add('hidden');
+    }
+    document.getElementById('post-modal-edit').href = '{{ url('/admin/blog') }}/' + post.id + '/edit';
     const badge = document.getElementById('post-modal-status');
     badge.textContent = post.status;
     badge.className = 'px-2 py-0.5 rounded-full text-[11px] font-semibold capitalize ' +

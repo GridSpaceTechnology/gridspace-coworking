@@ -87,10 +87,10 @@ class BlogPost extends Model
         return $date?->format('M d, Y') ?? '';
     }
 
-    public function getAuthorNameAttribute(?string $value): string
+    public function getAuthorDisplayAttribute(): string
     {
-        if ($value) {
-            return $value;
+        if ($this->attributes['author_name'] ?? null) {
+            return $this->attributes['author_name'];
         }
 
         return $this->user?->display_name ?? 'GridSpace Team';
@@ -98,9 +98,7 @@ class BlogPost extends Model
 
     public function getAuthorInitialsAttribute(): string
     {
-        $name = $this->author_name;
-
-        return strtoupper(substr($name, 0, 1));
+        return strtoupper(substr($this->author_display, 0, 1));
     }
 
     public static function estimateReadTime(?string $content): int
@@ -138,7 +136,7 @@ class BlogPost extends Model
             'category_slug' => $this->category_slug,
             'views' => $this->views,
             'image' => $this->image_url,
-            'author_name' => $this->author_name,
+            'author_name' => $this->author_display,
             'read_time' => $this->read_time,
             'updated_at' => $this->updated_at?->toDateString(),
         ];

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->text('excerpt')->nullable();
             $table->longText('content')->nullable();
-            $table->string('featured_image')->nullable();
+            $table->text('featured_image')->nullable();
             $table->string('category_slug')->default('workspace-trends');
             $table->json('tags')->nullable();
             $table->string('status')->default('draft');
