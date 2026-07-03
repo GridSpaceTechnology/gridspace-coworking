@@ -16,7 +16,7 @@
     <div class="flex gap-2 min-w-max px-1 pb-1">
         @foreach($links as $link)
             @php
-                $active = request()->routeIs($link['route']) || ($link['route'] === 'dashboard' && request()->routeIs('listings.create'));
+                $active = request()->routeIs($link['route']) || ($link['route'] === 'dashboard' && request()->has('add_listing'));
             @endphp
             <a href="{{ route($link['route']) }}"
                @class([

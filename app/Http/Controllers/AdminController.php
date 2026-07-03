@@ -17,17 +17,39 @@ class AdminController extends Controller
      */
     public function index()
     {
+        $monthStart = now()->startOfMonth();
+        $lastMonthStart = now()->subMonth()->startOfMonth();
+        $lastMonthEnd = now()->subMonth()->endOfMonth();
+
+        $monthlyRevenue = \App\Models\Booking::whereIn('status', ['confirmed', 'completed'])
+            ->where('created_at', '>=', $monthStart)
+            ->sum('total_price');
+
+        $lastMonthRevenue = \App\Models\Booking::whereIn('status', ['confirmed', 'completed'])
+            ->whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])
+            ->sum('total_price');
+
+        $revenueChange = $lastMonthRevenue > 0
+            ? round((($monthlyRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100)
+            : ($monthlyRevenue > 0 ? 100 : 0);
+
         $stats = [
             'total_listings' => Listing::count(),
+            'listings_today' => Listing::whereDate('created_at', today())->count(),
             'published_listings' => Listing::where('status', 'published')->count(),
             'featured_listings' => Listing::where('featured', true)->count(),
             'pending_listings' => Listing::where('status', 'pending')->count(),
             'total_users' => User::count(),
+            'users_today' => User::whereDate('created_at', today())->count(),
             'total_hosts' => User::where('role', 'host')->count(),
             'total_inquiries' => \App\Models\Inquiry::count(),
             'total_bookings' => \App\Models\Booking::count(),
+            'active_bookings' => \App\Models\Booking::whereIn('status', ['confirmed', 'pending'])->count(),
+            'bookings_ending_today' => \App\Models\Booking::whereDate('check_out_date', today())->count(),
             'pending_bookings' => \App\Models\Booking::where('status', 'pending')->count(),
             'pending_featured_requests' => FeatureRequest::where('status', 'pending')->count(),
+            'monthly_revenue' => $monthlyRevenue,
+            'revenue_change' => $revenueChange,
         ];
 
         // Get featured listing requests from feature_requests table
@@ -85,7 +107,7 @@ class AdminController extends Controller
      */
     public function usersIndex()
     {
-        $users = User::latest()->paginate(20);
+        $users = User::withCount(['listings', 'bookings'])->latest()->paginate(20);
         return view('admin.users.index', compact('users'));
     }
 

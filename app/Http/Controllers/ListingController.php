@@ -153,6 +153,10 @@ class ListingController extends Controller
      */
     public function create()
     {
+        if (auth()->check() && auth()->user()->isHost()) {
+            return redirect()->route('dashboard', ['add_listing' => 1]);
+        }
+
         $categories = Category::all();
         $cities = City::all();
         $amenities = Amenity::all();

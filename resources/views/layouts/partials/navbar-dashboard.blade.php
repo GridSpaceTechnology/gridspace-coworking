@@ -78,7 +78,7 @@
                 <a href="{{ route('dashboard') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">My Listings</a>
                 <a href="{{ route('host.calendar') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Calendar</a>
                 <a href="{{ route('host.earnings') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Earnings</a>
-                <a href="{{ route('listings.create') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Add Listing</a>
+                <a href="{{ route('dashboard', ['add_listing' => 1]) }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Add Listing</a>
             @else
                 <a href="{{ route('bookings.index') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">My Bookings</a>
                 <a href="{{ route('wallet.index') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Wallet</a>
@@ -88,7 +88,11 @@
             <a href="{{ route('profile.edit') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">My Profile</a>
 
             @if($user->isAdmin())
-                <a href="{{ route('admin.index') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Admin</a>
+                <a href="{{ route('admin.index') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Admin Dashboard</a>
+                <a href="{{ route('admin.listings.index') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Listings</a>
+                <a href="{{ route('admin.users.index') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Users</a>
+                <a href="{{ route('admin.bookings.index') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Bookings</a>
+                <a href="{{ route('admin.blog.index') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Blog</a>
                 <a href="{{ route('analytics.index') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Analytics</a>
             @endif
 

@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Listing;
+use App\Models\Category;
+use App\Models\City;
+use App\Models\Amenity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -41,11 +44,18 @@ class DashboardController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
+            $categories = Category::orderBy('name')->get();
+            $cities = City::orderBy('name')->get();
+            $amenities = Amenity::orderBy('name')->get();
+
             return view('dashboard-host', compact(
                 'listings',
                 'recentBookings',
                 'stats',
-                'featureRequests'
+                'featureRequests',
+                'categories',
+                'cities',
+                'amenities'
             ));
         }
 

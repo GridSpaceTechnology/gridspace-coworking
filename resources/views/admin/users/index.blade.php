@@ -1,202 +1,180 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
-@section('title', 'Manage Users - Admin')
+@section('title', 'User Management | GridSpace')
 
-@section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Header -->
-    <div class="mb-8">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">Manage Users</h1>
-                <p class="text-gray-600 mt-2">View and manage all user accounts.</p>
+@section('admin_content')
+<section class="mb-6 md:mb-8">
+    <h1 class="font-manrope text-3xl md:text-4xl font-bold text-[#1c2c40] tracking-tight">User Management</h1>
+    <p class="font-inter text-sm text-on-surface-variant mt-1">View and manage all user accounts on the platform</p>
+</section>
+
+@if(session('success'))
+    <div class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-2.5 text-sm text-green-800 font-inter">{{ session('success') }}</div>
+@endif
+@if(session('error'))
+    <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-800 font-inter">{{ session('error') }}</div>
+@endif
+
+<div class="bg-white border border-outline-variant/60 rounded-2xl overflow-hidden card-lift">
+    @if($users->isEmpty())
+        <div class="p-16 text-center">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-container flex items-center justify-center">
+                <span class="material-symbols-outlined text-4xl text-outline">group</span>
             </div>
-            <div class="flex items-center space-x-4">
-                <a href="{{ route('admin.index') }}"
-                   class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md shadow-sm text-white text-base font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
-                    <i class="fas fa-arrow-left mr-2"></i>
-                    Back to Dashboard
-                </a>
-            </div>
+            <h3 class="font-manrope text-lg font-bold text-[#1c2c40] mb-2">No users yet</h3>
+            <p class="font-inter text-sm text-on-surface-variant">Users will appear here once they register.</p>
         </div>
-    </div>
-
-    <!-- Filters -->
-    <div class="bg-white rounded-lg shadow p-6 mb-6">
-        <div class="flex flex-wrap gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Role Filter</label>
-                <select id="roleFilter" class="block px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="">All Roles</option>
-                    <option value="admin">Admin</option>
-                    <option value="host">Host</option>
-                    <option value="guest">Guest</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Status Filter</label>
-                <select id="statusFilter" class="block px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="">All Statuses</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="pending">Pending</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <!-- Users Table -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
+    @else
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            User
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Role
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Listings
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Bookings
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Joined
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions
-                        </th>
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b border-outline-variant/40 bg-surface-container-low/50">
+                        <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase">User</th>
+                        <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase">Type</th>
+                        <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase">Status</th>
+                        <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase">Joined</th>
+                        <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase">Phone</th>
+                        <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase text-right">Action</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($users as $user)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center mr-3">
-                                        <i class="fas fa-user text-gray-400"></i>
+                <tbody class="divide-y divide-outline-variant/30">
+                    @foreach($users as $user)
+                        @php
+                            $initial = strtoupper(substr($user->firstname ?? 'U', 0, 1));
+                            $avatarUrl = $user->profile_photo_url;
+                            $canManage = $user->id !== auth()->id() && $user->role !== 'admin';
+                        @endphp
+                        <tr class="hover:bg-surface-container-low/40 transition-colors">
+                            <td class="px-5 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full overflow-hidden bg-primary-container/10 flex items-center justify-center shrink-0">
+                                        @if($avatarUrl)
+                                            <img src="{{ $avatarUrl }}" alt="" class="w-full h-full object-cover">
+                                        @else
+                                            <span class="font-manrope font-bold text-primary-container text-sm">{{ $initial }}</span>
+                                        @endif
                                     </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">{{ $user->firstname }} {{ $user->lastname }}</div>
-                                        <div class="text-xs text-gray-500">{{ $user->email }}</div>
+                                    <div class="min-w-0">
+                                        <p class="font-inter text-sm font-medium text-[#1c2c40]">{{ $user->display_name }}</p>
+                                        <p class="font-inter text-xs text-on-surface-variant truncate">{{ $user->email }}</p>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 text-xs leading-5 font-semibold rounded-full
-                                    {{ $user->role === 'admin' ? 'bg-purple-100 text-purple-800' :
-                                      ($user->role === 'host' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800') }}">
-                                    {{ ucfirst($user->role) }}
+                            <td class="px-5 py-4">
+                                <span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold capitalize
+                                    {{ $user->role === 'admin' ? 'bg-purple-100 text-purple-800' : ($user->role === 'host' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700') }}">
+                                    {{ $user->role }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ $user->listings_count ?? 0 }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ $user->bookings_count ?? 0 }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $user->approved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                                    <i class="fas {{ $user->approved ? 'fa-check-circle' : 'fa-ban' }} mr-1"></i>
-                                    {{ $user->approved ? 'Active' : 'Disabled' }}
+                            <td class="px-5 py-4">
+                                <span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold
+                                    {{ $user->approved ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                    {{ $user->approved ? 'Active' : 'Inactive' }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $user->created_at->format('M j, Y') }}
+                            <td class="px-5 py-4 font-inter text-sm text-on-surface-variant whitespace-nowrap">
+                                {{ $user->created_at->format('M d, Y') }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-2 space-y-2 sm:space-y-0">
-                                    <a href="mailto:{{ $user->email }}"
-                                       class="text-blue-600 hover:text-blue-900 text-sm order-1 sm:order-1"
-                                       title="Email User">
-                                        <i class="fas fa-envelope mr-1"></i>
-                                        <span class="sm:hidden">Email</span>
-                                    </a>
-                                    @if($user->id !== Auth::id() && $user->role !== 'admin')
-                                        <form method="POST" action="{{ route('admin.users.toggle', $user) }}" class="inline order-2 sm:order-2">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit"
-                                                    class="{{ $user->approved ? 'text-yellow-600 hover:text-yellow-900 bg-yellow-100' : 'text-green-600 hover:text-green-900 bg-green-100' }} text-sm px-3 py-2 rounded-md"
-                                                    title="{{ $user->approved ? 'Deactivate' : 'Activate' }} User"
-                                                    onclick="return confirm('Are you sure you want to {{ $user->approved ? 'deactivate' : 'activate' }} this user?')">
-                                                <i class="fas {{ $user->approved ? 'fa-ban' : 'fa-check-circle' }} mr-1"></i>
-                                                <span class="sm:hidden">{{ $user->approved ? 'Disable' : 'Enable' }}</span>
-                                            </button>
-                                        </form>
-                                        <form method="POST" action="{{ route('admin.users.delete', $user) }}" class="inline order-3 sm:order-3"
-                                              onsubmit="return confirm('WARNING: This will permanently delete the user and all their data. Are you sure?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                    class="text-red-600 hover:text-red-900 text-sm bg-red-100 px-3 py-2 rounded-md"
-                                                    title="Delete User">
-                                                <i class="fas fa-trash mr-1"></i>
-                                                <span class="sm:hidden">Delete</span>
-                                            </button>
-                                        </form>
-                                    @endif
-                                </div>
+                            <td class="px-5 py-4 font-inter text-sm text-on-surface-variant">{{ $user->phone ?? '—' }}</td>
+                            <td class="px-5 py-4 text-right">
+                                <button type="button"
+                                        class="w-9 h-9 inline-flex items-center justify-center rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-[#1c2c40] transition-colors"
+                                        onclick="openUserModal({{ json_encode([
+                                            'name' => $user->display_name,
+                                            'email' => $user->email,
+                                            'phone' => $user->phone ?? '—',
+                                            'role' => ucfirst($user->role),
+                                            'status' => $user->approved ? 'Active' : 'Inactive',
+                                            'joined' => $user->created_at->format('M d, Y'),
+                                            'avatar' => $avatarUrl,
+                                            'initial' => $initial,
+                                            'canManage' => $canManage,
+                                            'toggleUrl' => $canManage ? route('admin.users.toggle', $user) : null,
+                                            'deleteUrl' => $canManage ? route('admin.users.delete', $user) : null,
+                                            'approved' => $user->approved,
+                                        ]) }})">
+                                    <span class="material-symbols-outlined text-[20px]">visibility</span>
+                                </button>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="px-6 py-12 text-center">
-                                <div class="text-gray-400">
-                                    <i class="fas fa-users text-4xl mb-4"></i>
-                                </div>
-                                <h3 class="text-lg font-medium text-gray-900 mb-2">No users found</h3>
-                                <p class="text-gray-500">No users match the current filters.</p>
-                            </td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
-
-        <!-- Pagination -->
         @if($users->hasPages())
-            <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-                {{ $users->links() }}
-            </div>
+            <div class="px-5 py-4 border-t border-outline-variant/40">{{ $users->links() }}</div>
         @endif
+    @endif
+</div>
+
+<div id="user-modal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 bg-black/50" onclick="closeUserModal()"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+        <div class="bg-white rounded-2xl max-w-md w-full pointer-events-auto shadow-2xl p-6">
+            <div class="flex items-center gap-4 mb-6">
+                <div id="user-modal-avatar" class="w-16 h-16 rounded-full overflow-hidden bg-primary-container/10 flex items-center justify-center shrink-0"></div>
+                <div>
+                    <h2 class="font-manrope text-xl font-bold text-[#1c2c40]" id="user-modal-name"></h2>
+                    <p class="font-inter text-sm text-on-surface-variant" id="user-modal-email"></p>
+                </div>
+            </div>
+            <dl class="space-y-3 mb-6">
+                <div class="flex justify-between"><dt class="font-inter text-sm text-on-surface-variant">Phone</dt><dd class="font-inter text-sm font-medium" id="user-modal-phone"></dd></div>
+                <div class="flex justify-between"><dt class="font-inter text-sm text-on-surface-variant">Type</dt><dd class="font-inter text-sm font-medium" id="user-modal-role"></dd></div>
+                <div class="flex justify-between"><dt class="font-inter text-sm text-on-surface-variant">Status</dt><dd class="font-inter text-sm font-medium" id="user-modal-status"></dd></div>
+                <div class="flex justify-between"><dt class="font-inter text-sm text-on-surface-variant">Joined</dt><dd class="font-inter text-sm font-medium" id="user-modal-joined"></dd></div>
+            </dl>
+            <div id="user-modal-actions" class="space-y-2"></div>
+            <button type="button" onclick="closeUserModal()"
+                    class="mt-4 w-full py-2.5 rounded-lg border border-outline-variant font-inter text-sm font-semibold text-on-surface-variant hover:bg-surface-container">
+                Close
+            </button>
+        </div>
     </div>
 </div>
 
+@push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const roleFilter = document.getElementById('roleFilter');
-    const statusFilter = document.getElementById('statusFilter');
+function openUserModal(data) {
+    document.getElementById('user-modal-name').textContent = data.name;
+    document.getElementById('user-modal-email').textContent = data.email;
+    document.getElementById('user-modal-phone').textContent = data.phone;
+    document.getElementById('user-modal-role').textContent = data.role;
+    document.getElementById('user-modal-status').textContent = data.status;
+    document.getElementById('user-modal-joined').textContent = data.joined;
 
-    function applyFilters() {
-        const role = roleFilter ? roleFilter.value : '';
-        const status = statusFilter ? statusFilter.value : '';
+    const avatar = document.getElementById('user-modal-avatar');
+    avatar.innerHTML = data.avatar
+        ? `<img src="${data.avatar}" class="w-full h-full object-cover" alt="">`
+        : `<span class="font-manrope font-bold text-primary-container text-xl">${data.initial}</span>`;
 
-        let url = new URL(window.location);
-
-        if (role) {
-            url.searchParams.set('role', role);
-        } else {
-            url.searchParams.delete('role');
-        }
-
-        if (status) {
-            url.searchParams.set('status', status);
-        } else {
-            url.searchParams.delete('status');
-        }
-
-        window.location.href = url.toString();
+    const actions = document.getElementById('user-modal-actions');
+    if (data.canManage) {
+        actions.innerHTML = `
+            <form method="POST" action="${data.toggleUrl}">
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="_method" value="PATCH">
+                <button type="submit" class="w-full py-2.5 rounded-lg border border-red-300 text-red-600 font-inter text-sm font-semibold hover:bg-red-50">
+                    ${data.approved ? 'Suspend User' : 'Activate User'}
+                </button>
+            </form>
+            <form method="POST" action="${data.deleteUrl}" onsubmit="return confirm('Permanently delete this user?')">
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="_method" value="DELETE">
+                <button type="submit" class="w-full py-2.5 rounded-lg border border-red-500 text-red-600 font-inter text-sm font-semibold hover:bg-red-50">Delete User</button>
+            </form>`;
+    } else {
+        actions.innerHTML = '<p class="font-inter text-sm text-on-surface-variant text-center">This account cannot be modified.</p>';
     }
 
-    if (roleFilter) roleFilter.addEventListener('change', applyFilters);
-    if (statusFilter) statusFilter.addEventListener('change', applyFilters);
-});
+    document.getElementById('user-modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeUserModal() {
+    document.getElementById('user-modal').classList.add('hidden');
+    document.body.style.overflow = '';
+}
 </script>
+@endpush
 @endsection

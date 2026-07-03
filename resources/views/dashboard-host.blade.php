@@ -9,11 +9,11 @@
             <h1 class="font-manrope text-3xl md:text-4xl font-bold text-[#1c2c40] tracking-tight">My Listings</h1>
             <p class="font-inter text-sm text-on-surface-variant mt-1">Manage your workspaces and track bookings</p>
         </div>
-        <a href="{{ route('listings.create') }}"
+        <button type="button" onclick="openListingModal()"
            class="inline-flex items-center justify-center gap-2 bg-primary-container text-white px-5 py-2.5 rounded-lg font-inter font-semibold text-sm hover:bg-primary transition-colors shrink-0">
             <span class="material-symbols-outlined text-[20px]">add</span>
             Add Listing
-        </a>
+        </button>
     </div>
 </section>
 
@@ -44,11 +44,11 @@
         <p class="font-inter text-sm text-on-surface-variant mb-6 max-w-md mx-auto">
             Create your first workspace listing to start receiving bookings from guests.
         </p>
-        <a href="{{ route('listings.create') }}"
+        <button type="button" onclick="openListingModal()"
            class="inline-flex items-center gap-2 bg-primary-container text-white px-6 py-3 rounded-lg font-inter font-semibold text-sm hover:bg-primary transition-colors">
             <span class="material-symbols-outlined text-[20px]">add</span>
             Add Listing
-        </a>
+        </button>
     </div>
 @else
     <div class="grid grid-cols-1 xl:grid-cols-5 gap-6 md:gap-gutter">
@@ -233,6 +233,33 @@
         </div>
     </details>
 @endif
+
+@include('host.partials.listing-wizard-modal')
+
+@push('head')
+<style>
+    .wizard-step { display: none; }
+    .wizard-step.active { display: block; }
+    .step-pill.done { background-color: #ff5a1f; color: #fff; }
+    .step-pill.active { background-color: #1c2c40; color: #fff; }
+    .amenity-card input:checked + .amenity-inner { border-color: #ff5a1f; background-color: #fff5f0; }
+    .amenity-card input:checked + .amenity-inner .amenity-check { opacity: 1; }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+function openListingModal() {
+    document.getElementById('listing-modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+function closeListingModal() {
+    document.getElementById('listing-modal').classList.add('hidden');
+    document.body.style.overflow = '';
+}
+</script>
+@include('host.partials.listing-wizard-scripts')
+@endpush
 
 @push('scripts')
 <script>

@@ -9,26 +9,22 @@ use Illuminate\View\View;
 
 class HostController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            if (! Auth::user()?->isHost()) {
-                abort(403, 'Host access only.');
-            }
-
-            return $next($request);
-        });
-    }
-
     public function calendar(Request $request): View
     {
         $user = Auth::user();
+
+        if (! $user->isHost()) {
+            abort(403, 'Host access only.');
+        }
+
         $listingIds = $user->listings()->pluck('id');
 
-        $bookings = Booking::whereIn('listing_id', $listingIds)
-            ->with(['listing.images', 'user'])
-            ->orderBy('check_in_date')
-            ->get();
+        $bookings = $listingIds->isEmpty()
+            ? collect()
+            : Booking::whereIn('listing_id', $listingIds)
+                ->with(['listing.images', 'user'])
+                ->orderBy('check_in_date')
+                ->get();
 
         $pendingRequests = $bookings->where('status', 'pending')->values();
 
@@ -72,13 +68,20 @@ class HostController extends Controller
     public function earnings(Request $request): View
     {
         $user = Auth::user();
+
+        if (! $user->isHost()) {
+            abort(403, 'Host access only.');
+        }
+
         $listingIds = $user->listings()->pluck('id');
         $period = $request->input('period', 'weekly');
 
-        $bookings = Booking::whereIn('listing_id', $listingIds)
-            ->with(['listing', 'user'])
-            ->orderByDesc('created_at')
-            ->get();
+        $bookings = $listingIds->isEmpty()
+            ? collect()
+            : Booking::whereIn('listing_id', $listingIds)
+                ->with(['listing', 'user'])
+                ->orderByDesc('created_at')
+                ->get();
 
         $confirmed = $bookings->whereIn('status', ['confirmed', 'completed']);
 
@@ -114,7 +117,7 @@ class HostController extends Controller
             }
         }
 
-        $maxChart = max(1, max(array_merge($chartBookings, $chartPayouts)));
+        $maxChart = max(1, ...array_merge($chartBookings, $chartPayouts, [0]));
 
         return view('host.earnings', compact(
             'user',

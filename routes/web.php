@@ -14,6 +14,7 @@ use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\InvestorController;
 use App\Http\Controllers\WalletController;
+use App\Http\Controllers\AdminBlogController;
 use App\Http\Controllers\HostController;
 use Illuminate\Support\Facades\Route;
 
@@ -102,6 +103,8 @@ Route::middleware('auth')->group(function () {
 // Admin routes
 Route::middleware('admin')->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+    Route::get('/admin/blog', [AdminBlogController::class, 'index'])->name('admin.blog.index');
+    Route::get('/admin/blog/create', [AdminBlogController::class, 'create'])->name('admin.blog.create');
     Route::get('/admin/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
     Route::get('/admin/analytics/export', [AnalyticsController::class, 'export'])->name('analytics.export');
     Route::get('/admin/listings', [AdminController::class, 'listingsIndex'])->name('admin.listings.index');
