@@ -1,298 +1,345 @@
-@extends('layouts.app')
+@extends('layouts.host')
 
-@section('title', 'Create Listing - Gridspace')
+@section('title', 'Add New Listing | GridSpace')
 
-@section('content')
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Create New Listing</h1>
-        <p class="text-gray-600 mt-2">Add your workspace to the Gridspace directory.</p>
+@push('head')
+<style>
+    .wizard-step { display: none; }
+    .wizard-step.active { display: block; }
+    .step-pill.done { background-color: #ff5a1f; color: #fff; }
+    .step-pill.active { background-color: #1c2c40; color: #fff; }
+    .amenity-card input:checked + .amenity-inner {
+        border-color: #ff5a1f;
+        background-color: #fff5f0;
+    }
+    .amenity-card input:checked + .amenity-inner .amenity-check {
+        opacity: 1;
+    }
+</style>
+@endpush
+
+@section('host_content')
+<section class="mb-6">
+    <h1 class="font-manrope text-3xl md:text-4xl font-bold text-[#1c2c40] tracking-tight">Add New Listing</h1>
+    <p class="font-inter text-sm text-on-surface-variant mt-1">Complete each step to publish your workspace</p>
+</section>
+
+<div class="bg-white border border-outline-variant/60 rounded-2xl p-6 md:p-8 card-lift max-w-4xl mx-auto">
+    {{-- Progress --}}
+    <div class="flex items-center justify-between mb-8 overflow-x-auto gap-2 pb-2" id="wizard-progress">
+        @foreach(['Basic Info', 'Amenities', 'Photos', 'Pricing', 'Review'] as $i => $label)
+            <div class="flex items-center gap-2 shrink-0">
+                <div class="step-pill w-8 h-8 rounded-full flex items-center justify-center font-inter text-xs font-bold bg-surface-container text-on-surface-variant transition-colors"
+                     data-step-indicator="{{ $i + 1 }}">{{ $i + 1 }}</div>
+                <span class="font-inter text-xs font-medium text-on-surface-variant hidden sm:inline step-label" data-step-label="{{ $i + 1 }}">{{ $label }}</span>
+                @if($i < 4)
+                    <div class="w-6 md:w-10 h-0.5 bg-outline-variant/50 hidden sm:block"></div>
+                @endif
+            </div>
+        @endforeach
     </div>
 
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <form method="POST" action="{{ route('listings.store') }}" enctype="multipart/form-data">
-            @csrf
+    <form method="POST" action="{{ route('listings.store') }}" enctype="multipart/form-data" id="listing-wizard-form">
+        @csrf
+        <input type="hidden" name="price_period" value="night">
 
-            <!-- Basic Information -->
-            <div class="mb-8">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {{-- Step 1: Basic Information --}}
+        <div class="wizard-step active" data-step="1">
+            <h2 class="font-manrope text-xl font-bold text-[#1c2c40] mb-6">Basic Information</h2>
+            <div class="space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Listing Name *</label>
-                        <input type="text"
-                               name="name"
-                               required
-                               value="{{ old('name') }}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        @error('name')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <label class="block font-inter text-sm font-medium text-on-surface mb-1.5">Workspace Name *</label>
+                        <input type="text" name="name" required value="{{ old('name') }}" data-wizard-required
+                               class="w-full rounded-lg border border-outline-variant px-3 py-2.5 font-inter text-sm focus:ring-2 focus:ring-primary-container/30 focus:border-primary-container outline-none">
+                        @error('name')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                     </div>
-
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Category *</label>
-                        <select name="category_id"
-                                required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select a category</option>
+                        <label class="block font-inter text-sm font-medium text-on-surface mb-1.5">Workspace Type *</label>
+                        <select name="category_id" required data-wizard-required
+                                class="w-full rounded-lg border border-outline-variant px-3 py-2.5 font-inter text-sm focus:ring-2 focus:ring-primary-container/30 focus:border-primary-container outline-none">
+                            <option value="">Select type</option>
                             @foreach($categories as $category)
-                                <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
-                                    {{ $category->name }}
-                                </option>
+                                <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                             @endforeach
                         </select>
-                        @error('category_id')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        @error('category_id')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                     </div>
                 </div>
-
-                <div class="mt-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
-                    <textarea name="description"
-                              rows="4"
-                              required
-                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="Describe your workspace, its features, and what makes it special...">{{ old('description') }}</textarea>
-                    @error('description')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+                <div>
+                    <label class="block font-inter text-sm font-medium text-on-surface mb-1.5">Full Address *</label>
+                    <input type="text" name="address" required value="{{ old('address') }}" data-wizard-required
+                           class="w-full rounded-lg border border-outline-variant px-3 py-2.5 font-inter text-sm focus:ring-2 focus:ring-primary-container/30 focus:border-primary-container outline-none">
+                    @error('address')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
-            </div>
-
-            <!-- Location & Contact -->
-            <div class="mb-8">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Location & Contact</h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
+                        <label class="block font-inter text-sm font-medium text-on-surface mb-1.5">Location</label>
                         <select name="city_id"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select a city</option>
+                                class="w-full rounded-lg border border-outline-variant px-3 py-2.5 font-inter text-sm focus:ring-2 focus:ring-primary-container/30 focus:border-primary-container outline-none">
+                            <option value="">Select city</option>
                             @foreach($cities->groupBy('state') as $state => $stateCities)
                                 @if($state)
                                     <optgroup label="{{ $state }}">
                                         @foreach($stateCities as $city)
-                                            <option value="{{ $city->id }}" {{ old('city_id') == $city->id ? 'selected' : '' }}>
-                                                {{ $city->name }}
-                                            </option>
+                                            <option value="{{ $city->id }}" {{ old('city_id') == $city->id ? 'selected' : '' }}>{{ $city->name }}</option>
                                         @endforeach
                                     </optgroup>
                                 @else
                                     @foreach($stateCities as $city)
-                                        <option value="{{ $city->id }}" {{ old('city_id') == $city->id ? 'selected' : '' }}>
-                                            {{ $city->name }}
-                                        </option>
+                                        <option value="{{ $city->id }}" {{ old('city_id') == $city->id ? 'selected' : '' }}>{{ $city->name }}</option>
                                     @endforeach
                                 @endif
                             @endforeach
                         </select>
-                        @error('city_id')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
-
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Address *</label>
-                        <input type="text"
-                               name="address"
-                               required
-                               value="{{ old('address') }}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        @error('address')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <label class="block font-inter text-sm font-medium text-on-surface mb-1.5">Capacity</label>
+                        <input type="number" name="capacity" min="1" value="{{ old('capacity', 1) }}"
+                               class="w-full rounded-lg border border-outline-variant px-3 py-2.5 font-inter text-sm focus:ring-2 focus:ring-primary-container/30 focus:border-primary-container outline-none">
                     </div>
                 </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                    <label class="block font-inter text-sm font-medium text-on-surface mb-1.5">Description *</label>
+                    <textarea name="description" rows="4" required data-wizard-required
+                              class="w-full rounded-lg border border-outline-variant px-3 py-2.5 font-inter text-sm focus:ring-2 focus:ring-primary-container/30 focus:border-primary-container outline-none"
+                              placeholder="Describe your workspace...">{{ old('description') }}</textarea>
+                    @error('description')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Contact Phone *</label>
-                        <input type="tel"
-                               name="contact_phone"
-                               required
-                               value="{{ old('contact_phone') }}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        @error('contact_phone')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <label class="block font-inter text-sm font-medium text-on-surface mb-1.5">Contact Phone *</label>
+                        <input type="tel" name="contact_phone" required value="{{ old('contact_phone', auth()->user()->phone) }}" data-wizard-required
+                               class="w-full rounded-lg border border-outline-variant px-3 py-2.5 font-inter text-sm focus:ring-2 focus:ring-primary-container/30 focus:border-primary-container outline-none">
+                        @error('contact_phone')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                     </div>
-
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">WhatsApp Number *</label>
-                        <input type="tel"
-                               name="whatsapp_number"
-                               required
-                               value="{{ old('whatsapp_number') }}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        @error('whatsapp_number')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <label class="block font-inter text-sm font-medium text-on-surface mb-1.5">WhatsApp Number *</label>
+                        <input type="tel" name="whatsapp_number" required value="{{ old('whatsapp_number', auth()->user()->phone) }}" data-wizard-required
+                               class="w-full rounded-lg border border-outline-variant px-3 py-2.5 font-inter text-sm focus:ring-2 focus:ring-primary-container/30 focus:border-primary-container outline-none">
+                        @error('whatsapp_number')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                     </div>
                 </div>
-
-                <div class="mt-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Website</label>
-                    <input type="url"
-                           name="website"
-                           value="{{ old('website') }}"
-                           placeholder="https://example.com"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    @error('website')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+                <div>
+                    <label class="block font-inter text-sm font-medium text-on-surface mb-1.5">Website (optional)</label>
+                    <input type="url" name="website" value="{{ old('website') }}" placeholder="https://"
+                           class="w-full rounded-lg border border-outline-variant px-3 py-2.5 font-inter text-sm focus:ring-2 focus:ring-primary-container/30 focus:border-primary-container outline-none">
                 </div>
             </div>
+        </div>
 
-            <!-- Pricing & Capacity -->
-            <div class="mb-8">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Pricing & Capacity</h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Price *</label>
-                        <input type="number"
-                               name="price"
-                               required
-                               value="{{ old('price') }}"
-                               placeholder="e.g., 15000"
-                               min="0"
-                               step="0.01"
-                               class="w-full px-3 py-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <p class="mt-1 text-sm text-gray-500">Enter the base price in Naira (₦)</p>
-                        @error('price')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Price Period *</label>
-                        <input type="hidden" name="price_period" value="night">
-                        <div class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700">
-                            Per Day (Fixed)
-                        </div>
-                        <p class="mt-1 text-sm text-gray-500">All prices are per day only</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Amenities -->
-            <div class="mb-8">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Amenities</h2>
-
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    @foreach($amenities as $amenity)
-                        <label class="flex items-center">
-                            <input type="checkbox"
-                                   name="amenities[]"
-                                   value="{{ $amenity->id }}"
-                                   {{ in_array($amenity->id, old('amenities', [])) ? 'checked' : '' }}
-                                   class="mr-2">
-                            <span class="text-sm text-gray-700">
-                                @if($amenity->icon)
-                                    <i class="fas fa-{{ $amenity->icon }} mr-1"></i>
-                                @endif
-                                {{ $amenity->name }}
+        {{-- Step 2: Amenities --}}
+        <div class="wizard-step" data-step="2">
+            <h2 class="font-manrope text-xl font-bold text-[#1c2c40] mb-6">Amenities</h2>
+            <p class="font-inter text-sm text-on-surface-variant mb-5">Select all amenities available at your workspace</p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                @foreach($amenities as $amenity)
+                    <label class="amenity-card cursor-pointer">
+                        <input type="checkbox" name="amenities[]" value="{{ $amenity->id }}" class="sr-only"
+                               {{ in_array($amenity->id, old('amenities', [])) ? 'checked' : '' }}>
+                        <div class="amenity-inner border border-outline-variant/60 rounded-xl p-4 text-center hover:border-primary-container/40 transition-colors relative">
+                            <span class="amenity-check absolute top-2 right-2 w-5 h-5 rounded-full bg-primary-container text-white text-xs flex items-center justify-center opacity-0 transition-opacity">✓</span>
+                            <span class="material-symbols-outlined text-2xl text-on-surface-variant mb-2 block">
+                                {{ $amenity->icon ? 'check_circle' : 'star' }}
                             </span>
-                        </label>
-                    @endforeach
-                </div>
-            </div>
-
-            <!-- Images -->
-            <div class="mb-8">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Images</h2>
-
-                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                            <span class="font-inter text-xs font-medium text-on-surface">{{ $amenity->name }}</span>
                         </div>
-                        <div class="ml-3">
-                            <p class="text-sm text-yellow-700">
-                                <strong>Important:</strong> The first image you upload should be an <strong>external picture of the building</strong>. This helps users identify the property location. You can add more interior/workspace photos after the building exterior.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                    </label>
+                @endforeach
+            </div>
+        </div>
 
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
-                    <div class="text-center">
-                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
-                        <p class="text-gray-600 mb-2">Upload images of your workspace</p>
-                        <p class="text-sm text-gray-500 mb-4">JPG, PNG, GIF up to 2MB each</p>
-                        <input type="file"
-                               name="images[]"
-                               multiple
-                               accept="image/jpeg,image/png,image/gif"
-                               class="hidden"
-                               id="image-upload">
-                        <label for="image-upload"
-                               class="bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 cursor-pointer">
-                            Choose Files
-                        </label>
+        {{-- Step 3: Photos --}}
+        <div class="wizard-step" data-step="3">
+            <h2 class="font-manrope text-xl font-bold text-[#1c2c40] mb-2">Upload Photos</h2>
+            <p class="font-inter text-sm text-on-surface-variant mb-6">Upload at least one photo. The first image should be an exterior shot of the building.</p>
+            <div class="border-2 border-dashed border-outline-variant rounded-2xl p-8 md:p-12 text-center hover:border-primary-container/50 transition-colors"
+                 id="drop-zone">
+                <span class="material-symbols-outlined text-5xl text-outline mb-4">cloud_upload</span>
+                <p class="font-inter text-sm text-on-surface mb-1">Drag and drop photos here, or click to browse</p>
+                <p class="font-inter text-xs text-on-surface-variant mb-4">JPG, PNG, GIF up to 2MB each</p>
+                <input type="file" name="images[]" multiple accept="image/jpeg,image/png,image/gif"
+                       class="hidden" id="image-upload">
+                <label for="image-upload"
+                       class="inline-flex items-center gap-2 bg-primary-container text-white px-5 py-2.5 rounded-lg font-inter font-semibold text-sm hover:bg-primary transition-colors cursor-pointer">
+                    Choose Files
+                </label>
+                <p id="image-count" class="font-inter text-sm text-on-surface-variant mt-4"></p>
+                <p id="image-error" class="mt-2 text-sm text-red-600 hidden"></p>
+                @error('images')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
+            </div>
+            <div id="image-preview" class="grid grid-cols-3 sm:grid-cols-5 gap-3 mt-6"></div>
+        </div>
+
+        {{-- Step 4: Pricing --}}
+        <div class="wizard-step" data-step="4">
+            <h2 class="font-manrope text-xl font-bold text-[#1c2c40] mb-6">Pricing & Discounts</h2>
+            <div class="space-y-5 max-w-lg">
+                <div>
+                    <label class="block font-inter text-sm font-medium text-on-surface mb-1.5">List Price (per day) *</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 font-inter text-sm text-on-surface-variant">₦</span>
+                        <input type="number" name="price" required min="0" step="0.01" value="{{ old('price') }}" data-wizard-required
+                               class="w-full rounded-lg border border-outline-variant pl-8 pr-3 py-2.5 font-inter text-sm focus:ring-2 focus:ring-primary-container/30 focus:border-primary-container outline-none">
                     </div>
-                    @error('images')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                    @error('images.*')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                    <p id="image-error" class="mt-2 text-sm text-red-600 hidden"></p>
+                    @error('price')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                </div>
+                <div class="rounded-xl bg-surface-container-low/80 border border-outline-variant/40 p-4">
+                    <p class="font-inter text-sm text-on-surface-variant">
+                        All listings are priced per day. Your listing will be submitted for admin approval before going live.
+                    </p>
                 </div>
             </div>
+        </div>
 
-            <!-- Submit -->
-            <div class="flex justify-end space-x-4">
-                <a href="{{ route('dashboard') }}"
-                   class="bg-gray-300 text-gray-700 px-6 py-2 rounded-md font-medium hover:bg-gray-400">
-                    Cancel
-                </a>
-                <button type="submit"
-                        class="bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">
-                    Create Listing
-                </button>
+        {{-- Step 5: Review --}}
+        <div class="wizard-step" data-step="5">
+            <h2 class="font-manrope text-xl font-bold text-[#1c2c40] mb-6">Review & Publish</h2>
+            <div class="space-y-4 rounded-xl border border-outline-variant/60 divide-y divide-outline-variant/40" id="review-summary">
+                <div class="p-4">
+                    <p class="font-inter text-xs text-on-surface-variant uppercase tracking-wide mb-1">Workspace</p>
+                    <p class="font-manrope font-semibold text-[#1c2c40]" id="review-name">—</p>
+                </div>
+                <div class="p-4">
+                    <p class="font-inter text-xs text-on-surface-variant uppercase tracking-wide mb-1">Location</p>
+                    <p class="font-inter text-sm text-on-surface" id="review-address">—</p>
+                </div>
+                <div class="p-4">
+                    <p class="font-inter text-xs text-on-surface-variant uppercase tracking-wide mb-1">Price</p>
+                    <p class="font-manrope font-bold text-primary-container" id="review-price">—</p>
+                </div>
+                <div class="p-4">
+                    <p class="font-inter text-xs text-on-surface-variant uppercase tracking-wide mb-1">Amenities</p>
+                    <p class="font-inter text-sm text-on-surface" id="review-amenities">—</p>
+                </div>
+                <div class="p-4">
+                    <p class="font-inter text-xs text-on-surface-variant uppercase tracking-wide mb-1">Photos</p>
+                    <p class="font-inter text-sm text-on-surface" id="review-photos">—</p>
+                </div>
             </div>
-        </form>
-    </div>
+        </div>
+
+        {{-- Navigation --}}
+        <div class="flex items-center justify-between mt-8 pt-6 border-t border-outline-variant/40">
+            <button type="button" id="wizard-back"
+                    class="font-inter text-sm font-semibold text-on-surface-variant hover:text-on-surface transition-colors invisible">
+                ← Back
+            </button>
+            <button type="button" id="wizard-next"
+                    class="inline-flex items-center gap-2 bg-primary-container text-white px-6 py-2.5 rounded-lg font-inter font-semibold text-sm hover:bg-primary transition-colors">
+                Continue
+            </button>
+            <button type="submit" id="wizard-submit" class="hidden inline-flex items-center gap-2 bg-primary-container text-white px-6 py-2.5 rounded-lg font-inter font-semibold text-sm hover:bg-primary transition-colors">
+                Publish Listing
+            </button>
+        </div>
+    </form>
 </div>
 
+@push('scripts')
 <script>
-document.getElementById('image-upload').addEventListener('change', function(e) {
-    const files = e.target.files;
-    const label = e.target.nextElementSibling;
-    const errorDisplay = document.getElementById('image-error');
-    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+(function () {
+    let currentStep = 1;
+    const totalSteps = 5;
+    const form = document.getElementById('listing-wizard-form');
+    const steps = document.querySelectorAll('.wizard-step');
+    const backBtn = document.getElementById('wizard-back');
+    const nextBtn = document.getElementById('wizard-next');
+    const submitBtn = document.getElementById('wizard-submit');
+    const indicators = document.querySelectorAll('[data-step-indicator]');
 
-    let oversizedFiles = [];
-    let validFiles = [];
+    function updateUI() {
+        steps.forEach(s => s.classList.toggle('active', parseInt(s.dataset.step) === currentStep));
+        backBtn.classList.toggle('invisible', currentStep === 1);
+        nextBtn.classList.toggle('hidden', currentStep === totalSteps);
+        submitBtn.classList.toggle('hidden', currentStep !== totalSteps);
+        indicators.forEach(el => {
+            const n = parseInt(el.dataset.stepIndicator);
+            el.classList.remove('done', 'active');
+            if (n < currentStep) el.classList.add('done');
+            if (n === currentStep) el.classList.add('active');
+        });
+        if (currentStep === totalSteps) populateReview();
+    }
 
-    for (let i = 0; i < files.length; i++) {
-        if (files[i].size > maxSize) {
-            oversizedFiles.push(files[i].name + ' (' + (files[i].size / (1024 * 1024)).toFixed(2) + 'MB)');
-        } else {
-            validFiles.push(files[i]);
+    function validateStep(step) {
+        const panel = document.querySelector(`.wizard-step[data-step="${step}"]`);
+        const required = panel.querySelectorAll('[data-wizard-required]');
+        for (const field of required) {
+            if (!field.value.trim()) {
+                field.focus();
+                field.classList.add('ring-2', 'ring-red-300');
+                return false;
+            }
+            field.classList.remove('ring-2', 'ring-red-300');
         }
+        return true;
     }
 
-    // Show error for oversized files
-    if (oversizedFiles.length > 0) {
-        errorDisplay.textContent = 'The following images exceed 2MB limit: ' + oversizedFiles.join(', ') + '. Please compress or resize them before uploading.';
-        errorDisplay.classList.remove('hidden');
-    } else {
-        errorDisplay.classList.add('hidden');
+    function populateReview() {
+        const name = form.querySelector('[name="name"]').value;
+        const address = form.querySelector('[name="address"]').value;
+        const citySelect = form.querySelector('[name="city_id"]');
+        const cityText = citySelect.options[citySelect.selectedIndex]?.text || '';
+        const price = form.querySelector('[name="price"]').value;
+        const amenities = [...form.querySelectorAll('[name="amenities[]"]:checked')].map(cb => cb.closest('label').innerText.trim());
+        const files = document.getElementById('image-upload').files;
+
+        document.getElementById('review-name').textContent = name || '—';
+        document.getElementById('review-address').textContent = [address, cityText !== 'Select city' ? cityText : ''].filter(Boolean).join(', ') || '—';
+        document.getElementById('review-price').textContent = price ? '₦' + Number(price).toLocaleString() + '/day' : '—';
+        document.getElementById('review-amenities').textContent = amenities.length ? amenities.join(', ') : 'None selected';
+        document.getElementById('review-photos').textContent = files.length ? files.length + ' photo(s) selected' : 'No photos';
     }
 
-    // Update label
-    if (validFiles.length > 0) {
-        label.textContent = validFiles.length + ' file(s) selected' + (oversizedFiles.length > 0 ? ' (' + oversizedFiles.length + ' rejected)' : '');
-    } else if (oversizedFiles.length > 0) {
-        label.textContent = 'Choose Files';
-    } else {
-        label.textContent = 'Choose Files';
-    }
-});
+    backBtn.addEventListener('click', () => {
+        if (currentStep > 1) { currentStep--; updateUI(); }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (!validateStep(currentStep)) return;
+        if (currentStep < totalSteps) { currentStep++; updateUI(); }
+    });
+
+    const imageInput = document.getElementById('image-upload');
+    const imageCount = document.getElementById('image-count');
+    const imageError = document.getElementById('image-error');
+    const imagePreview = document.getElementById('image-preview');
+    const maxSize = 2 * 1024 * 1024;
+
+    imageInput.addEventListener('change', function () {
+        const files = this.files;
+        let valid = 0;
+        let oversized = [];
+        imagePreview.innerHTML = '';
+
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].size > maxSize) {
+                oversized.push(files[i].name);
+            } else {
+                valid++;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'w-full h-20 object-cover rounded-lg';
+                    imagePreview.appendChild(img);
+                };
+                reader.readAsDataURL(files[i]);
+            }
+        }
+
+        if (oversized.length) {
+            imageError.textContent = 'Some files exceed 2MB: ' + oversized.join(', ');
+            imageError.classList.remove('hidden');
+        } else {
+            imageError.classList.add('hidden');
+        }
+        imageCount.textContent = valid ? valid + ' file(s) selected' : '';
+    });
+
+    updateUI();
+})();
 </script>
+@endpush
 @endsection

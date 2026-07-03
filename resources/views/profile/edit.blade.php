@@ -41,6 +41,10 @@
         ?? 'https://ui-avatars.com/api/?name=' . urlencode($user->display_name) . '&background=ff5a1f&color=fff&size=256';
 @endphp
 
+@if($user->isHost())
+    @include('host.partials.subnav')
+@endif
+
 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-stack-lg">
     <div>
         <h1 class="font-manrope text-3xl md:text-4xl font-bold text-on-surface tracking-tight">Profile</h1>

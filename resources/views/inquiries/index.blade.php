@@ -33,6 +33,10 @@
     $viewerIsHost = $viewerIsHost ?? ($isHost || $isAdmin);
 @endphp
 
+@if($isHost)
+    @include('host.partials.subnav')
+@endif
+
 <section class="mb-6">
     <h1 class="font-manrope text-3xl md:text-4xl font-bold text-[#1c2c40] mb-1 tracking-tight">Messages</h1>
     <p class="font-inter text-sm text-on-surface-variant">{{ $pageSubtitle }}</p>

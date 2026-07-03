@@ -142,13 +142,23 @@ class BookingController extends Controller
 
     public function updateStatus(Request $request, Booking $booking)
     {
-        // Check if user owns this booking
-        if (Auth::id() !== $booking->user_id) {
+        $booking->loadMissing('listing');
+        $user = Auth::user();
+        $isGuestOwner = $user->id === $booking->user_id;
+        $isListingHost = $user->isHost()
+            && $booking->listing
+            && $booking->listing->user_id === $user->id;
+
+        if (! $isGuestOwner && ! $isListingHost && ! $user->isAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 
+        $allowedStatuses = $isListingHost && ! $user->isAdmin() && ! $isGuestOwner
+            ? 'confirmed,cancelled'
+            : 'pending,confirmed,cancelled,completed';
+
         $validated = $request->validate([
-            'status' => 'required|in:pending,confirmed,cancelled,completed',
+            'status' => 'required|in:' . $allowedStatuses,
         ]);
 
         $booking->update($validated);

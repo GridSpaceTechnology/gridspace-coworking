@@ -75,8 +75,10 @@
             <a href="{{ route('listings.index') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Find Space</a>
 
             @if($user->isHost())
+                <a href="{{ route('dashboard') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">My Listings</a>
+                <a href="{{ route('host.calendar') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Calendar</a>
+                <a href="{{ route('host.earnings') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Earnings</a>
                 <a href="{{ route('listings.create') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Add Listing</a>
-                <a href="{{ route('wallet.index') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Wallet</a>
             @else
                 <a href="{{ route('bookings.index') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">My Bookings</a>
                 <a href="{{ route('wallet.index') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Wallet</a>

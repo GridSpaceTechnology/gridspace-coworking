@@ -14,6 +14,7 @@ use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\InvestorController;
 use App\Http\Controllers\WalletController;
+use App\Http\Controllers\HostController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -79,6 +80,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/inquiries/{inquiry}/messages', [InquiryController::class, 'storeMessage'])->name('inquiries.messages.store');
     Route::get('/wallet', [WalletController::class, 'index'])->name('wallet.index');
     Route::patch('/bookings/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.update-status');
+
+    Route::prefix('host')->name('host.')->group(function () {
+        Route::get('/calendar', [HostController::class, 'calendar'])->name('calendar');
+        Route::get('/earnings', [HostController::class, 'earnings'])->name('earnings');
+    });
 
     // Listing management routes - require auth for create, host/admin for other actions
     Route::post('/listings', [ListingController::class, 'store'])->name('listings.store');
