@@ -21,6 +21,9 @@
                 if ($link['route'] === 'admin.blog.index') {
                     $active = request()->routeIs('admin.blog.*');
                 }
+                if ($link['route'] === 'analytics.index') {
+                    $active = request()->routeIs('analytics.*');
+                }
             @endphp
             <a href="{{ route($link['route']) }}"
                @class([

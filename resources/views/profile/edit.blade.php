@@ -316,14 +316,17 @@
                 Logout
             </button>
         </form>
+        @unless(auth()->user()->isAdmin())
         <button type="button" onclick="document.getElementById('delete-modal').classList.remove('hidden')"
             class="w-full bg-white border border-red-200 p-4 rounded-xl flex items-center gap-3 hover:bg-red-50 transition-all font-inter font-semibold text-red-700 shadow-sm active:scale-[0.99]">
             <span class="material-symbols-outlined">delete_forever</span>
             Delete Account
         </button>
+        @endunless
     </div>
 </div>
 
+@if(! auth()->user()->isAdmin())
 {{-- Delete Account Modal --}}
 <div id="delete-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50" onclick="if(event.target===this) this.classList.add('hidden')">
     <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 border border-outline-variant">
@@ -355,6 +358,7 @@
         </form>
     </div>
 </div>
+@endif
 @endsection
 
 @push('scripts')
@@ -380,7 +384,7 @@
         document.getElementById('password-panel')?.classList.remove('hidden');
     @endif
 
-    @if($errors->userDeletion->any())
+    @if($errors->userDeletion->any() && ! auth()->user()->isAdmin())
         document.getElementById('delete-modal')?.classList.remove('hidden');
     @endif
 </script>

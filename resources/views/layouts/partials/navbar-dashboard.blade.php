@@ -6,7 +6,7 @@
 <header class="bg-black sticky top-0 z-50 w-full">
     <div class="flex items-center justify-between gap-3 md:gap-6 px-4 md:px-margin-desktop w-full max-w-container-max mx-auto h-16 md:h-[72px]">
         {{-- Brand --}}
-        <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 shrink-0">
+        <a href="{{ auth()->user()->defaultHomeUrl() }}" class="flex items-center gap-2.5 shrink-0">
             <div class="w-9 h-9 bg-white rounded-md flex items-center justify-center p-1 shrink-0">
                 <img src="{{ asset('logo.jpeg') }}" alt="" class="w-full h-full object-contain">
             </div>
@@ -34,19 +34,52 @@
                 <span class="material-symbols-outlined text-gray-900 dark:text-gray-100 text-[22px]">notifications</span>
             </button>
 
-            <a href="{{ route('profile.edit') }}" class="flex items-center gap-2.5 md:gap-3">
-                <div class="w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden ring-2 ring-white/20 bg-primary-container flex items-center justify-center shrink-0">
-                    @if($user->profile_photo_url)
-                        <img class="w-full h-full object-cover" src="{{ $user->profile_photo_url }}" alt="{{ $user->display_name }}">
-                    @else
-                        <span class="text-white font-manrope font-bold text-sm">{{ strtoupper(substr($user->firstname, 0, 1)) }}</span>
-                    @endif
+            <div class="relative" id="profile-menu-wrap">
+                <button type="button"
+                        id="profile-menu-btn"
+                        class="flex items-center gap-2.5 md:gap-3 rounded-full md:rounded-lg md:pr-2 md:py-1 hover:bg-white/10 transition-colors"
+                        aria-expanded="false"
+                        aria-haspopup="true"
+                        aria-controls="profile-menu-dropdown">
+                    <div class="w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden ring-2 ring-white/20 bg-primary-container flex items-center justify-center shrink-0">
+                        @if($user->profile_photo_url)
+                            <img class="w-full h-full object-cover" src="{{ $user->profile_photo_url }}" alt="{{ $user->display_name }}">
+                        @else
+                            <span class="text-white font-manrope font-bold text-sm">{{ strtoupper(substr($user->firstname, 0, 1)) }}</span>
+                        @endif
+                    </div>
+                    <div class="hidden md:block text-left leading-tight">
+                        <p class="font-manrope text-sm font-bold text-white">{{ $user->display_name }}</p>
+                        <p class="font-inter text-xs text-gray-400">{{ $roleLabel }}</p>
+                    </div>
+                    <span class="material-symbols-outlined text-gray-400 text-[20px] hidden md:block" id="profile-menu-chevron">expand_more</span>
+                </button>
+
+                <div id="profile-menu-dropdown"
+                     class="hidden absolute right-0 top-full mt-2 w-52 bg-white rounded-xl shadow-xl border border-outline-variant/40 py-1.5 z-[60]"
+                     role="menu"
+                     aria-labelledby="profile-menu-btn">
+                    <div class="px-4 py-2.5 border-b border-outline-variant/30 md:hidden">
+                        <p class="font-manrope text-sm font-bold text-[#1c2c40]">{{ $user->display_name }}</p>
+                        <p class="font-inter text-xs text-on-surface-variant">{{ $roleLabel }}</p>
+                    </div>
+                    <a href="{{ route('profile.edit') }}"
+                       class="flex items-center gap-2.5 px-4 py-2.5 font-inter text-sm text-on-surface hover:bg-surface-container-low transition-colors"
+                       role="menuitem">
+                        <span class="material-symbols-outlined text-[20px] text-on-surface-variant">person</span>
+                        Profile
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}" role="none">
+                        @csrf
+                        <button type="submit"
+                                class="w-full flex items-center gap-2.5 px-4 py-2.5 font-inter text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
+                                role="menuitem">
+                            <span class="material-symbols-outlined text-[20px]">logout</span>
+                            Logout
+                        </button>
+                    </form>
                 </div>
-                <div class="hidden md:block text-left leading-tight">
-                    <p class="font-manrope text-sm font-bold text-white">{{ $user->display_name }}</p>
-                    <p class="font-inter text-xs text-gray-400">{{ $roleLabel }}</p>
-                </div>
-            </a>
+            </div>
 
             <button type="button" onclick="toggleMainNav()" class="sm:hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 text-white" aria-label="Menu">
                 <span class="material-symbols-outlined">menu</span>
@@ -71,7 +104,7 @@
     {{-- Mobile / overflow nav --}}
     <div id="main-mobile-menu" class="hidden border-t border-white/10 bg-black px-4 py-4">
         <nav class="flex flex-col gap-1">
-            <a href="{{ route('dashboard') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Overview</a>
+            <a href="{{ auth()->user()->defaultHomeUrl() }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Overview</a>
             <a href="{{ route('listings.index') }}" class="font-inter text-sm font-medium text-gray-300 py-2.5 px-3 rounded-lg hover:bg-white/10 hover:text-white transition-colors">Find Space</a>
 
             @if($user->isHost())
@@ -105,3 +138,32 @@
         </nav>
     </div>
 </header>
+
+<script>
+(function () {
+    const wrap = document.getElementById('profile-menu-wrap');
+    const btn = document.getElementById('profile-menu-btn');
+    const menu = document.getElementById('profile-menu-dropdown');
+    const chevron = document.getElementById('profile-menu-chevron');
+    if (!wrap || !btn || !menu) return;
+
+    const setOpen = (open) => {
+        menu.classList.toggle('hidden', !open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (chevron) chevron.textContent = open ? 'expand_less' : 'expand_more';
+    };
+
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setOpen(menu.classList.contains('hidden'));
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!wrap.contains(e.target)) setOpen(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') setOpen(false);
+    });
+})();
+</script>

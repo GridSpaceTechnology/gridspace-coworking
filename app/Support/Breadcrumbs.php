@@ -105,13 +105,13 @@ class Breadcrumbs
         }
 
         return self::isAccountArea(Route::currentRouteName())
-            ? route('dashboard')
+            ? Auth::user()->defaultHomeUrl()
             : route('home');
     }
 
     public static function hubUrl(): string
     {
-        return Auth::check() ? route('dashboard') : route('home');
+        return Auth::check() ? Auth::user()->defaultHomeUrl() : route('home');
     }
 
     public static function shouldShowToolbar(): bool

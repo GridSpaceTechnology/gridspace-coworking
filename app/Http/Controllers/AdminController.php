@@ -4,14 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Listing;
 use App\Models\Category;
-use App\Models\City;
 use App\Models\User;
 use App\Models\FeatureRequest;
+use App\Services\AdminBulkDeleteService;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
+    private const PER_PAGE = 10;
+
     /**
      * Display admin dashboard.
      */
@@ -105,10 +108,42 @@ class AdminController extends Controller
     /**
      * Show users index.
      */
-    public function usersIndex()
+    public function usersIndex(Request $request)
     {
-        $users = User::withCount(['listings', 'bookings'])->latest()->paginate(20);
+        $query = User::withCount(['listings', 'bookings']);
+
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('firstname', 'like', "%{$search}%")
+                    ->orWhere('lastname', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        if ($request->filled('approved')) {
+            $query->where('approved', $request->boolean('approved'));
+        }
+
+        $users = $query->latest()->paginate(self::PER_PAGE)->withQueryString();
+
         return view('admin.users.index', compact('users'));
+    }
+
+    public function bulkDeleteUsers(Request $request, AdminBulkDeleteService $bulkDelete): RedirectResponse
+    {
+        $ids = $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|exists:users,id',
+        ])['ids'];
+
+        $count = $bulkDelete->deleteUsers($ids);
+
+        return back()->with('success', "{$count} user(s) deleted successfully.");
     }
 
     /**
@@ -156,13 +191,49 @@ class AdminController extends Controller
     /**
      * Show all listings for admin management.
      */
-    public function listingsIndex()
+    public function listingsIndex(Request $request)
     {
-        $listings = Listing::with(['user', 'category', 'city', 'images'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+        $query = Listing::with(['user', 'category', 'city', 'images']);
 
-        return view('admin.listings.index', compact('listings'));
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($u) use ($search) {
+                        $u->where('firstname', 'like', "%{$search}%")
+                            ->orWhere('lastname', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->filled('featured')) {
+            $query->where('featured', $request->boolean('featured'));
+        }
+
+        $listings = $query->orderByDesc('created_at')->paginate(self::PER_PAGE)->withQueryString();
+        $categories = Category::orderBy('name')->get();
+
+        return view('admin.listings.index', compact('listings', 'categories'));
+    }
+
+    public function bulkDeleteListings(Request $request, AdminBulkDeleteService $bulkDelete): RedirectResponse
+    {
+        $ids = $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|exists:listings,id',
+        ])['ids'];
+
+        $count = $bulkDelete->deleteListings($ids);
+
+        return back()->with('success', "{$count} listing(s) deleted successfully.");
     }
 
     /**
@@ -239,13 +310,45 @@ class AdminController extends Controller
     /**
      * Show all bookings.
      */
-    public function indexBookings()
+    public function indexBookings(Request $request)
     {
-        $bookings = \App\Models\Booking::with(['listing', 'listing.user', 'user'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+        $query = \App\Models\Booking::with(['listing', 'listing.user', 'user']);
+
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('guest_name', 'like', "%{$search}%")
+                    ->orWhere('guest_email', 'like', "%{$search}%")
+                    ->orWhereHas('listing', fn ($l) => $l->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('check_in_date', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('check_in_date', '<=', $request->date_to);
+        }
+
+        $bookings = $query->orderByDesc('created_at')->paginate(self::PER_PAGE)->withQueryString();
 
         return view('admin.bookings.index', compact('bookings'));
+    }
+
+    public function bulkDeleteBookings(Request $request, AdminBulkDeleteService $bulkDelete): RedirectResponse
+    {
+        $ids = $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|exists:bookings,id',
+        ])['ids'];
+
+        $count = $bulkDelete->deleteBookings($ids);
+
+        return back()->with('success', "{$count} booking(s) deleted successfully.");
     }
 
     /**
@@ -275,13 +378,38 @@ class AdminController extends Controller
     /**
      * Display all inquiries for admin management.
      */
-    public function inquiriesIndex()
+    public function inquiriesIndex(Request $request)
     {
-        $inquiries = \App\Models\Inquiry::with(['listing', 'listing.user'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = \App\Models\Inquiry::with(['listing', 'listing.user']);
 
-        return view('admin.inquiries', compact('inquiries'));
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('message', 'like', "%{$search}%")
+                    ->orWhereHas('listing', fn ($l) => $l->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        if ($request->filled('contacted')) {
+            $query->where('contacted', $request->boolean('contacted'));
+        }
+
+        $inquiries = $query->orderByDesc('created_at')->paginate(self::PER_PAGE)->withQueryString();
+
+        return view('admin.inquiries-index', compact('inquiries'));
+    }
+
+    public function bulkDeleteInquiries(Request $request, AdminBulkDeleteService $bulkDelete): RedirectResponse
+    {
+        $ids = $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|exists:inquiries,id',
+        ])['ids'];
+
+        $count = $bulkDelete->deleteInquiries($ids);
+
+        return back()->with('success', "{$count} inquiry(ies) deleted successfully.");
     }
 
     /**

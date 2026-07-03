@@ -16,6 +16,10 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
+        if ($user->isAdmin()) {
+            return redirect()->route('admin.index');
+        }
+
         if ($user->isHost()) {
             $listings = $user->listings()
                 ->with(['images', 'category', 'city'])

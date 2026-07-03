@@ -4,35 +4,64 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\BlogPostRequest;
 use App\Models\BlogPost;
+use App\Services\AdminBulkDeleteService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class AdminBlogController extends Controller
 {
-    public function __construct()
+    public function index(Request $request): View
     {
-        $this->middleware(function ($request, $next) {
-            if (! Auth::user()?->isAdmin()) {
-                abort(403);
-            }
+        $query = BlogPost::with('user');
 
-            return $next($request);
-        });
-    }
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('excerpt', 'like', "%{$search}%")
+                    ->orWhere('author_name', 'like', "%{$search}%");
+            });
+        }
 
-    public function index(): View
-    {
-        $posts = BlogPost::with('user')->latest('updated_at')->get();
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('category_slug')) {
+            $query->where('category_slug', $request->category_slug);
+        }
+
+        if ($request->filled('featured')) {
+            $query->where('featured', $request->boolean('featured'));
+        }
+
+        $posts = $query->latest('updated_at')->paginate(10)->withQueryString();
 
         $stats = [
-            'total' => $posts->count(),
-            'published' => $posts->where('status', 'published')->count(),
-            'total_views' => $posts->sum('views'),
+            'total' => BlogPost::count(),
+            'published' => BlogPost::where('status', 'published')->count(),
+            'total_views' => BlogPost::sum('views'),
         ];
 
-        return view('admin.blog.index', compact('posts', 'stats'));
+        $categories = BlogPost::CATEGORIES;
+
+        return view('admin.blog.index', compact('posts', 'stats', 'categories'));
+    }
+
+    public function bulkDestroy(Request $request, AdminBulkDeleteService $bulkDelete): RedirectResponse
+    {
+        $ids = $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|exists:blog_posts,id',
+        ])['ids'];
+
+        $count = $bulkDelete->deleteBlogPosts($ids);
+
+        return redirect()
+            ->route('admin.blog.index')
+            ->with('success', "{$count} post(s) deleted successfully.");
     }
 
     public function create(): View

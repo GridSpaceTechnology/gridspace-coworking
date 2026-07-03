@@ -77,6 +77,16 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    public function defaultHomeRoute(): string
+    {
+        return $this->isAdmin() ? 'admin.index' : 'dashboard';
+    }
+
+    public function defaultHomeUrl(bool $absolute = true): string
+    {
+        return route($this->defaultHomeRoute(), absolute: $absolute);
+    }
+
     public function isHost()
     {
         return $this->role === 'host';

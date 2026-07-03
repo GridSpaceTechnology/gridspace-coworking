@@ -13,6 +13,33 @@
 @endif
 
 <div class="bg-white border border-outline-variant/60 rounded-2xl overflow-hidden card-lift">
+    <x-admin.filters-bar :action="route('admin.bookings.index')">
+        <div class="flex flex-col gap-1 min-w-[160px]">
+            <label class="font-inter text-xs font-semibold text-on-surface-variant uppercase">Search</label>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Guest, email, space…"
+                   class="px-3 py-2 rounded-lg border border-outline-variant/60 font-inter text-sm focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container">
+        </div>
+        <div class="flex flex-col gap-1 min-w-[120px]">
+            <label class="font-inter text-xs font-semibold text-on-surface-variant uppercase">Status</label>
+            <select name="status" class="px-3 py-2 rounded-lg border border-outline-variant/60 font-inter text-sm bg-white">
+                <option value="">All</option>
+                @foreach(['pending', 'confirmed', 'completed', 'cancelled'] as $status)
+                    <option value="{{ $status }}" @selected(request('status') === $status)>{{ ucfirst($status) }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="flex flex-col gap-1 min-w-[130px]">
+            <label class="font-inter text-xs font-semibold text-on-surface-variant uppercase">From</label>
+            <input type="date" name="date_from" value="{{ request('date_from') }}"
+                   class="px-3 py-2 rounded-lg border border-outline-variant/60 font-inter text-sm">
+        </div>
+        <div class="flex flex-col gap-1 min-w-[130px]">
+            <label class="font-inter text-xs font-semibold text-on-surface-variant uppercase">To</label>
+            <input type="date" name="date_to" value="{{ request('date_to') }}"
+                   class="px-3 py-2 rounded-lg border border-outline-variant/60 font-inter text-sm">
+        </div>
+    </x-admin.filters-bar>
+
     @if($bookings->isEmpty())
         <div class="p-16 text-center">
             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-container flex items-center justify-center">
@@ -22,10 +49,17 @@
             <p class="font-inter text-sm text-on-surface-variant">Bookings will appear here once guests reserve workspaces.</p>
         </div>
     @else
+        <form method="POST" action="{{ route('admin.bookings.bulk-delete') }}">
+            @csrf
+            @include('admin.partials.bulk-toolbar', [
+                'bulkAction' => route('admin.bookings.bulk-delete'),
+                'paginator' => $bookings,
+            ])
         <div class="overflow-x-auto">
             <table class="w-full text-left">
                 <thead>
                     <tr class="border-b border-outline-variant/40 bg-surface-container-low/50">
+                        <th class="px-5 py-3 w-10"></th>
                         <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase">Booking ID & Date</th>
                         <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase">Space</th>
                         <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase">Host</th>
@@ -45,6 +79,10 @@
                             };
                         @endphp
                         <tr class="hover:bg-surface-container-low/40 transition-colors">
+                            <td class="px-5 py-4">
+                                <input type="checkbox" name="ids[]" value="{{ $booking->id }}"
+                                       class="bulk-row-check rounded border-outline-variant text-primary-container focus:ring-primary-container/30">
+                            </td>
                             <td class="px-5 py-4">
                                 <p class="font-inter text-sm font-medium text-[#1c2c40]">#{{ str_pad($booking->id, 5, '0', STR_PAD_LEFT) }}</p>
                                 <p class="font-inter text-xs text-on-surface-variant">{{ $booking->created_at->format('M d, Y') }}</p>
@@ -82,9 +120,8 @@
                 </tbody>
             </table>
         </div>
-        @if($bookings->hasPages())
-            <div class="px-5 py-4 border-t border-outline-variant/40">{{ $bookings->links() }}</div>
-        @endif
+        @include('admin.partials.pagination', ['paginator' => $bookings])
+        </form>
     @endif
 </div>
 

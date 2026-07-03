@@ -16,6 +16,31 @@
 @endif
 
 <div class="bg-white border border-outline-variant/60 rounded-2xl overflow-hidden card-lift">
+    <x-admin.filters-bar :action="route('admin.users.index')">
+        <div class="flex flex-col gap-1 min-w-[160px]">
+            <label class="font-inter text-xs font-semibold text-on-surface-variant uppercase">Search</label>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Name, email, phone…"
+                   class="px-3 py-2 rounded-lg border border-outline-variant/60 font-inter text-sm focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container">
+        </div>
+        <div class="flex flex-col gap-1 min-w-[120px]">
+            <label class="font-inter text-xs font-semibold text-on-surface-variant uppercase">Role</label>
+            <select name="role" class="px-3 py-2 rounded-lg border border-outline-variant/60 font-inter text-sm bg-white">
+                <option value="">All</option>
+                @foreach(['admin', 'host', 'user'] as $role)
+                    <option value="{{ $role }}" @selected(request('role') === $role)>{{ ucfirst($role) }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="flex flex-col gap-1 min-w-[120px]">
+            <label class="font-inter text-xs font-semibold text-on-surface-variant uppercase">Status</label>
+            <select name="approved" class="px-3 py-2 rounded-lg border border-outline-variant/60 font-inter text-sm bg-white">
+                <option value="">All</option>
+                <option value="1" @selected(request('approved') === '1')>Active</option>
+                <option value="0" @selected(request('approved') === '0')>Inactive</option>
+            </select>
+        </div>
+    </x-admin.filters-bar>
+
     @if($users->isEmpty())
         <div class="p-16 text-center">
             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-container flex items-center justify-center">
@@ -25,10 +50,17 @@
             <p class="font-inter text-sm text-on-surface-variant">Users will appear here once they register.</p>
         </div>
     @else
+        <form method="POST" action="{{ route('admin.users.bulk-delete') }}">
+            @csrf
+            @include('admin.partials.bulk-toolbar', [
+                'bulkAction' => route('admin.users.bulk-delete'),
+                'paginator' => $users,
+            ])
         <div class="overflow-x-auto">
             <table class="w-full text-left">
                 <thead>
                     <tr class="border-b border-outline-variant/40 bg-surface-container-low/50">
+                        <th class="px-5 py-3 w-10"></th>
                         <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase">User</th>
                         <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase">Type</th>
                         <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase">Status</th>
@@ -45,6 +77,12 @@
                             $canManage = $user->id !== auth()->id() && $user->role !== 'admin';
                         @endphp
                         <tr class="hover:bg-surface-container-low/40 transition-colors">
+                            <td class="px-5 py-4">
+                                @if($canManage)
+                                    <input type="checkbox" name="ids[]" value="{{ $user->id }}"
+                                           class="bulk-row-check rounded border-outline-variant text-primary-container focus:ring-primary-container/30">
+                                @endif
+                            </td>
                             <td class="px-5 py-4">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-full overflow-hidden bg-primary-container/10 flex items-center justify-center shrink-0">
@@ -101,9 +139,8 @@
                 </tbody>
             </table>
         </div>
-        @if($users->hasPages())
-            <div class="px-5 py-4 border-t border-outline-variant/40">{{ $users->links() }}</div>
-        @endif
+        @include('admin.partials.pagination', ['paginator' => $users])
+        </form>
     @endif
 </div>
 

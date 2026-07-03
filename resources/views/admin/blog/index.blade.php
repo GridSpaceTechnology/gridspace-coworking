@@ -35,6 +35,39 @@
 </div>
 
 <div class="bg-white border border-outline-variant/60 rounded-2xl overflow-hidden card-lift">
+    <x-admin.filters-bar :action="route('admin.blog.index')">
+        <div class="flex flex-col gap-1 min-w-[160px]">
+            <label class="font-inter text-xs font-semibold text-on-surface-variant uppercase">Search</label>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Title, author…"
+                   class="px-3 py-2 rounded-lg border border-outline-variant/60 font-inter text-sm focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container">
+        </div>
+        <div class="flex flex-col gap-1 min-w-[140px]">
+            <label class="font-inter text-xs font-semibold text-on-surface-variant uppercase">Category</label>
+            <select name="category_slug" class="px-3 py-2 rounded-lg border border-outline-variant/60 font-inter text-sm bg-white">
+                <option value="">All</option>
+                @foreach($categories as $slug => $label)
+                    <option value="{{ $slug }}" @selected(request('category_slug') === $slug)>{{ $label }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="flex flex-col gap-1 min-w-[120px]">
+            <label class="font-inter text-xs font-semibold text-on-surface-variant uppercase">Status</label>
+            <select name="status" class="px-3 py-2 rounded-lg border border-outline-variant/60 font-inter text-sm bg-white">
+                <option value="">All</option>
+                <option value="published" @selected(request('status') === 'published')>Published</option>
+                <option value="draft" @selected(request('status') === 'draft')>Draft</option>
+            </select>
+        </div>
+        <div class="flex flex-col gap-1 min-w-[120px]">
+            <label class="font-inter text-xs font-semibold text-on-surface-variant uppercase">Featured</label>
+            <select name="featured" class="px-3 py-2 rounded-lg border border-outline-variant/60 font-inter text-sm bg-white">
+                <option value="">All</option>
+                <option value="1" @selected(request('featured') === '1')>Yes</option>
+                <option value="0" @selected(request('featured') === '0')>No</option>
+            </select>
+        </div>
+    </x-admin.filters-bar>
+
     @if($posts->isEmpty())
         <div class="p-16 text-center">
             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-container flex items-center justify-center">
@@ -49,10 +82,17 @@
             </a>
         </div>
     @else
+        <form method="POST" action="{{ route('admin.blog.bulk-delete') }}">
+            @csrf
+            @include('admin.partials.bulk-toolbar', [
+                'bulkAction' => route('admin.blog.bulk-delete'),
+                'paginator' => $posts,
+            ])
         <div class="overflow-x-auto">
             <table class="w-full text-left">
                 <thead>
                     <tr class="border-b border-outline-variant/40 bg-surface-container-low/50">
+                        <th class="px-5 py-3 w-10"></th>
                         <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase">Title</th>
                         <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase">Category</th>
                         <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase">Status</th>
@@ -68,6 +108,10 @@
                                 : 'bg-amber-100 text-amber-800';
                         @endphp
                         <tr class="hover:bg-surface-container-low/40 transition-colors">
+                            <td class="px-5 py-4">
+                                <input type="checkbox" name="ids[]" value="{{ $post->id }}"
+                                       class="bulk-row-check rounded border-outline-variant text-primary-container focus:ring-primary-container/30">
+                            </td>
                             <td class="px-5 py-4">
                                 <p class="font-inter text-sm font-medium text-[#1c2c40] max-w-xs truncate">{{ $post->title }}</p>
                                 @if($post->featured)
@@ -110,6 +154,8 @@
                 </tbody>
             </table>
         </div>
+        @include('admin.partials.pagination', ['paginator' => $posts])
+        </form>
     @endif
 </div>
 
