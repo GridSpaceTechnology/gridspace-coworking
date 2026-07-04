@@ -19,7 +19,7 @@ class ListingController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Listing::with(['category', 'city', 'images'])
+        $query = Listing::with(['category', 'city', 'images', 'spaces'])
             ->where('status', 'published');
 
         // Enhanced featured prioritization algorithm
@@ -41,12 +41,16 @@ class ListingController extends Controller
         }
 
         if ($request->filled('categories')) {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->whereIn('slug', (array) $request->categories);
+            $slugs = (array) $request->categories;
+            $query->where(function ($q) use ($slugs) {
+                $q->whereHas('category', fn ($c) => $c->whereIn('slug', $slugs))
+                    ->orWhereHas('spaces.category', fn ($c) => $c->whereIn('slug', $slugs));
             });
         } elseif ($request->filled('category')) {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->where('slug', $request->category);
+            $slug = $request->category;
+            $query->where(function ($q) use ($slug) {
+                $q->whereHas('category', fn ($c) => $c->where('slug', $slug))
+                    ->orWhereHas('spaces.category', fn ($c) => $c->where('slug', $slug));
             });
         }
 
@@ -57,15 +61,24 @@ class ListingController extends Controller
         }
 
         if ($request->filled('capacity')) {
-            $query->where('capacity', '>=', $request->capacity);
+            $capacity = (int) $request->capacity;
+            $query->whereHas('spaces', function ($q) use ($capacity) {
+                $q->where('is_active', true)->where('capacity', '>=', $capacity);
+            });
         }
 
         if ($request->filled('min_price')) {
-            $query->where('price', '>=', (float) $request->min_price);
+            $minPrice = (float) $request->min_price;
+            $query->whereHas('spaces', function ($q) use ($minPrice) {
+                $q->where('is_active', true)->where('price', '>=', $minPrice);
+            });
         }
 
         if ($request->filled('max_price')) {
-            $query->where('price', '<=', (float) $request->max_price);
+            $maxPrice = (float) $request->max_price;
+            $query->whereHas('spaces', function ($q) use ($maxPrice) {
+                $q->where('is_active', true)->where('price', '<=', $maxPrice);
+            });
         }
 
         if ($request->filled('price_range')) {
@@ -74,7 +87,7 @@ class ListingController extends Controller
 
         if ($request->filled('amenities')) {
             foreach ((array) $request->amenities as $amenityId) {
-                $query->whereHas('amenities', function ($q) use ($amenityId) {
+                $query->whereHas('spaces.amenities', function ($q) use ($amenityId) {
                     $q->where('amenities.id', $amenityId);
                 });
             }
@@ -105,18 +118,20 @@ class ListingController extends Controller
             $q->where('status', 'published');
         }])->get();
 
-        $featuredListings = Listing::with(['category', 'city', 'images'])
+        $featuredLimit = $request->route()->getName() === 'home' ? 6 : 3;
+
+        $featuredListings = Listing::with(['category', 'city', 'images', 'spaces'])
             ->where('status', 'published')
             ->where('featured', true)
             ->inRandomOrder()
-            ->limit(3)
+            ->limit($featuredLimit)
             ->get();
 
         if ($featuredListings->isEmpty()) {
-            $featuredListings = Listing::with(['category', 'city', 'images'])
+            $featuredListings = Listing::with(['category', 'city', 'images', 'spaces'])
                 ->where('status', 'published')
                 ->latest()
-                ->limit(3)
+                ->limit($featuredLimit)
                 ->get();
         }
 
@@ -157,9 +172,14 @@ class ListingController extends Controller
             return redirect()->route('dashboard', ['add_listing' => 1]);
         }
 
-        $categories = Category::all();
-        $cities = City::all();
-        $amenities = Amenity::all();
+        $categories = Category::orderBy('name')->get();
+        $cities = City::query()
+            ->whereNotNull('state')
+            ->where('state', '!=', '')
+            ->orderBy('state')
+            ->orderBy('name')
+            ->get();
+        $amenities = Amenity::orderBy('name')->get();
 
         return view('listings.create', compact('categories', 'cities', 'amenities'));
     }
@@ -171,55 +191,94 @@ class ListingController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'category_id' => 'required|exists:categories,id',
-            'city_id' => 'nullable|exists:cities,id',
+            'city_id' => 'required|exists:cities,id',
             'description' => 'required|string',
             'address' => 'required|string|max:255',
             'contact_phone' => 'required|string|max:20',
             'whatsapp_number' => 'required|string|max:20',
             'website' => 'nullable|url|max:255',
-            'price' => 'required|numeric|min:0',
-            'price_period' => 'required|in:night,week,month',
-            'capacity' => 'nullable|integer|min:1',
-            'amenities' => 'nullable|array',
-            'amenities.*' => 'exists:amenities,id',
             'images' => 'nullable|array|max:10',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'spaces' => 'required|array|min:1',
+            'spaces.*.name' => 'required|string|max:255',
+            'spaces.*.category_id' => 'required|exists:categories,id',
+            'spaces.*.price' => 'required|numeric|min:0',
+            'spaces.*.price_period' => 'required|in:hour,day,week,month',
+            'spaces.*.capacity' => 'required|integer|min:1',
+            'spaces.*.description' => 'nullable|string',
+            'spaces.*.amenities' => 'nullable|array',
+            'spaces.*.amenities.*' => 'exists:amenities,id',
+            'spaces.*.images' => 'nullable|array|max:10',
+            'spaces.*.images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ], [
+            'spaces.required' => 'Add at least one bookable space to your building.',
+            'spaces.min' => 'Add at least one bookable space to your building.',
+            'spaces.*.capacity.required' => 'Enter how many people each space can hold.',
+            'spaces.*.price_period.in' => 'Price must be per hour, day, week, or month.',
             'images.max' => 'You can upload a maximum of 10 images.',
             'images.*.max' => 'Each image must not exceed 2MB. Please compress or resize your images.',
-            'images.*.mimes' => 'Images must be in JPG, PNG, or GIF format.',
+            'images.*.mimes' => 'Images must be in JPG, PNG, GIF, or WEBP format.',
+            'spaces.*.images.max' => 'Each space can have up to 10 photos.',
+            'spaces.*.images.*.max' => 'Each space photo must not exceed 2MB.',
         ]);
 
-        $validated['user_id'] = auth()->id();
-        $validated['slug'] = Str::slug($validated['name']);
-
-        // Generate price_range from price and price_period
-        $validated['price_range'] = '₦' . number_format($validated['price'], 0) . '/' . $validated['price_period'];
-
-        // Set status based on user type
         $user = auth()->user();
-        if ($user->isAdmin()) {
-            $validated['status'] = 'published'; // Admin listings are auto-published
-        } else {
-            $validated['status'] = 'pending'; // Regular users need admin approval
+        $firstSpace = $validated['spaces'][0];
+        $minPrice = collect($validated['spaces'])->min('price');
+        $pricePeriod = $firstSpace['price_period'] ?? 'day';
+
+        $listing = Listing::create([
+            'user_id' => $user->id,
+            'name' => $validated['name'],
+            'slug' => Str::slug($validated['name']),
+            'city_id' => $validated['city_id'],
+            'description' => $validated['description'],
+            'address' => $validated['address'],
+            'contact_phone' => $validated['contact_phone'],
+            'whatsapp_number' => $validated['whatsapp_number'],
+            'website' => $validated['website'] ?? null,
+            'category_id' => $firstSpace['category_id'],
+            'price' => $minPrice,
+            'price_period' => $pricePeriod,
+            'price_range' => 'From ₦' . number_format($minPrice, 0) . '/' . $pricePeriod,
+            'capacity' => collect($validated['spaces'])->sum('capacity'),
+            'status' => $user->isAdmin() ? 'published' : 'pending',
+        ]);
+
+        foreach ($validated['spaces'] as $index => $spaceData) {
+            $space = $listing->spaces()->create([
+                'name' => $spaceData['name'],
+                'category_id' => $spaceData['category_id'],
+                'description' => $spaceData['description'] ?? null,
+                'price' => $spaceData['price'],
+                'price_period' => $spaceData['price_period'] ?? 'day',
+                'capacity' => $spaceData['capacity'],
+                'is_active' => true,
+                'sort_order' => $index,
+            ]);
+
+            if (! empty($spaceData['amenities'])) {
+                $space->amenities()->attach($spaceData['amenities']);
+            }
+
+            if ($request->hasFile("spaces.$index.images")) {
+                foreach ($request->file("spaces.$index.images") as $imageIndex => $image) {
+                    $path = $image->store('listing-spaces', 'public');
+                    $space->images()->create([
+                        'image_path' => $path,
+                        'sort_order' => $imageIndex,
+                    ]);
+                }
+            }
         }
 
-        $listing = Listing::create($validated);
-
-        // Handle amenities
-        if ($request->has('amenities')) {
-            $listing->amenities()->attach($request->amenities);
-        }
-
-        // Handle images
-        if ($request->has('images')) {
+        if ($request->hasFile('images')) {
             foreach ($request->file('images') as $index => $image) {
                 $path = $image->store('listings', 'public');
                 $listing->images()->create([
                     'image_path' => $path,
                     'sort_order' => $index,
-                    'is_external' => ($index === 0), // First image is external building picture
+                    'is_external' => ($index === 0),
                 ]);
             }
         }
@@ -242,7 +301,16 @@ class ListingController extends Controller
             request()->userAgent()
         );
 
-        $listing->load(['category', 'city', 'images', 'amenities', 'user']);
+        $listing->load([
+            'category',
+            'city',
+            'images',
+            'amenities',
+            'user',
+            'spaces.category',
+            'spaces.amenities',
+            'spaces.images',
+        ]);
 
         return view('listings.show', compact('listing'));
     }
@@ -257,10 +325,15 @@ class ListingController extends Controller
             abort(403);
         }
 
-        $listing->load(['amenities', 'images']);
-        $categories = Category::all();
-        $cities = City::all();
-        $amenities = Amenity::all();
+        $listing->load(['amenities', 'images', 'city']);
+        $categories = Category::orderBy('name')->get();
+        $cities = City::query()
+            ->whereNotNull('state')
+            ->where('state', '!=', '')
+            ->orderBy('state')
+            ->orderBy('name')
+            ->get();
+        $amenities = Amenity::orderBy('name')->get();
 
         return view('listings.edit', compact('listing', 'categories', 'cities', 'amenities'));
     }
@@ -278,23 +351,24 @@ class ListingController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'city_id' => 'nullable|exists:cities,id',
+            'city_id' => 'required|exists:cities,id',
             'description' => 'required|string',
             'address' => 'required|string|max:255',
             'contact_phone' => 'required|string|max:20',
             'whatsapp_number' => 'required|string|max:20',
             'website' => 'nullable|url|max:255',
             'price' => 'required|numeric|min:0',
-            'price_period' => 'required|in:night',
+            'price_period' => 'required|in:hour,day,week,month',
             'capacity' => 'nullable|integer|min:1',
             'amenities' => 'nullable|array',
             'amenities.*' => 'exists:amenities,id',
             'images' => 'nullable|array|max:10',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ], [
             'images.max' => 'You can upload a maximum of 10 images.',
             'images.*.max' => 'Each image must not exceed 2MB.',
-            'price_period.in' => 'Price period must be per day.',
+            'images.*.mimes' => 'Images must be in JPG, PNG, GIF, or WEBP format.',
+            'price_period.in' => 'Price period must be per hour, day, week, or month.',
         ]);
 
         if ($validated['name'] !== $listing->name) {
@@ -302,7 +376,7 @@ class ListingController extends Controller
         }
 
         // Build price_range from price and price_period
-        $validated['price_range'] = '₦' . number_format($validated['price']) . '/day';
+        $validated['price_range'] = '₦' . number_format($validated['price']) . '/' . $validated['price_period'];
 
         $listing->update($validated);
 

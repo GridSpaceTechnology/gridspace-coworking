@@ -3,6 +3,13 @@
 @section('title', 'My Listings | GridSpace')
 
 @section('host_content')
+@if(session('success'))
+    <div class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-2.5 text-sm text-green-800 font-inter">{{ session('success') }}</div>
+@endif
+@if(session('error'))
+    <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-800 font-inter">{{ session('error') }}</div>
+@endif
+
 <section class="mb-6 md:mb-8">
     <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
@@ -114,7 +121,12 @@
         {{-- Bookings column --}}
         <div class="xl:col-span-3">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="font-manrope text-lg font-bold text-[#1c2c40]">Bookings</h2>
+                <h2 class="font-manrope text-lg font-bold text-[#1c2c40]">
+                    Bookings
+                    @if(($stats['pending_bookings'] ?? 0) > 0)
+                        <span class="ml-1 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-amber-100 text-amber-800 text-xs font-semibold">{{ $stats['pending_bookings'] }}</span>
+                    @endif
+                </h2>
                 <a href="{{ route('host.calendar') }}" class="font-inter text-xs font-semibold text-primary-container hover:underline">View calendar</a>
             </div>
             <div class="bg-white border border-outline-variant/60 rounded-2xl overflow-hidden card-lift">
@@ -129,14 +141,22 @@
                             <thead>
                                 <tr class="border-b border-outline-variant/40 bg-surface-container-low/50">
                                     <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Guest</th>
+                                    <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Space</th>
                                     <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Date</th>
                                     <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Price</th>
                                     <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Status</th>
+                                    <th class="px-5 py-3 font-inter text-xs font-semibold text-on-surface-variant uppercase tracking-wide text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-outline-variant/30">
                                 @foreach($recentBookings as $booking)
                                     @php
+                                        $statusLabel = match($booking->status) {
+                                            'confirmed' => 'Booked',
+                                            'completed' => 'Completed',
+                                            'cancelled' => 'Declined',
+                                            default => 'Pending',
+                                        };
                                         $statusClass = match($booking->status) {
                                             'confirmed', 'completed' => 'bg-green-100 text-green-800',
                                             'cancelled' => 'bg-red-100 text-red-800',
@@ -149,6 +169,9 @@
                                             <p class="font-inter text-sm font-medium text-[#1c2c40]">{{ $guestName }}</p>
                                             <p class="font-inter text-xs text-on-surface-variant truncate max-w-[140px]">{{ $booking->listing?->name }}</p>
                                         </td>
+                                        <td class="px-5 py-4 font-inter text-sm text-on-surface-variant">
+                                            {{ $booking->space?->name ?? '—' }}
+                                        </td>
                                         <td class="px-5 py-4 font-inter text-sm text-on-surface-variant whitespace-nowrap">
                                             {{ $booking->check_in_date?->format('M d, Y') ?? '—' }}
                                         </td>
@@ -156,9 +179,33 @@
                                             ₦{{ number_format($booking->total_price ?? 0, 0) }}
                                         </td>
                                         <td class="px-5 py-4">
-                                            <span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold capitalize {{ $statusClass }}">
-                                                {{ $booking->status }}
+                                            <span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-semibold {{ $statusClass }}">
+                                                {{ $statusLabel }}
                                             </span>
+                                        </td>
+                                        <td class="px-5 py-4 text-right">
+                                            @if($booking->status === 'pending')
+                                                <div class="inline-flex items-center gap-2">
+                                                    <form method="POST" action="{{ route('bookings.update-status', $booking) }}">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="status" value="cancelled">
+                                                        <button type="submit" class="px-3 py-1.5 rounded-lg border border-red-300 text-red-600 font-inter text-xs font-semibold hover:bg-red-50">
+                                                            Decline
+                                                        </button>
+                                                    </form>
+                                                    <form method="POST" action="{{ route('bookings.update-status', $booking) }}">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="status" value="confirmed">
+                                                        <button type="submit" class="px-3 py-1.5 rounded-lg bg-green-600 text-white font-inter text-xs font-semibold hover:bg-green-700">
+                                                            Accept
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            @else
+                                                <span class="font-inter text-xs text-on-surface-variant">—</span>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach

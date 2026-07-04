@@ -5,13 +5,11 @@
     $location = $listing->city
         ? $listing->city->name . ($listing->address ? ', ' . Str::limit($listing->address, 25) : '')
         : ($listing->address ?? 'Nigeria');
-    $price = $listing->price > 0
-        ? '₦' . number_format($listing->price, 0) . '/' . ($listing->price_period ?? 'day')
+    $price = $listing->min_price > 0
+        ? $listing->price_from
         : ($listing->price_range ?: 'Contact for price');
-    $bookUrl = $listing->price > 0
-        ? route('bookings.create', $listing->slug)
-        : route('listings.show', $listing->slug);
-    $bookLabel = $listing->price > 0 ? 'Book Now' : 'View Details';
+    $bookUrl = route('listings.show', $listing->slug) . '#spaces';
+    $bookLabel = $listing->min_price > 0 ? 'View Spaces' : 'View Details';
 @endphp
 
 <article class="bg-white rounded-xl overflow-hidden border border-outline-variant hover-lift flex flex-col h-full">

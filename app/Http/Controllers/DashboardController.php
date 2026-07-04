@@ -28,16 +28,23 @@ class DashboardController extends Controller
 
             $listingIds = $listings->pluck('id');
 
-            $recentBookings = Booking::whereIn('listing_id', $listingIds)
-                ->with(['user', 'listing.images'])
-                ->latest()
-                ->take(8)
-                ->get();
+            $recentBookings = $listingIds->isEmpty()
+                ? collect()
+                : Booking::whereIn('listing_id', $listingIds)
+                    ->with(['user', 'listing.images', 'space'])
+                    ->latest()
+                    ->take(8)
+                    ->get();
+
+            $pendingBookingCount = $listingIds->isEmpty()
+                ? 0
+                : Booking::whereIn('listing_id', $listingIds)->where('status', 'pending')->count();
 
             $stats = [
                 'total_listings' => $listings->count(),
                 'approved' => $listings->where('status', 'published')->count(),
                 'pending' => $listings->where('status', 'pending')->count(),
+                'pending_bookings' => $pendingBookingCount,
                 'total_bookings' => $listingIds->isEmpty()
                     ? 0
                     : Booking::whereIn('listing_id', $listingIds)->count(),
@@ -49,7 +56,12 @@ class DashboardController extends Controller
                 ->get();
 
             $categories = Category::orderBy('name')->get();
-            $cities = City::orderBy('name')->get();
+            $cities = City::query()
+                ->whereNotNull('state')
+                ->where('state', '!=', '')
+                ->orderBy('state')
+                ->orderBy('name')
+                ->get();
             $amenities = Amenity::orderBy('name')->get();
 
             return view('dashboard-host', compact(

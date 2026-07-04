@@ -30,8 +30,8 @@ Route::get('/featured', [FeaturedController::class, 'index'])->name('featured');
 Route::get('/listings/{listing:slug}', [ListingController::class, 'show'])->name('listings.show');
 Route::get('/track/{listing}/{type}', [ListingController::class, 'track'])->name('track')->where('listing', '[0-9]+');
 Route::post('/inquiries/store', [InquiryController::class, 'store'])->name('inquiries.store');
-Route::get('/bookings/create/{listing}', [BookingController::class, 'create'])->name('bookings.create');
-Route::post('/bookings/store/{listing:slug}', [BookingController::class, 'store'])->name('bookings.store');
+Route::get('/bookings/create/{listing:slug}/{space}', [BookingController::class, 'create'])->name('bookings.create');
+Route::post('/bookings/store/{listing:slug}/{space}', [BookingController::class, 'store'])->name('bookings.store');
 Route::get('/bookings/confirmation/{booking}', [BookingController::class, 'confirmation'])->name('bookings.confirmation');
 
 // Feature Request routes

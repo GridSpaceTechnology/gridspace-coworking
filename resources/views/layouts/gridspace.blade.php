@@ -14,7 +14,7 @@
     @include('layouts.partials.flash-messages')
 
     <main @class([
-        'flex-grow w-full',
+        'flex-grow w-full pb-20 md:pb-0',
         'max-w-container-max mx-auto px-4 md:px-margin-desktop py-8 md:py-stack-lg' => ! View::hasSection('full_width'),
     ])>
         @if(\App\Support\Breadcrumbs::shouldShowToolbar())
@@ -23,11 +23,15 @@
         @yield('content')
     </main>
 
-    @include('layouts.partials.footer')
+    <div class="hidden md:block">
+        @include('layouts.partials.footer')
+    </div>
+
+    @include('layouts.partials.mobile-bottom-nav')
 
     <script>
         function toggleMainNav() {
-            document.getElementById('main-mobile-menu').classList.toggle('hidden');
+            document.getElementById('main-mobile-menu')?.classList.toggle('hidden');
         }
     </script>
     @stack('scripts')

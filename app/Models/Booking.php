@@ -11,6 +11,7 @@ class Booking extends Model
 
     protected $fillable = [
         'listing_id',
+        'listing_space_id',
         'user_id',
         'check_in_date',
         'check_out_date',
@@ -40,6 +41,11 @@ class Booking extends Model
     public function listing()
     {
         return $this->belongsTo(Listing::class);
+    }
+
+    public function space()
+    {
+        return $this->belongsTo(ListingSpace::class, 'listing_space_id');
     }
 
     public function user()

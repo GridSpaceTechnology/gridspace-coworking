@@ -8,6 +8,7 @@
         ? $listing->city->name . ($listing->address ? ', ' . $listing->address : '')
         : ($listing->address ?? 'Nigeria');
     $pricePeriod = $listing->price_period ?? 'day';
+    $spaces = $listing->spaces->where('is_active', true);
     $host = $listing->user;
     $amenityIcons = [
         'wifi' => 'wifi', 'coffee' => 'coffee', 'parking' => 'local_parking',
@@ -95,10 +96,10 @@
                     <span class="material-symbols-outlined text-primary-container text-lg" style="font-variation-settings: 'FILL' 1;">star</span>
                     <span class="font-bold text-on-surface">4.8</span>
                 </div>
-                @if($listing->capacity)
+                @if($spaces->isNotEmpty())
                     <div class="flex items-center gap-1">
                         <span class="material-symbols-outlined text-lg">group</span>
-                        <span>Up to {{ $listing->capacity }} people</span>
+                        <span>Holds up to {{ $spaces->max('capacity') }} people</span>
                     </div>
                 @endif
                 @if($listing->category)
@@ -148,24 +149,92 @@
             </section>
         @endif
 
-        {{-- Amenities --}}
-        @if($listing->amenities->isNotEmpty())
-            <section>
-                <h2 class="font-manrope text-xl md:text-2xl font-semibold text-on-surface mb-6">Amenities</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    @foreach($listing->amenities as $amenity)
-                        @php
-                            $icon = $amenityIcons[strtolower($amenity->icon ?? '')] ?? 'check_circle';
-                        @endphp
-                        <div class="flex items-center gap-4 p-4 border border-outline-variant rounded-lg bg-white">
-                            <span class="material-symbols-outlined text-primary-container">{{ $icon }}</span>
-                            <span class="font-inter font-medium text-on-surface">{{ $amenity->name }}</span>
+        {{-- Bookable spaces --}}
+        <section id="spaces">
+            <h2 class="font-manrope text-xl md:text-2xl font-semibold text-on-surface mb-2">Available spaces</h2>
+            <p class="font-inter text-sm text-on-surface-variant mb-6">Choose a space to book. Each space has its own price, people capacity, amenities, and photos.</p>
+
+            @if($spaces->isEmpty())
+                <div class="rounded-xl border border-outline-variant bg-white p-6 text-on-surface-variant font-inter text-sm">
+                    No bookable spaces are listed for this building yet.
+                </div>
+            @else
+                <div class="space-y-4">
+                    @foreach($spaces as $space)
+                        @php $isBooked = $space->is_booked; @endphp
+                        <div class="rounded-xl border border-outline-variant bg-white p-5 md:p-6">
+                            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex flex-wrap items-center gap-2 mb-2">
+                                        <h3 class="font-manrope text-lg font-bold text-on-surface">{{ $space->name }}</h3>
+                                        @if($space->category)
+                                            <span class="bg-primary-fixed text-primary px-2.5 py-0.5 rounded-full font-mono text-[10px] uppercase tracking-wide">{{ $space->category->name }}</span>
+                                        @endif
+                                        @if($isBooked)
+                                            <span class="bg-red-100 text-red-700 px-2.5 py-0.5 rounded-full font-inter text-[10px] font-semibold uppercase">Booked</span>
+                                        @else
+                                            <span class="bg-green-100 text-green-700 px-2.5 py-0.5 rounded-full font-inter text-[10px] font-semibold uppercase">Available</span>
+                                        @endif
+                                    </div>
+                                    @if($space->description)
+                                        <p class="font-inter text-sm text-on-surface-variant mb-3">{{ $space->description }}</p>
+                                    @endif
+                                    <div class="flex flex-wrap gap-4 text-sm font-inter text-on-surface-variant mb-3">
+                                        <span class="inline-flex items-center gap-1.5">
+                                            <span class="material-symbols-outlined text-[18px] text-primary-container">payments</span>
+                                            {{ $space->formatted_price }}
+                                            <span class="text-xs">({{ $space->price_period_label }})</span>
+                                        </span>
+                                        <span class="inline-flex items-center gap-1.5">
+                                            <span class="material-symbols-outlined text-[18px] text-primary-container">group</span>
+                                            Holds up to {{ $space->capacity }} {{ $space->capacity === 1 ? 'person' : 'people' }}
+                                        </span>
+                                    </div>
+                                    @if($space->images->isNotEmpty())
+                                        <div class="flex gap-2 overflow-x-auto pb-2 mb-3">
+                                            @foreach($space->images->take(4) as $spaceImage)
+                                                <img src="{{ $spaceImage->url }}" alt="{{ $space->name }}"
+                                                     class="w-20 h-16 rounded-lg object-cover shrink-0 border border-outline-variant/40">
+                                            @endforeach
+                                            @if($space->images->count() > 4)
+                                                <div class="w-20 h-16 rounded-lg bg-surface-container flex items-center justify-center shrink-0 font-inter text-xs text-on-surface-variant">
+                                                    +{{ $space->images->count() - 4 }}
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
+                                    @if($space->amenities->isNotEmpty())
+                                        <div class="flex flex-wrap gap-2">
+                                            @foreach($space->amenities as $amenity)
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container text-xs font-inter text-on-surface">
+                                                    <span class="material-symbols-outlined text-[14px]">{{ $amenity->icon ?: 'check_circle' }}</span>
+                                                    {{ $amenity->name }}
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="shrink-0">
+                                    @if($space->price > 0)
+                                        <a href="{{ route('bookings.create', [$listing, $space]) }}"
+                                           class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary-container text-white font-inter text-sm font-semibold hover:bg-primary transition-colors">
+                                            <span class="material-symbols-outlined text-[18px]">event_available</span>
+                                            {{ $isBooked ? 'Check dates' : 'Book this space' }}
+                                        </a>
+                                    @else
+                                        <a href="#inquiry-form"
+                                           class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 rounded-xl border border-outline-variant font-inter text-sm font-semibold text-on-surface hover:bg-surface-container">
+                                            Request pricing
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                     @endforeach
                 </div>
-            </section>
-            <hr class="border-outline-variant/50">
-        @endif
+            @endif
+        </section>
+        <hr class="border-outline-variant/50">
 
         {{-- Contact actions --}}
         <section>
@@ -253,37 +322,30 @@
             <div>
                 <p class="font-mono text-xs uppercase tracking-wider text-secondary mb-1">From</p>
                 <p class="font-manrope text-3xl font-bold text-on-surface">
-                    @if($listing->price > 0)
-                        ₦{{ number_format($listing->price, 0) }}
-                        <span class="text-lg font-normal text-on-surface-variant">/{{ $pricePeriod }}</span>
-                    @else
-                        <span class="text-xl">{{ $listing->price_range ?: 'Contact for price' }}</span>
-                    @endif
+                    <span class="text-2xl md:text-3xl">{{ $listing->price_from }}</span>
                 </p>
+                @if($spaces->count() > 1)
+                    <p class="font-inter text-xs text-on-surface-variant mt-1">{{ $spaces->count() }} spaces available</p>
+                @endif
             </div>
 
-            @if($listing->available && $listing->price > 0)
-                <a href="{{ route('bookings.create', $listing->slug) }}" class="w-full bg-primary-container text-white px-6 py-4 rounded-xl font-manrope font-semibold shadow-lg shadow-primary-container/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined">event_available</span>
-                    Book this space
+            @if($spaces->isNotEmpty())
+                <a href="#spaces" class="w-full bg-primary-container text-white px-6 py-4 rounded-xl font-manrope font-semibold shadow-lg shadow-primary-container/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">meeting_room</span>
+                    Choose a space
                 </a>
-            @elseif(!$listing->available)
-                <div class="w-full bg-surface-container text-on-surface-variant px-6 py-4 rounded-xl font-manrope font-semibold text-center flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined">event_busy</span>
-                    Currently unavailable
-                </div>
             @else
                 <a href="#inquiry-form" class="w-full bg-primary-container text-white px-6 py-4 rounded-xl font-manrope font-semibold shadow-lg shadow-primary-container/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined">mail</span>
-                    Request pricing
+                    Contact host
                 </a>
             @endif
 
             <div class="space-y-3 pt-4 border-t border-outline-variant/40 text-sm font-inter text-on-surface-variant">
-                @if($listing->capacity)
+                @if($spaces->isNotEmpty())
                     <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-primary-container">group</span>
-                        <span>Up to {{ $listing->capacity }} people</span>
+                        <span class="material-symbols-outlined text-primary-container">door_front</span>
+                        <span>{{ $spaces->count() }} bookable space{{ $spaces->count() === 1 ? '' : 's' }}</span>
                     </div>
                 @endif
                 <div class="flex items-center gap-3">

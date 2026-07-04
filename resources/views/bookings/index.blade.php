@@ -88,6 +88,11 @@
                 'cancelled' => 'bg-gray-50 text-gray-600 border-gray-200',
                 default => 'bg-surface-container text-on-surface-variant border-outline-variant',
             };
+            $statusLabel = match($booking->status) {
+                'confirmed' => 'Booked',
+                'cancelled' => 'Declined',
+                default => ucfirst($booking->status),
+            };
         @endphp
         <article class="bg-white border border-outline-variant rounded-xl overflow-hidden card-lift">
             <div class="flex flex-col md:flex-row">
@@ -105,8 +110,11 @@
                         <div>
                             @if($booking->listing)
                                 <a href="{{ route('listings.show', $booking->listing->slug) }}" class="font-manrope text-xl font-bold text-on-surface hover:text-primary-container transition-colors">
-                                    {{ $booking->listing->name }}
+                                    {{ $booking->space?->name ?? $booking->listing->name }}
                                 </a>
+                                <p class="font-inter text-sm text-on-surface-variant mt-1">
+                                    {{ $booking->listing->name }}
+                                </p>
                                 <p class="font-inter text-sm text-on-surface-variant mt-1 flex items-center gap-1">
                                     <span class="material-symbols-outlined text-sm">location_on</span>
                                     {{ $booking->listing->address }}
@@ -116,7 +124,7 @@
                             @endif
                         </div>
                         <span class="font-mono text-xs uppercase tracking-wide px-3 py-1 rounded-full border {{ $statusStyles }}">
-                            {{ ucfirst($booking->status) }}
+                            {{ $statusLabel }}
                         </span>
                     </div>
 

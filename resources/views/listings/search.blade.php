@@ -100,7 +100,7 @@
 <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
     {{-- Sidebar filters --}}
     <aside class="md:col-span-3">
-        <form method="GET" action="{{ route('listings.index') }}" class="bg-white p-6 rounded-xl border border-outline-variant sticky top-24 space-y-8">
+        <form method="GET" action="{{ route('listings.index') }}" id="filterForm" class="bg-white p-6 rounded-xl border border-outline-variant sticky top-24 space-y-8">
             @if(request('search'))<input type="hidden" name="search" value="{{ request('search') }}">@endif
             @if(request('city'))<input type="hidden" name="city" value="{{ request('city') }}">@endif
             @if(request('date'))<input type="hidden" name="date" value="{{ request('date') }}">@endif
@@ -116,12 +116,12 @@
                 <div class="flex items-center gap-2">
                     <div class="relative flex-1">
                         <span class="absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">₦</span>
-                        <input name="min_price" value="{{ request('min_price', '') }}" class="w-full pl-6 pr-2 py-2 border border-outline-variant rounded-lg font-inter text-sm outline-none focus:ring-2 focus:ring-primary-container" type="number" placeholder="Min" min="0">
+                        <input name="min_price" value="{{ request('min_price', '') }}" data-auto-filter="debounce" class="w-full pl-6 pr-2 py-2 border border-outline-variant rounded-lg font-inter text-sm outline-none focus:ring-2 focus:ring-primary-container" type="number" placeholder="Min" min="0">
                     </div>
                     <span class="text-outline-variant">—</span>
                     <div class="relative flex-1">
                         <span class="absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">₦</span>
-                        <input name="max_price" value="{{ request('max_price', '') }}" class="w-full pl-6 pr-2 py-2 border border-outline-variant rounded-lg font-inter text-sm outline-none focus:ring-2 focus:ring-primary-container" type="number" placeholder="Max" min="0">
+                        <input name="max_price" value="{{ request('max_price', '') }}" data-auto-filter="debounce" class="w-full pl-6 pr-2 py-2 border border-outline-variant rounded-lg font-inter text-sm outline-none focus:ring-2 focus:ring-primary-container" type="number" placeholder="Max" min="0">
                     </div>
                 </div>
             </div>
@@ -133,6 +133,7 @@
                         @foreach($categories as $category)
                             <label class="flex items-center gap-3 cursor-pointer group">
                                 <input type="checkbox" name="categories[]" value="{{ $category->slug }}" @checked(in_array($category->slug, $selectedCategories))
+                                    data-auto-filter="instant"
                                     class="rounded border-outline-variant text-primary-container focus:ring-primary-container">
                                 <span class="font-inter text-sm text-on-surface-variant group-hover:text-primary transition-colors">{{ $category->name }}</span>
                             </label>
@@ -149,6 +150,7 @@
                             @php $icon = $amenityIcons[strtolower($amenity->icon ?? '')] ?? 'check_circle'; @endphp
                             <label class="flex items-center gap-3 cursor-pointer group">
                                 <input type="checkbox" name="amenities[]" value="{{ $amenity->id }}" @checked(in_array($amenity->id, $selectedAmenities))
+                                    data-auto-filter="instant"
                                     class="rounded border-outline-variant text-primary-container focus:ring-primary-container">
                                 <div class="flex items-center gap-2">
                                     <span class="material-symbols-outlined text-lg text-primary-container">{{ $icon }}</span>
@@ -160,7 +162,6 @@
                 </div>
             @endif
 
-            <button type="submit" class="w-full bg-primary-container text-white py-3 rounded-lg font-manrope font-semibold hover:bg-primary transition-all">Apply Filters</button>
             <a href="{{ route('listings.index') }}" class="block w-full text-center text-primary-container font-semibold py-2 hover:underline">Clear Filters</a>
         </form>
     </aside>
@@ -199,6 +200,39 @@ document.addEventListener('DOMContentLoaded', function() {
     const grid = document.getElementById('results-grid');
     const btnGrid = document.getElementById('view-grid');
     const btnList = document.getElementById('view-list');
+    const searchForm = document.getElementById('searchForm');
+    const filterForm = document.getElementById('filterForm');
+    let debounceTimer;
+
+    function submitForm(form) {
+        if (!form) return;
+        form.requestSubmit ? form.requestSubmit() : form.submit();
+    }
+
+    function bindAutoFilter(form) {
+        if (!form) return;
+
+        form.querySelectorAll('[data-auto-filter="instant"]').forEach(el => {
+            el.addEventListener('change', () => submitForm(form));
+        });
+
+        form.querySelectorAll('[data-auto-filter="debounce"]').forEach(el => {
+            el.addEventListener('input', () => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => submitForm(form), 500);
+            });
+            el.addEventListener('change', () => submitForm(form));
+        });
+    }
+
+    // Top search bar: apply instantly on select/date/guests; debounce text search.
+    searchForm?.querySelectorAll('select, input[type="date"], input[type="number"]').forEach(el => {
+        el.addEventListener('change', () => submitForm(searchForm));
+    });
+    const searchInput = searchForm?.querySelector('input[name="search"]');
+    searchInput?.addEventListener('change', () => submitForm(searchForm));
+
+    bindAutoFilter(filterForm);
 
     btnGrid?.addEventListener('click', function() {
         grid.classList.remove('list-view', 'grid-cols-1');

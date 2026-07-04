@@ -4,27 +4,34 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Listing;
+use App\Models\ListingSpace;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
 {
-    public function create(Listing $listing)
+    public function create(Listing $listing, ListingSpace $space)
     {
-        $listing->load(['images', 'category', 'city']);
+        abort_unless($space->listing_id === $listing->id, 404);
+        abort_unless($space->is_active, 404);
 
-        $bookedDates = Booking::where('listing_id', $listing->id)
-            ->where('status', 'confirmed')
+        $listing->load(['images', 'category', 'city']);
+        $space->load(['category', 'amenities']);
+
+        $bookedDates = Booking::where('listing_space_id', $space->id)
+            ->whereIn('status', ['pending', 'confirmed'])
             ->get(['check_in_date', 'check_out_date']);
 
-        return view('bookings.create', compact('listing', 'bookedDates'));
+        return view('bookings.create', compact('listing', 'space', 'bookedDates'));
     }
 
-    public function store(Request $request, Listing $listing)
+    public function store(Request $request, Listing $listing, ListingSpace $space)
     {
-        // Check if listing has a valid price
-        if (!$listing->price || $listing->price <= 0) {
-            return back()->with('error', 'This listing does not have a valid price. Please contact the host.');
+        abort_unless($space->listing_id === $listing->id, 404);
+        abort_unless($space->is_active, 404);
+
+        if (! $space->price || $space->price <= 0) {
+            return back()->with('error', 'This space does not have a valid price. Please contact the host.');
         }
 
         $validated = $request->validate([
@@ -33,61 +40,43 @@ class BookingController extends Controller
             'guest_name' => 'required|string|max:255',
             'guest_email' => 'required|email|max:255',
             'guest_phone' => 'required|string|max:20',
-            'number_of_people' => 'required|integer|min:1|max:' . ($listing->capacity ?? 10),
+            'number_of_people' => 'required|integer|min:1|max:' . max(1, (int) $space->capacity),
             'notes' => 'nullable|string|max:1000',
         ]);
 
-        // Check for booking conflicts
-        $checkIn = \Carbon\Carbon::parse($validated['check_in_date']);
-        $checkOut = \Carbon\Carbon::parse($validated['check_out_date']);
+        $checkIn = \Carbon\Carbon::parse($validated['check_in_date'])->startOfDay();
+        $checkOut = \Carbon\Carbon::parse($validated['check_out_date'])->startOfDay();
 
-        // Check if there are any existing bookings that overlap with the requested dates
-        $conflictingBookings = \App\Models\Booking::where('listing_id', $listing->id)
-            ->where('status', 'confirmed') // Only check confirmed bookings
-            ->where(function ($query) use ($checkIn, $checkOut) {
-                $query->where(function ($query) use ($checkIn, $checkOut) {
-                    // Check if new booking starts during an existing booking
-                    $query->where('check_in_date', '<=', $checkIn)
-                          ->where('check_out_date', '>', $checkIn);
-                })->orWhere(function ($query) use ($checkIn, $checkOut) {
-                    // Check if new booking ends during an existing booking
-                    $query->where('check_in_date', '<', $checkOut)
-                          ->where('check_out_date', '>=', $checkOut);
-                })->orWhere(function ($query) use ($checkIn, $checkOut) {
-                    // Check if new booking completely contains an existing booking
-                    $query->where('check_in_date', '>=', $checkIn)
-                          ->where('check_out_date', '<=', $checkOut);
-                });
-            })
-            ->get();
+        if (! $space->isAvailableBetween($checkIn, $checkOut)) {
+            $conflicts = Booking::where('listing_space_id', $space->id)
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->where('check_in_date', '<', $checkOut)
+                ->where('check_out_date', '>', $checkIn)
+                ->get();
 
-        if ($conflictingBookings->count() > 0) {
-            // Build detailed error message with conflicting dates
-            $conflictDetails = [];
-            foreach ($conflictingBookings as $conflict) {
-                $conflictDetails[] = sprintf(
-                    '%s to %s',
-                    $conflict->check_in_date->format('F j, Y'),
-                    $conflict->check_out_date->format('F j, Y')
-                );
-            }
+            $conflictDetails = $conflicts->map(fn ($conflict) => sprintf(
+                '%s to %s',
+                $conflict->check_in_date->format('F j, Y'),
+                $conflict->check_out_date->format('F j, Y')
+            ))->all();
 
-            $errorMessage = 'The selected dates conflict with existing bookings for this listing.' .
-                           ' The following dates are already booked: ' .
-                           implode(', ', $conflictDetails) .
-                           '. Please choose different dates.';
-
-            return back()->with('error', $errorMessage)
-                   ->withInput();
+            return back()
+                ->with('error', 'This space is already booked for: ' . implode(', ', $conflictDetails) . '. Please choose different dates.')
+                ->withInput();
         }
 
-        // Calculate total price based on number of nights (minimum 1 night)
-        $nights = max(1, $checkIn->diffInDays($checkOut));
-        $price = (float) ($listing->price ?? 0);
-        $totalPrice = $nights * $price * $validated['number_of_people'];
+        $days = max(1, $checkIn->diffInDays($checkOut));
+        $units = match ($space->price_period) {
+            'hour' => $days * 8, // 8 billable hours per day
+            'week' => max(1, (int) ceil($days / 7)),
+            'month' => max(1, (int) ceil($days / 30)),
+            default => $days, // per day
+        };
+        $totalPrice = $units * (float) $space->price * (int) $validated['number_of_people'];
 
         $booking = Booking::create([
             'listing_id' => $listing->id,
+            'listing_space_id' => $space->id,
             'user_id' => Auth::id(),
             'check_in_date' => $validated['check_in_date'],
             'check_out_date' => $validated['check_out_date'],
@@ -100,14 +89,13 @@ class BookingController extends Controller
             'status' => 'pending',
         ]);
 
-        // Notify host (in real app, would send notification)
         return redirect()->route('bookings.confirmation', $booking)
             ->with('success', 'Booking request submitted successfully!');
     }
 
     public function confirmation(Booking $booking)
     {
-        $booking->load(['listing.images', 'listing.category', 'listing.city']);
+        $booking->load(['listing.images', 'listing.category', 'listing.city', 'space.category']);
 
         return view('bookings.confirmation', compact('booking'));
     }
@@ -122,47 +110,45 @@ class BookingController extends Controller
                 SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
                 SUM(CASE WHEN status = 'confirmed' THEN 1 ELSE 0 END) as confirmed,
                 SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
-                SUM(CASE WHEN status IN ('confirmed', 'completed') THEN total_price ELSE 0 END) as total_spent,
-                SUM(CASE WHEN status IN ('pending', 'confirmed') AND check_in_date >= ? THEN 1 ELSE 0 END) as upcoming
-            ", [now()->toDateString()])
+                SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled
+            ")
             ->first();
 
-        $query = Booking::where('user_id', $userId)
-            ->with(['listing.images', 'listing.city'])
-            ->orderBy('created_at', 'desc');
-
-        if ($request->has('status') && $request->status !== 'all') {
-            $query->where('status', $request->status);
-        }
-
-        $bookings = $query->paginate(10);
+        $bookings = Booking::with(['listing.images', 'listing.city', 'space'])
+            ->where('user_id', $userId)
+            ->latest()
+            ->paginate(10);
 
         return view('bookings.index', compact('bookings', 'stats'));
     }
 
     public function updateStatus(Request $request, Booking $booking)
     {
-        $booking->loadMissing('listing');
         $user = Auth::user();
-        $isGuestOwner = $user->id === $booking->user_id;
-        $isListingHost = $user->isHost()
-            && $booking->listing
-            && $booking->listing->user_id === $user->id;
+        $isOwner = $booking->user_id === $user->id;
+        $isHost = $booking->listing && $booking->listing->user_id === $user->id;
+        $isAdmin = $user->isAdmin();
 
-        if (! $isGuestOwner && ! $isListingHost && ! $user->isAdmin()) {
-            abort(403, 'Unauthorized action.');
+        if (! $isOwner && ! $isHost && ! $isAdmin) {
+            abort(403);
         }
 
-        $allowedStatuses = $isListingHost && ! $user->isAdmin() && ! $isGuestOwner
-            ? 'confirmed,cancelled'
-            : 'pending,confirmed,cancelled,completed';
+        $allowed = $isHost && ! $isAdmin
+            ? ['confirmed', 'cancelled']
+            : ['pending', 'confirmed', 'cancelled', 'completed'];
 
         $validated = $request->validate([
-            'status' => 'required|in:' . $allowedStatuses,
+            'status' => 'required|in:' . implode(',', $allowed),
         ]);
 
-        $booking->update($validated);
+        $booking->update(['status' => $validated['status']]);
 
-        return back()->with('success', 'Booking status updated successfully!');
+        $message = match ($validated['status']) {
+            'confirmed' => 'Booking accepted. The space is now booked for those dates.',
+            'cancelled' => 'Booking declined.',
+            default => 'Booking status updated.',
+        };
+
+        return back()->with('success', $message);
     }
 }

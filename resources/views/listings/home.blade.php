@@ -14,8 +14,42 @@
     $defaultCityImage = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAO6jnccSDYZ5gHIUXzZTq3YmTm95mZxW2FOjI_noAAba-oP15hL3bAtyugJyW32d6kibpjtniQyzBL4O_KezektHSRz-9wlFrek6wHR0TT1QpCv_sMIR8mbhO2Sb4mCsxiO55HB-7n8EtNto5TUlVzMiJ4MCa2MSNRZMHG9oJ_3X0zpe3MFV46ehpp6N2KQX3Q6xTZ2y3AS8Jh6dpuXzn_JtRkDKaJtNjlnPB36H9QH5yaLGbORCuMiLv_KZaaxMqfaacwVDENnJE';
 @endphp
 
-<!-- Hero -->
-<section class="relative bg-surface py-16 lg:py-24">
+{{-- Mobile: search-first (Airbnb-style) --}}
+<section class="md:hidden sticky top-14 z-40 bg-white border-b border-outline-variant/40 px-4 py-3">
+    <form method="GET" action="{{ route('listings.index') }}" id="mobileSearchForm" class="relative">
+        <div class="flex items-center gap-2 bg-white rounded-full border border-outline-variant/60 shadow-md px-4 py-2.5">
+            <span class="material-symbols-outlined text-primary-container text-[22px] shrink-0">search</span>
+            <div class="flex-1 min-w-0">
+                <input type="text"
+                       name="search"
+                       id="mobileSearchInput"
+                       value="{{ request('search') }}"
+                       placeholder="Search workspaces"
+                       class="w-full border-none focus:ring-0 text-sm font-semibold text-navy placeholder:text-gray-400 p-0"
+                       autocomplete="off">
+                <select name="city" class="w-full border-none focus:ring-0 text-[11px] text-gray-500 bg-transparent p-0 mt-0.5">
+                    <option value="">Anywhere in Nigeria</option>
+                    @foreach($cities->sortBy('state')->groupBy('state') as $state => $stateCities)
+                        <optgroup label="{{ $state ?: 'Other' }}">
+                            @foreach($stateCities->sortBy('name') as $city)
+                                <option value="{{ $city->slug }}" @selected(request('city') === $city->slug)>{{ $city->name }}</option>
+                            @endforeach
+                        </optgroup>
+                    @endforeach
+                </select>
+            </div>
+            <button type="submit"
+                    class="w-9 h-9 rounded-full bg-primary-container text-white flex items-center justify-center shrink-0"
+                    aria-label="Search">
+                <span class="material-symbols-outlined text-[18px]">tune</span>
+            </button>
+        </div>
+        <div id="mobileSearchResults" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 hidden z-50 max-h-80 overflow-y-auto"></div>
+    </form>
+</section>
+
+{{-- Desktop hero --}}
+<section class="hidden md:block relative bg-surface py-16 lg:py-24">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 items-center">
         <div>
             <h1 class="text-5xl lg:text-6xl font-extrabold text-navy leading-tight mb-6">
@@ -88,7 +122,7 @@
 </section>
 
 @if($hasActiveFilters)
-<section class="py-12 bg-white border-b border-gray-100">
+<section class="py-8 md:py-12 bg-white border-b border-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
             <div>
@@ -116,13 +150,16 @@
 @endif
 
 <!-- Featured Workspaces -->
-<section id="featured-workspaces" class="py-20">
+<section id="featured-workspaces" class="py-6 md:py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl font-extrabold text-navy mb-4">Featured Workspaces</h2>
-            <p class="text-gray-500">Discover the most popular coworking spaces trusted by thousands of professionals</p>
+        <div class="flex items-end justify-between gap-4 mb-5 md:mb-16 md:text-center md:flex-col md:items-center">
+            <div class="md:text-center">
+                <h2 class="text-xl md:text-3xl font-extrabold text-navy md:mb-4">Featured Workspaces</h2>
+                <p class="hidden md:block text-gray-500">Discover the most popular coworking spaces trusted by thousands of professionals</p>
+            </div>
+            <a href="{{ route('featured') }}" class="md:hidden font-inter text-sm font-semibold text-primary-container shrink-0">See all</a>
         </div>
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-8 mb-6 md:mb-12">
             @forelse($featuredListings as $listing)
                 @include('listings.partials.card', ['listing' => $listing, 'fallbackImage' => $fallbackListingImage])
             @empty
@@ -131,14 +168,14 @@
                 </div>
             @endforelse
         </div>
-        <div class="text-center">
+        <div class="hidden md:block text-center">
             <a href="{{ route('featured') }}" class="inline-block bg-primary text-white font-bold px-10 py-3 rounded-grid hover:bg-orange-600 transition">View All Spaces</a>
         </div>
     </div>
 </section>
 
 <!-- How It Works -->
-<section id="how-it-works" class="py-20 bg-surface">
+<section id="how-it-works" class="hidden md:block py-20 bg-surface">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
             <h2 class="text-3xl font-extrabold text-navy mb-4">How GridSpace Works</h2>
@@ -171,7 +208,7 @@
 </section>
 
 <!-- Why Choose GridSpace -->
-<section class="py-24 bg-white">
+<section class="hidden md:block py-24 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
             <h2 class="text-3xl font-extrabold text-navy mb-4">Why Choose GridSpace</h2>
@@ -219,7 +256,7 @@
 </section>
 
 <!-- Popular Locations -->
-<section class="py-20">
+<section class="hidden md:block py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 class="text-3xl font-extrabold text-navy mb-4">Popular Locations</h2>
         <p class="text-gray-500 mb-12">Explore workspaces in Nigeria's thriving business districts</p>
@@ -239,7 +276,7 @@
 </section>
 
 <!-- Hosting CTA -->
-<section class="py-24 bg-white">
+<section class="hidden md:block py-24 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="bg-gray-50 rounded-3xl overflow-hidden shadow-sm grid lg:grid-cols-2">
             <div class="p-12 lg:p-20">
@@ -288,7 +325,7 @@
 </section>
 
 <!-- Testimonials -->
-<section id="testimonials" class="py-24 bg-orange-100">
+<section id="testimonials" class="hidden md:block py-24 bg-orange-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
             <h2 class="text-3xl font-extrabold text-navy mb-4">What Our Users Say</h2>
@@ -324,7 +361,7 @@
 </section>
 
 <!-- Final CTA -->
-<section class="py-24 bg-white overflow-hidden">
+<section class="hidden md:block py-24 bg-white overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="relative bg-navy rounded-[2rem] p-12 lg:p-20 text-white overflow-hidden">
             <div class="absolute top-0 right-0 w-1/3 h-full opacity-10">
@@ -347,7 +384,7 @@
 </section>
 
 <!-- Newsletter -->
-<section class="py-20 bg-surface">
+<section class="hidden md:block py-20 bg-surface">
     <div class="max-w-2xl mx-auto px-4 text-center">
         <h2 class="text-3xl font-extrabold text-navy mb-4">Join the Grid</h2>
         <p class="text-gray-500 mb-8">Get workspace tips, updates, and exclusive offers straight to your inbox.</p>
@@ -362,36 +399,38 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    const searchResults = document.getElementById('searchResults');
-    let searchTimeout;
+    function bindLiveSearch(inputId, resultsId) {
+        const searchInput = document.getElementById(inputId);
+        const searchResults = document.getElementById(resultsId);
+        let searchTimeout;
 
-    if (!searchInput || !searchResults) return;
+        if (!searchInput || !searchResults) return;
 
-    searchInput.addEventListener('input', function() {
-        const query = this.value.trim();
-        clearTimeout(searchTimeout);
-        if (query.length < 2) {
-            searchResults.classList.add('hidden');
-            return;
-        }
-        searchTimeout = setTimeout(() => performLiveSearch(query), 300);
-    });
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            clearTimeout(searchTimeout);
+            if (query.length < 2) {
+                searchResults.classList.add('hidden');
+                return;
+            }
+            searchTimeout = setTimeout(() => performLiveSearch(query, searchResults), 300);
+        });
 
-    document.addEventListener('click', function(e) {
-        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-            searchResults.classList.add('hidden');
-        }
-    });
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.classList.add('hidden');
+            }
+        });
+    }
 
-    function performLiveSearch(query) {
+    function performLiveSearch(query, searchResults) {
         fetch(`{{ route('listings.index') }}?search=${encodeURIComponent(query)}&live=1`)
             .then(r => r.json())
-            .then(data => displaySearchResults(data.listings, query))
+            .then(data => displaySearchResults(data.listings, query, searchResults))
             .catch(() => searchResults.classList.add('hidden'));
     }
 
-    function displaySearchResults(listings, query) {
+    function displaySearchResults(listings, query, searchResults) {
         if (!listings.length) {
             searchResults.innerHTML = `<div class="p-4 text-center text-gray-500 text-sm">No results for "${query}"</div>`;
         } else {
@@ -405,6 +444,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         searchResults.classList.remove('hidden');
     }
+
+    bindLiveSearch('searchInput', 'searchResults');
+    bindLiveSearch('mobileSearchInput', 'mobileSearchResults');
 });
 </script>
 @endpush

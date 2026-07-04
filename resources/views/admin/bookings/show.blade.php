@@ -83,7 +83,7 @@
                         </div>
                         <div>
                             <span class="text-sm font-medium text-gray-500">Duration:</span>
-                            <p class="text-gray-900">{{ $booking->check_in_date->diffInDays($booking->check_out_date) }} nights</p>
+                            <p class="text-gray-900">{{ max(1, $booking->check_in_date->diffInDays($booking->check_out_date)) }} day(s)</p>
                         </div>
                         <div>
                             <span class="text-sm font-medium text-gray-500">Total Price:</span>

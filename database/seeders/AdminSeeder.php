@@ -14,24 +14,30 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
-            'firstname' => 'Admin',
-            'lastname' => 'User',
-            'email' => 'admin@gridspace.com',
-            'phone' => '+2348000000001',
-            'password' => bcrypt('password'),
-            'role' => 'admin',
-            'approved' => true,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@gridspace.com'],
+            [
+                'firstname' => 'Admin',
+                'lastname' => 'User',
+                'phone' => '+2348000000001',
+                'password' => bcrypt('password'),
+                'role' => 'admin',
+                'approved' => true,
+                'onboarding_step' => 4,
+            ]
+        );
 
-        User::create([
-            'firstname' => 'Host',
-            'lastname' => 'User',
-            'email' => 'host@gridspace.com',
-            'phone' => '+2348000000002',
-            'password' => bcrypt('password'),
-            'role' => 'host',
-            'approved' => true,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'host@gridspace.com'],
+            [
+                'firstname' => 'Host',
+                'lastname' => 'User',
+                'phone' => '+2348000000002',
+                'password' => bcrypt('password'),
+                'role' => 'host',
+                'approved' => true,
+                'onboarding_step' => 4,
+            ]
+        );
     }
 }

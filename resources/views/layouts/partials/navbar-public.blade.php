@@ -1,9 +1,23 @@
-<header class="bg-surface dark:bg-gray-900 shadow-sm sticky top-0 z-50 w-full border-b border-transparent dark:border-gray-800">
-    <div class="flex justify-between items-center px-4 md:px-margin-desktop w-full max-w-container-max mx-auto h-20">
+<header class="bg-white md:bg-surface dark:bg-gray-900 shadow-sm sticky top-0 z-50 w-full border-b border-outline-variant/40 dark:border-gray-800">
+    {{-- Mobile top bar --}}
+    <div class="md:hidden flex items-center justify-between px-4 h-14">
+        <a href="{{ route('home') }}" class="flex items-center gap-2">
+            <img src="{{ asset('logo.jpeg') }}" alt="GridSpace" class="w-8 h-8 rounded-md object-contain">
+            <span class="font-manrope text-lg font-bold text-on-surface">GridSpace</span>
+        </a>
+        @auth
+            <a href="{{ route('dashboard') }}" class="font-inter text-xs font-semibold text-primary-container">Dashboard</a>
+        @else
+            <a href="{{ route('register') }}" class="font-inter text-xs font-semibold bg-primary-container text-white px-3 py-1.5 rounded-full">Sign Up</a>
+        @endauth
+    </div>
+
+    {{-- Desktop top bar --}}
+    <div class="hidden md:flex justify-between items-center px-4 md:px-margin-desktop w-full max-w-container-max mx-auto h-20">
         <div class="flex items-center gap-4 md:gap-8 flex-1 min-w-0">
             <a href="{{ route('home') }}" class="flex items-center gap-2 shrink-0">
                 <img src="{{ asset('logo.jpeg') }}" alt="GridSpace" class="w-8 h-8 rounded-md object-contain">
-                <span class="font-manrope text-xl font-bold text-on-surface dark:text-gray-100 hidden sm:inline">GridSpace</span>
+                <span class="font-manrope text-xl font-bold text-on-surface dark:text-gray-100">GridSpace</span>
             </a>
 
             <nav class="hidden xl:flex items-center gap-5 shrink-0">
@@ -21,13 +35,13 @@
 
         <div class="flex items-center gap-2 md:gap-4 shrink-0">
             @auth
-                <a href="{{ route('dashboard') }}" class="hidden md:inline font-inter text-sm font-semibold text-secondary hover:text-primary transition-colors">Dashboard</a>
-                <a href="{{ route('profile.edit') }}" class="hidden sm:flex items-center gap-3 pl-3 border-l border-outline-variant">
+                <a href="{{ route('dashboard') }}" class="font-inter text-sm font-semibold text-secondary hover:text-primary transition-colors">Dashboard</a>
+                <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 pl-3 border-l border-outline-variant">
                     @php
                         $user = auth()->user();
                         $roleLabel = $user->isAdmin() ? 'Admin' : ($user->isHost() ? 'Host' : 'Guest');
                     @endphp
-                    <div class="text-right hidden md:block">
+                    <div class="text-right hidden lg:block">
                         <p class="font-manrope text-sm font-bold leading-tight">{{ $user->display_name }}</p>
                         <p class="font-mono text-xs text-on-surface-variant uppercase tracking-wide">{{ $roleLabel }}</p>
                     </div>
@@ -39,12 +53,12 @@
                         @endif
                     </div>
                 </a>
-                <form method="POST" action="{{ route('logout') }}" class="hidden sm:inline">
+                <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="font-inter text-sm font-semibold text-secondary hover:text-primary transition-colors">Sign Out</button>
                 </form>
             @else
-                <a href="{{ route('login') }}" class="hidden sm:inline font-inter text-sm font-semibold text-secondary hover:text-primary transition-colors">Sign In</a>
+                <a href="{{ route('login') }}" class="font-inter text-sm font-semibold text-secondary hover:text-primary transition-colors">Sign In</a>
                 <a href="{{ route('register') }}" class="font-inter text-sm font-semibold bg-primary-container text-white px-4 py-2 rounded-lg hover:bg-primary transition-colors">Sign Up</a>
             @endauth
 
@@ -61,18 +75,6 @@
             <a href="{{ route('blog.index') }}" class="font-inter text-sm font-semibold text-on-surface py-2.5 px-2 rounded-lg hover:bg-surface-container">Blog</a>
             <a href="{{ route('invest.index') }}" class="font-inter text-sm font-semibold text-on-surface py-2.5 px-2 rounded-lg hover:bg-surface-container">Investors</a>
             <a href="{{ route('featured') }}" class="font-inter text-sm font-semibold text-on-surface py-2.5 px-2 rounded-lg hover:bg-surface-container">Featured</a>
-            @auth
-                <a href="{{ route('dashboard') }}" class="font-inter text-sm font-semibold text-on-surface py-2.5 px-2 rounded-lg hover:bg-surface-container">Dashboard</a>
-                <a href="{{ route('bookings.index') }}" class="font-inter text-sm font-semibold text-on-surface py-2.5 px-2 rounded-lg hover:bg-surface-container">My Bookings</a>
-                <a href="{{ route('profile.edit') }}" class="font-inter text-sm font-semibold text-on-surface py-2.5 px-2 rounded-lg hover:bg-surface-container">My Profile</a>
-                <form method="POST" action="{{ route('logout') }}" class="pt-2 border-t border-outline-variant mt-2">
-                    @csrf
-                    <button type="submit" class="w-full text-left font-inter text-sm font-semibold text-on-surface py-2.5 px-2 rounded-lg hover:bg-surface-container">Sign Out</button>
-                </form>
-            @else
-                <a href="{{ route('login') }}" class="font-inter text-sm font-semibold text-on-surface py-2.5 px-2 rounded-lg hover:bg-surface-container">Sign In</a>
-                <a href="{{ route('register') }}" class="font-inter text-sm font-semibold text-primary-container py-2.5 px-2">Sign Up</a>
-            @endauth
         </nav>
     </div>
 </header>

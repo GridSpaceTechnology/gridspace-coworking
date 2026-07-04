@@ -162,7 +162,10 @@
                                         <span class="font-inter text-sm font-medium text-[#1c2c40]">{{ $guestName }}</span>
                                     </div>
                                 </td>
-                                <td class="px-5 py-4 font-inter text-sm text-on-surface-variant">{{ $booking->listing?->name }}</td>
+                                <td class="px-5 py-4 font-inter text-sm text-on-surface-variant">
+                                    <p>{{ $booking->space?->name ?? 'Space' }}</p>
+                                    <p class="text-xs text-on-surface-variant/80">{{ $booking->listing?->name }}</p>
+                                </td>
                                 <td class="px-5 py-4 font-inter text-sm text-on-surface-variant whitespace-nowrap">
                                     {{ $booking->check_in_date?->format('M d, Y') }}
                                 </td>
@@ -183,8 +186,8 @@
                                             @method('PATCH')
                                             <input type="hidden" name="status" value="confirmed">
                                             <button type="submit"
-                                                    class="px-3 py-1.5 rounded-lg bg-[#1c2c40] text-white font-inter text-xs font-semibold hover:bg-[#2a3d56] transition-colors">
-                                                Approve
+                                                    class="px-3 py-1.5 rounded-lg bg-green-600 text-white font-inter text-xs font-semibold hover:bg-green-700 transition-colors">
+                                                Accept
                                             </button>
                                         </form>
                                     </div>

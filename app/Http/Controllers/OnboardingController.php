@@ -20,10 +20,6 @@ class OnboardingController extends Controller
             return redirect($this->destinationFor($user));
         }
 
-        if ($user->onboarding_step >= 1) {
-            return redirect($this->stepRouteFor($user));
-        }
-
         return view('onboarding.step1', [
             'selectedIntent' => old(
                 'user_intent',
@@ -41,7 +37,7 @@ class OnboardingController extends Controller
         $user = $request->user();
         $user->update([
             'role' => $validated['user_intent'] === 'host' ? 'host' : 'user',
-            'onboarding_step' => 1,
+            'onboarding_step' => max((int) $user->onboarding_step, 1),
         ]);
 
         return redirect()->route('onboarding.step2');
@@ -59,13 +55,29 @@ class OnboardingController extends Controller
             return redirect()->route('onboarding.step1');
         }
 
-        if ($user->onboarding_step >= 2) {
-            return redirect()->route('onboarding.step3');
+        $cities = City::query()
+            ->whereNotNull('state')
+            ->where('state', '!=', '')
+            ->orderBy('state')
+            ->orderBy('name')
+            ->get(['id', 'name', 'state']);
+
+        $states = $cities->pluck('state')->unique()->values();
+        $citiesByState = $cities->groupBy('state')->map(fn ($group) => $group->pluck('name')->values());
+
+        $selectedState = old('state');
+        $selectedCity = old('city', $user->residence);
+
+        if (! $selectedState && $selectedCity) {
+            $selectedState = $cities->firstWhere('name', $selectedCity)?->state;
         }
 
         return view('onboarding.step2', [
             'user' => $user,
-            'popularCities' => $this->popularCities(),
+            'states' => $states,
+            'citiesByState' => $citiesByState,
+            'selectedState' => $selectedState,
+            'selectedCity' => $selectedCity,
         ]);
     }
 
@@ -78,12 +90,24 @@ class OnboardingController extends Controller
         }
 
         $validated = $request->validate([
-            'location' => ['required', 'string', 'max:255'],
+            'state' => ['required', 'string', 'max:100'],
+            'city' => ['required', 'string', 'max:100'],
         ]);
 
+        $cityExists = City::query()
+            ->where('state', $validated['state'])
+            ->where('name', $validated['city'])
+            ->exists();
+
+        if (! $cityExists) {
+            return back()
+                ->withInput()
+                ->withErrors(['city' => 'Please select a valid city for the chosen state.']);
+        }
+
         $user->update([
-            'residence' => $validated['location'],
-            'onboarding_step' => 2,
+            'residence' => $validated['city'],
+            'onboarding_step' => max((int) $user->onboarding_step, 2),
         ]);
 
         return redirect()->route('onboarding.step3');
@@ -99,10 +123,6 @@ class OnboardingController extends Controller
 
         if ($user->onboarding_step < 2) {
             return redirect($this->stepRouteFor($user));
-        }
-
-        if ($user->onboarding_step >= 3) {
-            return redirect()->route('onboarding.step4');
         }
 
         return view('onboarding.step3', ['user' => $user]);
@@ -128,7 +148,7 @@ class OnboardingController extends Controller
             $user->profile_photo = $request->file('profile_photo')->store('profile-photos', 'public');
         }
 
-        $user->onboarding_step = 3;
+        $user->onboarding_step = max((int) $user->onboarding_step, 3);
         $user->save();
 
         return redirect()->route('onboarding.step4');
@@ -191,17 +211,6 @@ class OnboardingController extends Controller
             $user->onboarding_step < 3 => route('onboarding.step3'),
             default => route('onboarding.step4'),
         };
-    }
-
-    private function popularCities(): array
-    {
-        $cities = City::orderBy('name')->pluck('name')->all();
-
-        if (! empty($cities)) {
-            return $cities;
-        }
-
-        return ['Abuja', 'Lagos', 'Port Harcourt', 'Ibadan', 'Benin', 'Uyo', 'Kaduna'];
     }
 
     private function destinationFor($user): string

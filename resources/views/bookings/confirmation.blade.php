@@ -49,8 +49,15 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
                 <div>
-                    <p class="font-mono text-xs uppercase tracking-wider text-secondary mb-1">Workspace</p>
-                    @if($listing)
+                    <p class="font-mono text-xs uppercase tracking-wider text-secondary mb-1">Space</p>
+                    @if($booking->space)
+                        <p class="font-manrope text-lg font-semibold text-on-surface">{{ $booking->space->name }}</p>
+                        <p class="font-inter text-sm text-on-surface-variant">
+                            {{ $booking->space->category?->name }}
+                            @if($listing) &middot; {{ $listing->name }} @endif
+                            @if($listing?->city) &middot; {{ $listing->city->name }} @endif
+                        </p>
+                    @elseif($listing)
                         <p class="font-manrope text-lg font-semibold text-on-surface">{{ $listing->name }}</p>
                         <p class="font-inter text-sm text-on-surface-variant">{{ $listing->category?->name }} &middot; {{ $listing->city?->name }}</p>
                     @else

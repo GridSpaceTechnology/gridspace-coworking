@@ -2,33 +2,32 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Category;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $categories = [
-            'Coworking Space',
+            'Shared Coworking Desk',
+            'Private Office',
+            'Single Desk',
+            'Conference Room',
             'Meeting Room',
-            'Virtual Office',
             'Event Space',
-            'Corporate Workspace',
             'Studio',
+            'Virtual Office',
             'Startup Hub',
+            'Corporate Workspace',
         ];
 
         foreach ($categories as $category) {
-            Category::create([
-                'name' => $category,
-                'slug' => Str::slug($category),
-            ]);
+            Category::updateOrCreate(
+                ['slug' => Str::slug($category)],
+                ['name' => $category]
+            );
         }
     }
 }

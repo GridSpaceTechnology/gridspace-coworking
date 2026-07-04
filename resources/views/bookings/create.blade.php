@@ -1,6 +1,6 @@
 @extends('layouts.gridspace')
 
-@section('title', 'Book ' . $listing->name . ' | GridSpace')
+@section('title', 'Book ' . $space->name . ' | GridSpace')
 
 @php
     $listingImage = $listing->images->first()
@@ -9,7 +9,7 @@
     $location = $listing->city
         ? $listing->city->name . ($listing->address ? ', ' . $listing->address : '')
         : ($listing->address ?? 'Nigeria');
-    $pricePeriod = $listing->price_period ?? 'day';
+    $pricePeriod = $space->price_period ?? 'day';
 @endphp
 
 @section('content')
@@ -41,8 +41,9 @@
             </div>
             <div class="p-6 space-y-4">
                 <div>
-                    <p class="font-mono text-xs uppercase tracking-wider text-secondary mb-1">{{ $listing->category?->name ?? 'Workspace' }}</p>
-                    <h1 class="font-manrope text-2xl font-bold text-on-surface">{{ $listing->name }}</h1>
+                    <p class="font-mono text-xs uppercase tracking-wider text-secondary mb-1">{{ $space->category?->name ?? 'Workspace' }}</p>
+                    <h1 class="font-manrope text-2xl font-bold text-on-surface">{{ $space->name }}</h1>
+                    <p class="font-inter text-sm text-on-surface-variant mt-1">at {{ $listing->name }}</p>
                 </div>
                 <div class="flex items-center gap-2 text-on-surface-variant">
                     <span class="material-symbols-outlined text-lg">location_on</span>
@@ -52,13 +53,13 @@
                     <div>
                         <p class="font-mono text-xs uppercase tracking-wider text-secondary">Price</p>
                         <p class="font-manrope text-2xl font-bold text-on-surface">
-                            ₦{{ number_format($listing->price, 0) }}
-                            <span class="text-base font-normal text-on-surface-variant">/{{ $pricePeriod }}</span>
+                            ₦{{ number_format($space->price, 0) }}
+                            <span class="text-base font-normal text-on-surface-variant">{{ $space->price_period_label }}</span>
                         </p>
                     </div>
                     <div class="text-right">
-                        <p class="font-mono text-xs uppercase tracking-wider text-secondary">Capacity</p>
-                        <p class="font-manrope text-lg font-semibold">{{ $listing->capacity }} people</p>
+                        <p class="font-mono text-xs uppercase tracking-wider text-secondary">People capacity</p>
+                        <p class="font-manrope text-lg font-semibold">{{ $space->capacity }} {{ $space->capacity === 1 ? 'person' : 'people' }}</p>
                     </div>
                 </div>
             </div>
@@ -72,7 +73,7 @@
                 <p class="font-inter text-on-surface-variant">Select your dates and provide guest details to request this workspace.</p>
             </div>
 
-            <form method="POST" action="{{ route('bookings.store', $listing->slug) }}" id="booking-form" class="space-y-8">
+            <form method="POST" action="{{ route('bookings.store', [$listing, $space]) }}" id="booking-form" class="space-y-8">
                 @csrf
 
                 <section>
@@ -108,9 +109,9 @@
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-secondary pointer-events-none">group</span>
                             <input type="number" id="number_of_people" name="number_of_people"
                                 class="w-full bg-white border border-outline-variant/50 rounded-lg pl-12 pr-4 py-3.5 focus:ring-2 focus:ring-primary-container focus:border-primary outline-none transition-all @error('number_of_people') border-red-500 @enderror"
-                                value="{{ old('number_of_people', 1) }}" min="1" max="{{ $listing->capacity }}" required>
+                                value="{{ old('number_of_people', 1) }}" min="1" max="{{ $space->capacity }}" required>
                         </div>
-                        <p class="mt-1 font-mono text-xs text-on-surface-variant">Maximum capacity: {{ $listing->capacity }} people</p>
+                        <p class="mt-1 font-mono text-xs text-on-surface-variant">This space holds up to {{ $space->capacity }} {{ $space->capacity === 1 ? 'person' : 'people' }}</p>
                         @error('number_of_people')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                     </div>
                 </section>

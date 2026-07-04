@@ -66,35 +66,44 @@
             <div class="mb-8">
                 <h2 class="text-xl font-semibold text-gray-900 mb-4">Location & Contact</h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @php
+                    $editCities = $cities->filter(fn ($city) => filled($city->state))->sortBy(['state', 'name']);
+                    $editStates = $editCities->pluck('state')->unique()->values();
+                    $editCitiesByState = $editCities->groupBy('state')->map(
+                        fn ($group) => $group->map(fn ($city) => ['id' => $city->id, 'name' => $city->name])->values()
+                    );
+                    $editSelectedCityId = old('city_id', $listing->city_id);
+                    $editSelectedCity = $editSelectedCityId
+                        ? $editCities->firstWhere('id', (int) $editSelectedCityId)
+                        : null;
+                    $editSelectedState = $editSelectedCity?->state;
+                @endphp
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
-                        <select name="city_id"
+                        <label class="block text-sm font-medium text-gray-700 mb-2">State *</label>
+                        <select id="edit-state-select"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select a city</option>
-                            @foreach($cities->groupBy('state') as $state => $stateCities)
-                                @if($state)
-                                    <optgroup label="{{ $state }}">
-                                        @foreach($stateCities as $city)
-                                            <option value="{{ $city->id }}" {{ old('city_id', $listing->city_id) == $city->id ? 'selected' : '' }}>
-                                                {{ $city->name }}
-                                            </option>
-                                        @endforeach
-                                    </optgroup>
-                                @else
-                                    @foreach($stateCities as $city)
-                                        <option value="{{ $city->id }}" {{ old('city_id', $listing->city_id) == $city->id ? 'selected' : '' }}>
-                                            {{ $city->name }}
-                                        </option>
-                                    @endforeach
-                                @endif
+                            <option value="">Select a state</option>
+                            @foreach($editStates as $state)
+                                <option value="{{ $state }}" @selected($editSelectedState === $state)>{{ $state }}</option>
                             @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">City *</label>
+                        <select name="city_id"
+                                id="edit-city-select"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                                @disabled(! $editSelectedState)>
+                            <option value="">{{ $editSelectedState ? 'Select a city' : 'Select a state first' }}</option>
                         </select>
                         @error('city_id')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+                </div>
 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Address *</label>
                         <input type="text"
@@ -165,7 +174,7 @@
                         @error('price')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
-                        <input type="hidden" name="price_period" value="per_day">
+                        <input type="hidden" name="price_period" value="day">
                     </div>
                 </div>
             </div>
@@ -257,7 +266,7 @@
 </div>
 
 <script>
-document.getElementById('image-upload').addEventListener('change', function(e) {
+document.getElementById('image-upload')?.addEventListener('change', function(e) {
     const files = e.target.files;
     const label = e.target.nextElementSibling;
 
@@ -267,5 +276,44 @@ document.getElementById('image-upload').addEventListener('change', function(e) {
         label.textContent = 'Choose Files';
     }
 });
+
+(function () {
+    const citiesByState = @json($editCitiesByState);
+    const stateSelect = document.getElementById('edit-state-select');
+    const citySelect = document.getElementById('edit-city-select');
+    const initialCityId = @json($editSelectedCityId);
+
+    if (!stateSelect || !citySelect) return;
+
+    function populateCities(state, selectedCityId = '') {
+        const cities = citiesByState[state] || [];
+        citySelect.innerHTML = '';
+
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = cities.length ? 'Select a city' : (state ? 'No cities available' : 'Select a state first');
+        citySelect.appendChild(placeholder);
+
+        cities.forEach(function (city) {
+            const option = document.createElement('option');
+            option.value = city.id;
+            option.textContent = city.name;
+            if (String(city.id) === String(selectedCityId)) {
+                option.selected = true;
+            }
+            citySelect.appendChild(option);
+        });
+
+        citySelect.disabled = cities.length === 0;
+    }
+
+    stateSelect.addEventListener('change', function () {
+        populateCities(stateSelect.value);
+    });
+
+    if (stateSelect.value) {
+        populateCities(stateSelect.value, initialCityId);
+    }
+})();
 </script>
 @endsection

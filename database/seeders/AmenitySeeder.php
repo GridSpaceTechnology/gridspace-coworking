@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Amenity;
+use Illuminate\Database\Seeder;
 
 class AmenitySeeder extends Seeder
 {
@@ -15,21 +14,28 @@ class AmenitySeeder extends Seeder
     {
         $amenities = [
             ['name' => 'High-Speed WiFi', 'icon' => 'wifi'],
-            ['name' => 'Parking', 'icon' => 'car'],
-            ['name' => 'Meeting Rooms', 'icon' => 'users'],
+            ['name' => 'Parking', 'icon' => 'local_parking'],
+            ['name' => 'Meeting Rooms', 'icon' => 'groups'],
             ['name' => 'Kitchen', 'icon' => 'coffee'],
-            ['name' => 'Printing', 'icon' => 'printer'],
-            ['name' => 'Air Conditioning', 'icon' => 'wind'],
+            ['name' => 'Printing', 'icon' => 'print'],
+            ['name' => 'Air Conditioning', 'icon' => 'ac_unit'],
             ['name' => 'Security', 'icon' => 'shield'],
-            ['name' => '24/7 Access', 'icon' => 'clock'],
-            ['name' => 'Phone Booth', 'icon' => 'phone'],
-            ['name' => 'Lounge Area', 'icon' => 'couch'],
-            ['name' => 'Whiteboard', 'icon' => 'clipboard'],
-            ['name' => 'Projector', 'icon' => 'presentation'],
+            ['name' => '24/7 Access', 'icon' => 'schedule'],
+            ['name' => 'Phone Booth', 'icon' => 'phone_in_talk'],
+            ['name' => 'Lounge Area', 'icon' => 'weekend'],
+            ['name' => 'Whiteboard', 'icon' => 'ink_pen'],
+            ['name' => 'Projector', 'icon' => 'videocam'],
+            ['name' => 'Power Outlets', 'icon' => 'power'],
+            ['name' => 'Restrooms', 'icon' => 'wc'],
+            ['name' => 'Reception', 'icon' => 'desk'],
+            ['name' => 'CCTV', 'icon' => 'videocam'],
         ];
 
         foreach ($amenities as $amenity) {
-            Amenity::create($amenity);
+            Amenity::updateOrCreate(
+                ['name' => $amenity['name']],
+                ['icon' => $amenity['icon']]
+            );
         }
     }
 }

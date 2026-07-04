@@ -47,18 +47,30 @@ class Listing extends Model
 
     public function getFormattedPriceAttribute()
     {
-        $period = $this->price_period ?? 'night';
+        $period = match ($this->price_period) {
+            'hour' => 'hour',
+            'week' => 'week',
+            'month' => 'month',
+            'night' => 'day',
+            default => 'day',
+        };
         $price = (float) ($this->price ?? 0);
 
-        return "₦" . number_format($price, 0) . "/{$period}";
+        return '₦' . number_format($price, 0) . '/' . $period;
     }
 
     public function getPricePerPeriodAttribute()
     {
-        $period = $this->price_period ?? 'night';
+        $period = match ($this->price_period) {
+            'hour' => 'hour',
+            'week' => 'week',
+            'month' => 'month',
+            'night' => 'day',
+            default => 'day',
+        };
         $price = (float) ($this->price_per_period ?? $this->price ?? 0);
 
-        return "₦" . number_format($price, 0) . "/{$period}";
+        return '₦' . number_format($price, 0) . '/' . $period;
     }
 
     public function user()
@@ -86,6 +98,16 @@ class Listing extends Model
         return $this->hasMany(Booking::class);
     }
 
+    public function spaces()
+    {
+        return $this->hasMany(ListingSpace::class)->orderBy('sort_order');
+    }
+
+    public function activeSpaces()
+    {
+        return $this->spaces()->where('is_active', true);
+    }
+
     public function inquiries()
     {
         return $this->hasMany(Inquiry::class);
@@ -93,19 +115,62 @@ class Listing extends Model
 
     public function getAvailableAttribute()
     {
-        $activeBookings = $this->bookings()->where('status', 'confirmed')->get();
+        $spaces = $this->relationLoaded('spaces')
+            ? $this->spaces->where('is_active', true)
+            : $this->activeSpaces()->get();
 
-        if ($activeBookings->isEmpty()) {
+        if ($spaces->isEmpty()) {
+            $activeBookings = $this->bookings()->where('status', 'confirmed')->get();
+
+            if ($activeBookings->isEmpty()) {
+                return true;
+            }
+
+            foreach ($activeBookings as $booking) {
+                if (now()->between($booking->check_in_date, $booking->check_out_date)) {
+                    return false;
+                }
+            }
+
             return true;
         }
 
-        foreach ($activeBookings as $booking) {
-            if (now()->between($booking->check_in_date, $booking->check_out_date)) {
-                return false;
-            }
+        return $spaces->contains(fn (ListingSpace $space) => ! $space->is_booked);
+    }
+
+    public function getMinPriceAttribute(): float
+    {
+        $spaces = $this->relationLoaded('spaces')
+            ? $this->spaces->where('is_active', true)
+            : $this->activeSpaces()->get();
+
+        if ($spaces->isNotEmpty()) {
+            return (float) $spaces->min('price');
         }
 
-        return true;
+        return (float) ($this->attributes['price'] ?? 0);
+    }
+
+    public function getPriceFromAttribute(): string
+    {
+        $min = $this->min_price;
+        if ($min <= 0) {
+            return $this->price_range ?: 'Contact for price';
+        }
+
+        $period = $this->relationLoaded('spaces')
+            ? ($this->spaces->where('is_active', true)->sortBy('price')->first()?->price_period ?? 'day')
+            : ($this->price_period ?? 'day');
+
+        $period = match ($period) {
+            'hour' => 'hour',
+            'week' => 'week',
+            'month' => 'month',
+            'night' => 'day',
+            default => 'day',
+        };
+
+        return 'From ₦' . number_format($min, 0) . '/' . $period;
     }
 
     public function analytics()

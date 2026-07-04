@@ -22,7 +22,7 @@ class HostController extends Controller
         $bookings = $listingIds->isEmpty()
             ? collect()
             : Booking::whereIn('listing_id', $listingIds)
-                ->with(['listing.images', 'user'])
+                ->with(['listing.images', 'user', 'space'])
                 ->orderBy('check_in_date')
                 ->get();
 

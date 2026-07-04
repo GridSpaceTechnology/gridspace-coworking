@@ -19,7 +19,7 @@
         height: 100%;
         background-color: #0A325E;
     }
-    .location-input-container:focus-within {
+    .location-field:focus-within {
         border-color: var(--brand-dark-blue);
         box-shadow: 0 0 0 1px var(--brand-dark-blue);
     }
@@ -59,41 +59,54 @@
 
                 <div class="text-center mb-10">
                     <h2 class="text-3xl font-bold text-[#0A325E] mb-3">Where are you based?</h2>
-                    <p class="text-gray-500">Tell us your primary city to show you relevant workspaces</p>
+                    <p class="text-gray-500">Select your state, then choose your city to see relevant workspaces</p>
                 </div>
 
-                <div class="w-full max-w-2xl mb-12">
-                    <div class="location-input-container flex items-center border border-gray-300 rounded-lg px-6 py-5 transition-all duration-200">
-                        <span class="mr-4 text-gray-400 shrink-0">
-                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                        </span>
-                        <input
-                            class="w-full border-none focus:ring-0 text-lg placeholder-gray-400 p-0 @error('location') text-red-600 @enderror"
-                            id="location-search"
-                            name="location"
-                            type="text"
-                            value="{{ old('location', $user->residence) }}"
-                            placeholder="Enter location or city"
-                            required
-                        >
-                    </div>
-                </div>
-
-                <div class="w-full flex flex-col items-center mb-16" id="popular-cities-section">
-                    <p class="text-gray-600 font-medium mb-6">Popular Cities:</p>
-                    <div class="flex flex-wrap justify-center gap-3 max-w-2xl">
-                        @foreach($popularCities as $city)
-                            <button
-                                type="button"
-                                class="city-chip px-6 py-3 bg-[#EEF2F6] hover:bg-gray-200 rounded-lg text-[#0A325E] font-medium transition-colors"
-                                data-city="{{ $city }}"
+                <div class="w-full max-w-2xl space-y-5 mb-16">
+                    <div>
+                        <label for="state-select" class="block text-sm font-semibold text-[#0A325E] mb-2">State</label>
+                        <div class="location-field flex items-center border border-gray-300 rounded-lg px-5 py-4 transition-all duration-200">
+                            <span class="mr-3 text-gray-400 shrink-0">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/>
+                                </svg>
+                            </span>
+                            <select
+                                id="state-select"
+                                name="state"
+                                required
+                                class="w-full border-none focus:ring-0 text-lg bg-transparent p-0 @error('state') text-red-600 @enderror"
                             >
-                                {{ $city }}
-                            </button>
-                        @endforeach
+                                <option value="">Select your state</option>
+                                @foreach($states as $state)
+                                    <option value="{{ $state }}" @selected($selectedState === $state)>{{ $state }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="city-select" class="block text-sm font-semibold text-[#0A325E] mb-2">City</label>
+                        <div class="location-field flex items-center border border-gray-300 rounded-lg px-5 py-4 transition-all duration-200">
+                            <span class="mr-3 text-gray-400 shrink-0">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                            </span>
+                            <select
+                                id="city-select"
+                                name="city"
+                                required
+                                @disabled(! $selectedState)
+                                class="w-full border-none focus:ring-0 text-lg bg-transparent p-0 disabled:text-gray-400 @error('city') text-red-600 @enderror"
+                            >
+                                <option value="">{{ $selectedState ? 'Select your city' : 'Select a state first' }}</option>
+                            </select>
+                        </div>
+                        <p id="city-hint" class="mt-2 text-sm text-gray-500 {{ $selectedState ? 'hidden' : '' }}">
+                            Cities will appear after you choose a state.
+                        </p>
                     </div>
                 </div>
 
@@ -119,20 +132,44 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const input = document.getElementById('location-search');
+document.addEventListener('DOMContentLoaded', function () {
+    const citiesByState = @json($citiesByState);
+    const stateSelect = document.getElementById('state-select');
+    const citySelect = document.getElementById('city-select');
+    const cityHint = document.getElementById('city-hint');
+    const initialCity = @json($selectedCity);
 
-    document.querySelectorAll('.city-chip').forEach(function(button) {
-        button.addEventListener('click', function() {
-            document.querySelectorAll('.city-chip').forEach(function(chip) {
-                chip.classList.remove('bg-blue-100', 'ring-1', 'ring-[#0A325E]');
-                chip.classList.add('bg-[#EEF2F6]');
-            });
-            button.classList.remove('bg-[#EEF2F6]');
-            button.classList.add('bg-blue-100', 'ring-1', 'ring-[#0A325E]');
-            input.value = button.dataset.city;
+    function populateCities(state, selectedCity = '') {
+        const cities = citiesByState[state] || [];
+
+        citySelect.innerHTML = '';
+
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = cities.length ? 'Select your city' : 'No cities available';
+        citySelect.appendChild(placeholder);
+
+        cities.forEach(function (city) {
+            const option = document.createElement('option');
+            option.value = city;
+            option.textContent = city;
+            if (city === selectedCity) {
+                option.selected = true;
+            }
+            citySelect.appendChild(option);
         });
+
+        citySelect.disabled = cities.length === 0;
+        cityHint.classList.toggle('hidden', Boolean(state));
+    }
+
+    stateSelect.addEventListener('change', function () {
+        populateCities(stateSelect.value);
     });
+
+    if (stateSelect.value) {
+        populateCities(stateSelect.value, initialCity);
+    }
 });
 </script>
 @endpush
