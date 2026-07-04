@@ -6,6 +6,7 @@ use App\Models\Listing;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\Amenity;
+use App\Models\BlogPost;
 use App\Models\ListingAnalytic;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -118,7 +119,7 @@ class ListingController extends Controller
             $q->where('status', 'published');
         }])->get();
 
-        $featuredLimit = $request->route()->getName() === 'home' ? 6 : 3;
+        $featuredLimit = $request->route()->getName() === 'home' ? 4 : 3;
 
         $featuredListings = Listing::with(['category', 'city', 'images', 'spaces'])
             ->where('status', 'published')
@@ -132,6 +133,23 @@ class ListingController extends Controller
                 ->where('status', 'published')
                 ->latest()
                 ->limit($featuredLimit)
+                ->get();
+        }
+
+        $moreListings = collect();
+        $blogPosts = collect();
+
+        if ($request->route()->getName() === 'home') {
+            $moreListings = Listing::with(['category', 'city', 'images', 'spaces'])
+                ->where('status', 'published')
+                ->whereNotIn('id', $featuredListings->pluck('id'))
+                ->latest()
+                ->limit(6)
+                ->get();
+
+            $blogPosts = BlogPost::published()
+                ->latest('published_at')
+                ->limit(3)
                 ->get();
         }
 
@@ -152,6 +170,8 @@ class ListingController extends Controller
             'categories',
             'cities',
             'featuredListings',
+            'moreListings',
+            'blogPosts',
             'hasActiveFilters',
             'amenities'
         );

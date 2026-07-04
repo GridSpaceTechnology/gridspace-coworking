@@ -152,14 +152,11 @@
 <!-- Featured Workspaces -->
 <section id="featured-workspaces" class="py-6 md:py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-end justify-between gap-4 mb-5 md:mb-16 md:text-center md:flex-col md:items-center">
-            <div class="md:text-center">
-                <h2 class="text-xl md:text-3xl font-extrabold text-navy md:mb-4">Featured Workspaces</h2>
-                <p class="hidden md:block text-gray-500">Discover the most popular coworking spaces trusted by thousands of professionals</p>
-            </div>
-            <a href="{{ route('featured') }}" class="md:hidden font-inter text-sm font-semibold text-primary-container shrink-0">See all</a>
+        <div class="text-center mb-5 md:mb-12">
+            <h2 class="text-xl md:text-3xl font-extrabold text-navy mb-2 md:mb-4">Featured Workspaces</h2>
+            <p class="text-sm md:text-base text-gray-500">Discover the most popular coworking spaces trusted by thousands of professionals</p>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-8 mb-6 md:mb-12">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mb-6 md:mb-12">
             @forelse($featuredListings as $listing)
                 @include('listings.partials.card', ['listing' => $listing, 'fallbackImage' => $fallbackListingImage])
             @empty
@@ -168,20 +165,66 @@
                 </div>
             @endforelse
         </div>
-        <div class="hidden md:block text-center">
-            <a href="{{ route('featured') }}" class="inline-block bg-primary text-white font-bold px-10 py-3 rounded-grid hover:bg-orange-600 transition">View All Spaces</a>
+        <div class="text-center">
+            <a href="{{ route('featured') }}" class="inline-block bg-primary text-white font-bold px-6 md:px-10 py-3 rounded-grid hover:bg-orange-600 transition text-sm md:text-base">View all featured workspaces</a>
+        </div>
+    </div>
+</section>
+
+<!-- More Workspaces -->
+<section id="more-workspaces" class="py-6 md:py-16 bg-surface">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-5 md:mb-12">
+            <h2 class="text-xl md:text-3xl font-extrabold text-navy mb-2 md:mb-4">More Workspaces</h2>
+            <p class="text-sm md:text-base text-gray-500">Explore more verified spaces available on GridSpace</p>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mb-6 md:mb-12">
+            @forelse($moreListings as $listing)
+                @include('listings.partials.card', ['listing' => $listing, 'fallbackImage' => $fallbackListingImage])
+            @empty
+                <div class="col-span-full text-center py-12 text-gray-500">
+                    <p>No other workspaces available yet.</p>
+                </div>
+            @endforelse
+        </div>
+        <div class="text-center">
+            <a href="{{ route('listings.index') }}" class="inline-block bg-navy text-white font-bold px-6 md:px-10 py-3 rounded-grid hover:bg-[#2a3d56] transition text-sm md:text-base">View all workspaces</a>
+        </div>
+    </div>
+</section>
+
+<!-- Blog -->
+<section id="blog" class="py-12 md:py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8 md:mb-12">
+            <h2 class="text-xl md:text-3xl font-extrabold text-navy mb-2 md:mb-4">From the Blog</h2>
+            <p class="text-sm md:text-base text-gray-500">Workspace tips, hosting advice, and stories from the GridSpace community</p>
+        </div>
+        @if($blogPosts->isEmpty())
+            <div class="text-center py-12 text-gray-500">
+                <p>No blog posts yet. Check back soon!</p>
+            </div>
+        @else
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-8 md:mb-12">
+                @foreach($blogPosts as $article)
+                    @include('blog.partials.card', ['article' => $article])
+                @endforeach
+            </div>
+        @endif
+        <div class="text-center">
+            <a href="{{ route('blog.index') }}" class="inline-block bg-primary text-white font-bold px-6 md:px-10 py-3 rounded-grid hover:bg-orange-600 transition text-sm md:text-base">View all articles</a>
         </div>
     </div>
 </section>
 
 <!-- How It Works -->
-<section id="how-it-works" class="hidden md:block py-20 bg-surface">
+<section id="how-it-works" class="py-12 md:py-20 bg-surface">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl font-extrabold text-navy mb-4">How GridSpace Works</h2>
+        <div class="text-center mb-10 md:mb-16">
+            <h2 class="text-2xl md:text-3xl font-extrabold text-navy mb-4">How GridSpace Works</h2>
             <p class="text-gray-500">Get access to productive workspaces in just three simple steps.</p>
         </div>
-        <div class="grid md:grid-cols-3 gap-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
             <div class="text-center flex flex-col items-center">
                 <div class="w-16 h-16 bg-navy text-white rounded-full flex items-center justify-center mb-6 shadow-lg">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -208,14 +251,14 @@
 </section>
 
 <!-- Why Choose GridSpace -->
-<section class="hidden md:block py-24 bg-white">
+<section class="py-12 md:py-24 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl font-extrabold text-navy mb-4">Why Choose GridSpace</h2>
+        <div class="text-center mb-10 md:mb-16">
+            <h2 class="text-2xl md:text-3xl font-extrabold text-navy mb-4">Why Choose GridSpace</h2>
             <p class="text-gray-500">Experience the difference with our commitment to quality and reliability</p>
         </div>
-        <div class="grid md:grid-cols-2 gap-6">
-            <div class="bg-surface p-10 rounded-xl flex items-start space-x-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <div class="bg-surface p-6 md:p-10 rounded-xl flex items-start space-x-4 md:space-x-6">
                 <div class="bg-green-100 p-3 rounded-lg text-green-600 shrink-0">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 </div>
@@ -224,7 +267,7 @@
                     <p class="text-gray-600">Never worry about connectivity with guaranteed backup power and high-speed internet at every location.</p>
                 </div>
             </div>
-            <div class="bg-navy p-10 rounded-xl flex items-start space-x-6 text-white">
+            <div class="bg-navy p-6 md:p-10 rounded-xl flex items-start space-x-4 md:space-x-6 text-white">
                 <div class="bg-primary p-3 rounded-lg text-white shrink-0">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                 </div>
@@ -233,7 +276,7 @@
                     <p class="text-blue-100">Every workspace is thoroughly vetted and verified to ensure quality, safety, and professionalism.</p>
                 </div>
             </div>
-            <div class="bg-surface p-10 rounded-xl flex items-start space-x-6">
+            <div class="bg-surface p-6 md:p-10 rounded-xl flex items-start space-x-4 md:space-x-6">
                 <div class="bg-purple-100 p-3 rounded-lg text-purple-600 shrink-0">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
@@ -242,7 +285,7 @@
                     <p class="text-gray-600">Get access to quality workspaces that suit your budget, whether you're looking for a day or a month.</p>
                 </div>
             </div>
-            <div class="bg-blue-50 p-10 rounded-xl flex items-start space-x-6">
+            <div class="bg-blue-50 p-6 md:p-10 rounded-xl flex items-start space-x-4 md:space-x-6">
                 <div class="bg-blue-100 p-3 rounded-lg text-blue-600 shrink-0">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 </div>
@@ -256,11 +299,11 @@
 </section>
 
 <!-- Popular Locations -->
-<section class="hidden md:block py-20">
+<section class="py-12 md:py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-3xl font-extrabold text-navy mb-4">Popular Locations</h2>
-        <p class="text-gray-500 mb-12">Explore workspaces in Nigeria's thriving business districts</p>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <h2 class="text-2xl md:text-3xl font-extrabold text-navy mb-4">Popular Locations</h2>
+        <p class="text-gray-500 mb-8 md:mb-12">Explore workspaces in Nigeria's thriving business districts</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             @foreach($cities->take(3) as $city)
                 <a href="{{ route('listings.index', ['city' => $city->slug]) }}" class="relative group cursor-pointer h-80 rounded-xl overflow-hidden shadow-lg block">
                     <img src="{{ $cityImages[$city->slug] ?? $defaultCityImage }}" alt="{{ $city->name }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500"/>
@@ -276,12 +319,12 @@
 </section>
 
 <!-- Hosting CTA -->
-<section class="hidden md:block py-24 bg-white">
+<section class="py-12 md:py-24 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="bg-gray-50 rounded-3xl overflow-hidden shadow-sm grid lg:grid-cols-2">
-            <div class="p-12 lg:p-20">
-                <h2 class="text-4xl font-extrabold text-navy mb-6">Earn Money Hosting Workspaces</h2>
-                <p class="text-gray-600 mb-10 text-lg">
+            <div class="p-8 md:p-12 lg:p-20">
+                <h2 class="text-2xl md:text-4xl font-extrabold text-navy mb-6">Earn Money Hosting Workspaces</h2>
+                <p class="text-gray-600 mb-8 md:mb-10 text-base md:text-lg">
                     Transform your unused office space into a revenue stream. Join thousands of hosts earning money by sharing their workspace with professionals.
                 </p>
                 <ul class="space-y-6 mb-12">
@@ -325,13 +368,13 @@
 </section>
 
 <!-- Testimonials -->
-<section id="testimonials" class="hidden md:block py-24 bg-orange-100">
+<section id="testimonials" class="py-12 md:py-24 bg-orange-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl font-extrabold text-navy mb-4">What Our Users Say</h2>
+        <div class="text-center mb-10 md:mb-16">
+            <h2 class="text-2xl md:text-3xl font-extrabold text-navy mb-4">What Our Users Say</h2>
             <p class="text-gray-600">Join thousands of professionals who trust GridSpace for their workspace needs</p>
         </div>
-        <div class="grid md:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             @foreach([
                 ['name' => 'Chukwu Davis', 'role' => 'Freelance UX Designer', 'quote' => 'GridSpace makes it easy to find reliable workspaces with power and internet. I don\'t have to worry about power disruptions anymore.', 'image' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuAMWsP93bjk5MeV7N_0PgzIoFfz3ROdA2-Flr19gBnNDl9m0NgcIQSfcy-OuCoaIZ484CBwARVmK7LNnDigIjuqcZ8t-_NB7G1HDNl5Mdwq-ZtippM1wlo_sStjWAMtXlIbZB2GeKFWEuLo8LVP0_-vBQ5FP1qYM9LRwtsFpTSZ9ikRLEO7vRNxdsVhQoSaFse60Evry4YSpudiX2sVggg8kg0esWZa2g6syhlU0zwLeSlbiEaNoAK3Ie4bpWeSYOhix861mG4USMI'],
                 ['name' => 'Tobi Junior', 'role' => 'Software Engineer', 'quote' => 'As a developer, I love the premium vibe of the spaces I book on GridSpace. It\'s affordable and keeps me inspired.', 'image' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuD1-jKeMg0GzEsbqlGRU2uaxa3th02VbZ1aBhq_VvfgDmEMXZ7Uta6oZNEHtLN0Jq5jRD5PFp25ASrP_qaShcK-KdCuns-M9Ssj93uYqvHMAjpu-NVYtsQP5x8bTrBL-daBj3gGKdtvGVYWuzqW64PH2TXhDkkcwLBa83pgw0gsiFIOSApPRSSD4mbfYjhtU_G8ZZO3PYGO8rTP9ShiYNve7nuDySrq_fLfb2I-Wls1T2CpQDpneQk-zPkUuACk-vCEHV0b0OfTgpU'],
@@ -361,17 +404,17 @@
 </section>
 
 <!-- Final CTA -->
-<section class="hidden md:block py-24 bg-white overflow-hidden">
+<section class="py-12 md:py-24 bg-white overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="relative bg-navy rounded-[2rem] p-12 lg:p-20 text-white overflow-hidden">
+        <div class="relative bg-navy rounded-[2rem] p-8 md:p-12 lg:p-20 text-white overflow-hidden">
             <div class="absolute top-0 right-0 w-1/3 h-full opacity-10">
                 <svg class="w-full h-full" fill="white" viewBox="0 0 100 100"><circle cx="100" cy="50" r="40"/></svg>
             </div>
-            <div class="relative z-10 grid lg:grid-cols-2 items-center gap-12">
+            <div class="relative z-10 grid lg:grid-cols-2 items-center gap-8 md:gap-12">
                 <div>
-                    <h2 class="text-4xl lg:text-5xl font-extrabold mb-6 leading-tight">Ready to Find Your Perfect Workspace?</h2>
-                    <p class="text-xl text-blue-100 mb-10">Join thousands of professionals who trust GridSpace for their workspace needs</p>
-                    <a href="{{ route('listings.index') }}" class="inline-block bg-primary text-white font-bold px-12 py-4 rounded-grid text-lg hover:bg-orange-600 transition shadow-xl">
+                    <h2 class="text-2xl md:text-4xl lg:text-5xl font-extrabold mb-4 md:mb-6 leading-tight">Ready to Find Your Perfect Workspace?</h2>
+                    <p class="text-base md:text-xl text-blue-100 mb-6 md:mb-10">Join thousands of professionals who trust GridSpace for their workspace needs</p>
+                    <a href="{{ route('listings.index') }}" class="inline-block bg-primary text-white font-bold px-8 md:px-12 py-3 md:py-4 rounded-grid text-base md:text-lg hover:bg-orange-600 transition shadow-xl">
                         Start Searching
                     </a>
                 </div>
@@ -384,9 +427,9 @@
 </section>
 
 <!-- Newsletter -->
-<section class="hidden md:block py-20 bg-surface">
+<section class="py-12 md:py-20 bg-surface">
     <div class="max-w-2xl mx-auto px-4 text-center">
-        <h2 class="text-3xl font-extrabold text-navy mb-4">Join the Grid</h2>
+        <h2 class="text-2xl md:text-3xl font-extrabold text-navy mb-4">Join the Grid</h2>
         <p class="text-gray-500 mb-8">Get workspace tips, updates, and exclusive offers straight to your inbox.</p>
         <form class="flex flex-col sm:flex-row gap-3" onsubmit="event.preventDefault();">
             <input class="flex-1 rounded-grid border-gray-300 focus:ring-primary focus:border-primary px-6 py-3" placeholder="Enter your email" type="email"/>
